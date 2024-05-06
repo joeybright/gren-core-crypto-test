@@ -98,8 +98,17 @@ rsaTests func =
         "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from jwk with matching hash" 
         "x - Problem import RSA-OAEP public key from jwk"
     --
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha256) 
-        "x - Imported RSA-OAEP key from jwk even with hash mismatch" 
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) 
+        "x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent" 
+        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) 
+        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" 
+        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) 
+        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" 
+        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) 
+        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" 
         "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     ]
 
