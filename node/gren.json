@@ -8,6 +8,7 @@
     "dependencies": {
         "direct": {
             "gren-lang/core": "local:../../gren-core",
+            "joeybright/gren-core-crypto-test": "local:../test",
             "gren-lang/node": "3.2.0"
         },
         "indirect": {
