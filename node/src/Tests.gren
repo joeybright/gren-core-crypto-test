@@ -86,10 +86,8 @@ randomValueTests func =
 uuidTests : (String -> msg) -> Array (Cmd msg)
 uuidTests func =
     [ getSecureContext
-        |> Task.andThen (\secureContext ->
-            Crypto.randomUuid secureContext
-        )
-        |> Task.attempt (\_ -> func  "✓ - Generated random uuid") 
+        |> Task.andThen (\secureContext -> Crypto.randomUuid secureContext)
+        |> Task.attempt (\_ -> func "✓ - Generated random uuid")
     ]
 
 
