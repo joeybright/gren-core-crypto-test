@@ -1,0 +1,60 @@
+module Main exposing (..)
+
+{-| Tests for the `Crypto` module of the `gren-lang/core` package.
+-}
+
+import Bytes exposing ( Bytes )
+import Bytes.Decode
+import Bytes.Encode
+import Crypto
+import Init
+import Node
+import Process
+import Stream
+import Tests
+import Task exposing (Task)
+import Time
+import Json.Encode
+import Json.Decode
+
+
+{-|-}
+type Msg
+    = NoOp
+    | StdoutMsg String
+
+
+{-|-}
+type alias Model =
+    { stdout : Stream.Stream
+    }
+
+
+{-|-}
+init env =
+    Node.startProgram
+        { model =
+            { stdout = env.stdout
+            }
+        , command = Cmd.batch (Tests.tests StdoutMsg)
+        }
+
+
+{-|-}
+main =
+    Node.defineProgram
+        { init = init
+        , update =
+            \msg model ->
+                case msg of
+                    StdoutMsg string ->
+                        { model = model
+                        , command = Stream.sendLine model.stdout string
+                        }
+
+                    NoOp ->
+                        { model = model
+                        , command = Cmd.none
+                        }
+        , subscriptions = \model -> Sub.none
+        }
