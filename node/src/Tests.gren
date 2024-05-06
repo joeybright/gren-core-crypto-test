@@ -18,6 +18,7 @@ tests func =
     ]
         ++ rsaTests func
         ++ randomValueTests func
+        ++ uuidTests func
 
 
 
@@ -75,6 +76,20 @@ randomValueTests func =
     , Task.perform (\res -> func "✓ - Generated random uint32 values") (Crypto.getRandomUInt32Values 3)
     , Task.perform (testGeneratedValueCount maxInt32Values "✓ - Generates max uint32 random values" "x - Generates too many uint32 values") (Crypto.getRandomUInt32Values 99999)
     , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 uint32 values" "x - Doesn\'t generate 0 uint32 values when given a negative number") (Crypto.getRandomUInt32Values -99999)
+    ]
+
+
+
+-- UUID generation
+
+
+uuidTests : (String -> msg) -> Array (Cmd msg)
+uuidTests func =
+    [ getSecureContext
+        |> Task.andThen (\secureContext ->
+            Crypto.randomUuid secureContext
+        )
+        |> Task.attempt (\_ -> func  "✓ - Generated random uuid") 
     ]
 
 
