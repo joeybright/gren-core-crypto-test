@@ -20,6 +20,7 @@ tests func =
         "x - Problem getting secure context"
     ] 
     ++ rsaTests func
+    ++ randomValueTests func
 
 
 -- Secure context
@@ -29,6 +30,126 @@ tests func =
 getSecureContext : Task {} Crypto.SecureContext
 getSecureContext =
     Crypto.isSecureContext
+
+
+-- Random values
+
+
+randomValueTests : (String -> msg) -> Array (Cmd msg)
+randomValueTests func =
+    let
+        maxInt8Values =
+            65536
+
+        maxInt16Values =
+            32768
+
+        maxInt32Values =
+            16384
+
+        testGeneratedValueCount num success failure res =
+            if Array.length res == num then
+                func success
+            
+            else
+                func failure
+    in
+    [ Task.perform (\res -> func "✓ - Generated random int8 values") (Crypto.getRandomInt8Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt8Values  
+            "✓ - Generates max int8 random values" 
+            "x - Generates too many values"
+        ) 
+        (Crypto.getRandomInt8Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 int8 values"
+            "x - Doesn't generate 0 int8 values when given a negative number"
+        ) 
+        (Crypto.getRandomInt8Values -99999)
+    --
+    , Task.perform (\res -> func "✓ - Generated random uint8 values") (Crypto.getRandomUInt8Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt8Values  
+            "✓ - Generates max uint8 random values" 
+            "x - Generates too many uint8 values"
+        ) 
+        (Crypto.getRandomUInt8Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 uint8 values"
+            "x - Doesn't generate 0 uint8 values when given a negative number"
+        ) 
+        (Crypto.getRandomUInt8Values -99999)
+    --
+    , Task.perform (\res -> func "✓ - Generated random int16 values") (Crypto.getRandomInt16Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt16Values  
+            "✓ - Generates max int16 random values" 
+            "x - Generates too many uint16 values"
+        ) 
+        (Crypto.getRandomInt16Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 int16 values"
+            "x - Doesn't generate 0 uint8 values when given a negative number"
+        ) 
+        (Crypto.getRandomInt16Values -99999)
+    --
+    , Task.perform (\res -> func "✓ - Generated random uint16 values") (Crypto.getRandomUInt16Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt16Values  
+            "✓ - Generates max uint16 random values" 
+            "x - Generates too many uint16 values"
+        ) 
+        (Crypto.getRandomUInt16Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 uint16 values"
+            "x - Doesn't generate 0 uint8 values when given a negative number"
+        ) 
+        (Crypto.getRandomUInt16Values -99999)
+    --
+    , Task.perform (\res -> func "✓ - Generated random int32 values") (Crypto.getRandomInt32Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt32Values  
+            "✓ - Generates max int32 random values" 
+            "x - Generates too many int32 values"
+        ) 
+        (Crypto.getRandomInt32Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 int32 values"
+            "x - Doesn't generate 0 int32 values when given a negative number"
+        ) 
+        (Crypto.getRandomInt32Values -99999)
+    --
+    , Task.perform (\res -> func "✓ - Generated random uint32 values") (Crypto.getRandomUInt32Values 3)
+    , Task.perform 
+        (testGeneratedValueCount 
+            maxInt32Values  
+            "✓ - Generates max uint32 random values" 
+            "x - Generates too many uint32 values"
+        ) 
+        (Crypto.getRandomUInt32Values 99999)
+    , Task.perform 
+        (testGeneratedValueCount 
+            0 
+            "✓ - Generates no fewer than 0 uint32 values"
+            "x - Doesn't generate 0 uint32 values when given a negative number"
+        ) 
+        (Crypto.getRandomUInt32Values -99999)
+    ]
 
 
 -- RSA algorithm
