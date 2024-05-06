@@ -2,9 +2,8 @@ module Tests exposing (..)
 
 {-|-}
 
-
 import Crypto
-import Task exposing (Task)
+import Task exposing ( Task )
 
 
 {-| All of the tests in this module.
@@ -13,14 +12,13 @@ tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     let
         test task success failure =
-            Task.attempt (testHelper func success failure ) task
+            Task.attempt (testHelper func success failure) task
     in
-    [ test getSecureContext 
-        "✓ - Got a secure context"
-        "x - Problem getting secure context"
-    ] 
-    ++ rsaTests func
-    ++ randomValueTests func
+    [ test getSecureContext "✓ - Got a secure context" "x - Problem getting secure context"
+    ]
+        ++ rsaTests func
+        ++ randomValueTests func
+
 
 
 -- Secure context
@@ -30,6 +28,7 @@ tests func =
 getSecureContext : Task {} Crypto.SecureContext
 getSecureContext =
     Crypto.isSecureContext
+
 
 
 -- Random values
@@ -50,106 +49,34 @@ randomValueTests func =
         testGeneratedValueCount num success failure res =
             if Array.length res == num then
                 func success
-            
             else
                 func failure
     in
     [ Task.perform (\res -> func "✓ - Generated random int8 values") (Crypto.getRandomInt8Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt8Values  
-            "✓ - Generates max int8 random values" 
-            "x - Generates too many values"
-        ) 
-        (Crypto.getRandomInt8Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 int8 values"
-            "x - Doesn't generate 0 int8 values when given a negative number"
-        ) 
-        (Crypto.getRandomInt8Values -99999)
-    --
+    , Task.perform (testGeneratedValueCount maxInt8Values "✓ - Generates max int8 random values" "x - Generates too many values") (Crypto.getRandomInt8Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 int8 values" "x - Doesn\'t generate 0 int8 values when given a negative number") (Crypto.getRandomInt8Values -99999)
+        -- 
     , Task.perform (\res -> func "✓ - Generated random uint8 values") (Crypto.getRandomUInt8Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt8Values  
-            "✓ - Generates max uint8 random values" 
-            "x - Generates too many uint8 values"
-        ) 
-        (Crypto.getRandomUInt8Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 uint8 values"
-            "x - Doesn't generate 0 uint8 values when given a negative number"
-        ) 
-        (Crypto.getRandomUInt8Values -99999)
-    --
+    , Task.perform (testGeneratedValueCount maxInt8Values "✓ - Generates max uint8 random values" "x - Generates too many uint8 values") (Crypto.getRandomUInt8Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 uint8 values" "x - Doesn\'t generate 0 uint8 values when given a negative number") (Crypto.getRandomUInt8Values -99999)
+        -- 
     , Task.perform (\res -> func "✓ - Generated random int16 values") (Crypto.getRandomInt16Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt16Values  
-            "✓ - Generates max int16 random values" 
-            "x - Generates too many uint16 values"
-        ) 
-        (Crypto.getRandomInt16Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 int16 values"
-            "x - Doesn't generate 0 uint8 values when given a negative number"
-        ) 
-        (Crypto.getRandomInt16Values -99999)
-    --
+    , Task.perform (testGeneratedValueCount maxInt16Values "✓ - Generates max int16 random values" "x - Generates too many uint16 values") (Crypto.getRandomInt16Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 int16 values" "x - Doesn\'t generate 0 uint8 values when given a negative number") (Crypto.getRandomInt16Values -99999)
+        -- 
     , Task.perform (\res -> func "✓ - Generated random uint16 values") (Crypto.getRandomUInt16Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt16Values  
-            "✓ - Generates max uint16 random values" 
-            "x - Generates too many uint16 values"
-        ) 
-        (Crypto.getRandomUInt16Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 uint16 values"
-            "x - Doesn't generate 0 uint8 values when given a negative number"
-        ) 
-        (Crypto.getRandomUInt16Values -99999)
-    --
+    , Task.perform (testGeneratedValueCount maxInt16Values "✓ - Generates max uint16 random values" "x - Generates too many uint16 values") (Crypto.getRandomUInt16Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 uint16 values" "x - Doesn\'t generate 0 uint8 values when given a negative number") (Crypto.getRandomUInt16Values -99999)
+        -- 
     , Task.perform (\res -> func "✓ - Generated random int32 values") (Crypto.getRandomInt32Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt32Values  
-            "✓ - Generates max int32 random values" 
-            "x - Generates too many int32 values"
-        ) 
-        (Crypto.getRandomInt32Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 int32 values"
-            "x - Doesn't generate 0 int32 values when given a negative number"
-        ) 
-        (Crypto.getRandomInt32Values -99999)
-    --
+    , Task.perform (testGeneratedValueCount maxInt32Values "✓ - Generates max int32 random values" "x - Generates too many int32 values") (Crypto.getRandomInt32Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 int32 values" "x - Doesn\'t generate 0 int32 values when given a negative number") (Crypto.getRandomInt32Values -99999)
+        -- 
     , Task.perform (\res -> func "✓ - Generated random uint32 values") (Crypto.getRandomUInt32Values 3)
-    , Task.perform 
-        (testGeneratedValueCount 
-            maxInt32Values  
-            "✓ - Generates max uint32 random values" 
-            "x - Generates too many uint32 values"
-        ) 
-        (Crypto.getRandomUInt32Values 99999)
-    , Task.perform 
-        (testGeneratedValueCount 
-            0 
-            "✓ - Generates no fewer than 0 uint32 values"
-            "x - Doesn't generate 0 uint32 values when given a negative number"
-        ) 
-        (Crypto.getRandomUInt32Values -99999)
+    , Task.perform (testGeneratedValueCount maxInt32Values "✓ - Generates max uint32 random values" "x - Generates too many uint32 values") (Crypto.getRandomUInt32Values 99999)
+    , Task.perform (testGeneratedValueCount 0 "✓ - Generates no fewer than 0 uint32 values" "x - Doesn\'t generate 0 uint32 values when given a negative number") (Crypto.getRandomUInt32Values -99999)
     ]
+
 
 
 -- RSA algorithm
@@ -160,77 +87,33 @@ rsaTests : (String -> msg) -> Array (Cmd msg)
 rsaTests func =
     let
         test task success failure =
-            Task.attempt (testHelper func success failure ) task
+            Task.attempt (testHelper func success failure) task
     in
-    [ test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent65537)
-        "✓ - Generated RSA-OAEP key with SHA-256 and 65537 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    , test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent3)
-        "✓ - Generated RSA-OAEP key with SHA-256 and 3 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent65537)
-        "✓ - Generated RSA-OAEP key with SHA-384 and 65537 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent3)
-        "✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent65537)
-        "✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent3)
-        "✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent" 
-        "x - Problem generating RSA-OAEP key"
-    --
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537) 
-        "✓ - Exported RSA-OAEP public key with SHA-256 hash and 65537 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3) 
-        "✓ - Exported RSA-OAEP public key with SHA-256 hash and 3 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537) 
-        "✓ - Exported RSA-OAEP public key with SHA-384 hash and 65537 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3) 
-        "✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537) 
-        "✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3) 
-        "✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as jwk" 
-        "x - Problem exporting RSA-OAEP public key as jwk"
-    --
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256) 
-        "✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256) 
-        "✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384) 
-        "✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384) 
-        "✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512) 
-        "✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512) 
-        "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from jwk with matching hash" 
-        "x - Problem import RSA-OAEP public key from jwk"
-    --
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) 
-        "x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent" 
-        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) 
-        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" 
-        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) 
-        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" 
-        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
-    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) 
-        "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" 
-        "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    [ test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-256 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+    , test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-256 and 3 exponent" "x - Problem generating RSA-OAEP key"
+    , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-384 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+    , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent" "x - Problem generating RSA-OAEP key"
+    , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+    , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent" "x - Problem generating RSA-OAEP key"
+        -- 
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+    , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
+        -- 
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+        -- 
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+    , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     ]
 
 
@@ -238,55 +121,63 @@ rsaTests func =
 generateRsaOaepKey hash exponent =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.ModulusLengthNotDivisibleByEight)
-        |> Task.andThen (\secureContext ->
-            Crypto.generateRsaOaepKeyPair
-                secureContext
-                { modulusLength = 4096
-                , hash = hash
-                , publicExponent = Crypto.PublicExponent65537
-                }
-                Crypto.CanBeExtracted
-                |> Task.map (\key ->
-                     { key = key
-                     , secureContext = secureContext
-                     }
+        |> Task.andThen
+                (\secureContext ->
+                    Crypto.generateRsaOaepKeyPair
+                        secureContext
+                        { modulusLength = 4096
+                        , hash = hash
+                        , publicExponent = Crypto.PublicExponent65537
+                        }
+                        Crypto.CanBeExtracted
+                        |> Task.map
+                                (\key ->
+                                    { key = key
+                                    , secureContext = secureContext
+                                    }
+                                )
                 )
-        )
 
 
 {-|-}
 exportRsaOaepPublicKeyAsJwk hash exponent =
     generateRsaOaepKey hash exponent
         |> Task.mapError (\_ -> Crypto.KeyNotExportable)
-        |> Task.andThen (\{ key, secureContext } ->
-            Crypto.exportRsaOaepPublicKeyAsJwk secureContext key.publicKey
-                |> Task.map (\exportedKey -> 
-                    { key = key
-                    , exportedKey = exportedKey
-                    , secureContext = secureContext
-                    }
+        |> Task.andThen
+                (\{ key, secureContext } ->
+                    Crypto.exportRsaOaepPublicKeyAsJwk secureContext key.publicKey
+                        |> Task.map
+                                (\exportedKey ->
+                                    { key = key
+                                    , exportedKey = exportedKey
+                                    , secureContext = secureContext
+                                    }
+                                )
                 )
-        )
 
 
 {-|-}
 importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
     exportRsaOaepPublicKeyAsJwk keyHash keyExponent
         |> Task.mapError (\_ -> Crypto.HashMismatch)
-        |> Task.andThen (\{ key, secureContext, exportedKey } ->
-            Crypto.importRsaOaepPublicKeyFromJwk 
-                secureContext 
-                exportedKey 
-                { hash = importHash } 
-                Crypto.CanBeExtracted
-                |> Task.map (\importedKey ->
-                    { key = key
-                    , secureContext = secureContext
-                    , exportedKey = exportedKey
-                    , importedKey = importedKey
-                    }
+        |> Task.andThen
+                (\{ key, secureContext, exportedKey } ->
+                    Crypto.importRsaOaepPublicKeyFromJwk
+                        secureContext
+                        exportedKey
+                        { hash = importHash
+                        }
+                        Crypto.CanBeExtracted
+                        |> Task.map
+                                (\importedKey ->
+                                    { key = key
+                                    , secureContext = secureContext
+                                    , exportedKey = exportedKey
+                                    , importedKey = importedKey
+                                    }
+                                )
                 )
-        )
+
 
 
 -- Utilities
