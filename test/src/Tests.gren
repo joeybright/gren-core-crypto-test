@@ -122,7 +122,9 @@ rsaTests func =
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
-        -- 
+        --
+        -- exportRsaOaepPublicKeyAsSpki
+        --
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
@@ -134,6 +136,88 @@ rsaTests func =
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+       --
+       -- RsaOaepPrivateKey
+       -- exportRsaOaepPrivateKeyAsPkcs8
+       -- importRsaOAepPrivateKeyFromPkcs8
+       -- exportRsaOaepPrivateKeyAsJwk
+       -- importRsaOaepPrivateKeyFromJwk
+       --
+       -- RsaPssPublicKey
+       -- exportRsaPssPublicKeyAsSpki
+       -- importRsaPssPublicKeyFromSpki
+       -- exportRsaPssPublicKeyAsJwk
+       -- importRsaPssPublicKeyFromJwk
+       --
+       -- RsaPssPrivateKey
+       -- exportRsaPssPrivateKeyAsPkcs8
+       -- importRsaPssPrivateKeyFromPkcs8
+       -- exportRsaPssPrivateKeyAsJwk
+       -- importRsaPssPrivateKeyFromJwk
+       --
+       -- RsaSsaPkcs1V1_5PublicKey
+       -- exportRsaSsaPkcs1V1_5PublicKeyAsSpki
+       -- importRsaSsaPkcs1V1_5PublicKeyFromSpki
+       -- exportRsaSsaPkcs1V1_5PublicKeyAsJwk
+       -- importRsaSsaPkcs1V1_5PublicKeyFromJwk
+       --
+       -- RsaSsaPkcs1V1_5PrivateKey
+       -- exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
+       -- importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
+       -- exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
+       -- importRsaSsaPkcs1V1_5PrivateKeyFromJwk
+       --
+       -- AesCtrKey
+       -- exportAesCtrKeyAsRaw
+       -- importAesCtrKeyFromRaw
+       -- exportAesCtrKeyAsJwk
+       -- importAesCtrKeyFromJwk
+       --
+       -- AesCbcKey
+       -- exportAesCbcKeyAsRaw
+       -- importAesCbcKeyFromRaw
+       -- exportAesCbcKeyAsJwk
+       -- importAesCbcKeyFromJwk
+       --
+       -- AesGcmKey
+       -- exportAesGcmKeyAsRaw
+       -- importAesGcmKeyFromRaw
+       -- exportAesGcmKeyAsJwk
+       -- importAesGcmKeyFromJwk
+       --
+       -- EcdsaKeyPrivateKey
+       -- exportEcdsaPrivateKeyAsPkcs8
+       -- importEcdsaPrivateKeyFromPkcs8
+       -- exportEcdsaPrivateKeyAsJwt
+       -- importEcdsaPrivateKeyFromJwt
+       --
+       -- EcdsaKeyPublicKey
+       -- exportEcdsaPublicKeyAsRaw
+       -- importEcdsaPublicKeyFromRaw
+       -- exportEcdsaPublicKeyAsSpki
+       -- importEcdsaPublicKeyFromSpki
+       -- exportEcdsaPublicKeyAsJwt
+       -- importEcdsaPublicKeyFromJwt
+       --
+       -- EcdhKeyPrivateKey
+       -- exportEcdhPrivateKeyAsPkcs8
+       -- importEcdhPrivateKeyFromPkcs8
+       -- exportEcdhPrivateKeyAsJwt
+       -- importEcdhPrivateKeyFromJwt
+       --
+       -- EcdhKeyPublicKey
+       -- exportEcdhPublicKeyAsRaw
+       -- importEcdhPublicKeyFromRaw
+       -- exportEcdhPublicKeyAsSpki
+       -- importEcdhPublicKeyFromSpki
+       -- exportEcdhPublicKeyAsJwt
+       -- importEcdhPublicKeyFromJwt
+       --
+       -- HmacKey
+       -- exportHmacKeyAsRaw
+       -- importHmacKeyFromRaw
+       -- exportHmacKeyAsJwk
+       -- importHmacKeyFromJwk
     ]
 
 
@@ -197,6 +281,18 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
                                     }
                                 )
                 )
+
+
+
+-- AES algorithm
+
+
+
+-- ECD algorithm
+
+
+
+-- HMAC algorithm
 
 
 
