@@ -736,204 +736,8 @@ var $gren_lang$core$Maybe$Just = function (a) {
 	return { $: 'Just', a: a };
 };
 var $gren_lang$core$Maybe$Nothing = { $: 'Nothing' };
-var $gren_lang$core$Crypto$CanBeExtracted = { $: 'CanBeExtracted' };
-var $gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight = { $: 'ModulusLengthNotDivisibleByEight' };
-var $author$project$Main$NoOp = { $: 'NoOp' };
-var $gren_lang$core$Crypto$PublicExponent65537 = { $: 'PublicExponent65537' };
-var $gren_lang$core$Crypto$Sha256 = { $: 'Sha256' };
-
-
-// TASKS
-
-function _Scheduler_succeed(value) {
-  return {
-    $: 0,
-    a: value,
-  };
-}
-
-function _Scheduler_fail(error) {
-  return {
-    $: 1,
-    a: error,
-  };
-}
-
-function _Scheduler_binding(callback) {
-  return {
-    $: 2,
-    b: callback,
-    c: null,
-  };
-}
-
-var _Scheduler_andThen = F2(function (callback, task) {
-  return {
-    $: 3,
-    b: callback,
-    d: task,
-  };
-});
-
-var _Scheduler_onError = F2(function (callback, task) {
-  return {
-    $: 4,
-    b: callback,
-    d: task,
-  };
-});
-
-function _Scheduler_receive(callback) {
-  return {
-    $: 5,
-    b: callback,
-  };
-}
-
-// PROCESSES
-
-var _Scheduler_guid = 0;
-
-function _Scheduler_rawSpawn(task) {
-  var proc = {
-    $: 0,
-    e: _Scheduler_guid++,
-    f: task,
-    g: null,
-    h: [],
-  };
-
-  _Scheduler_enqueue(proc);
-
-  return proc;
-}
-
-function _Scheduler_spawn(task) {
-  return _Scheduler_binding(function (callback) {
-    callback(_Scheduler_succeed(_Scheduler_rawSpawn(task)));
-  });
-}
-
-function _Scheduler_rawSend(proc, msg) {
-  proc.h.push(msg);
-  _Scheduler_enqueue(proc);
-}
-
-var _Scheduler_send = F2(function (proc, msg) {
-  return _Scheduler_binding(function (callback) {
-    _Scheduler_rawSend(proc, msg);
-    callback(_Scheduler_succeed({}));
-  });
-});
-
-function _Scheduler_kill(proc) {
-  return _Scheduler_binding(function (callback) {
-    var task = proc.f;
-    if (task && task.$ === 2 && task.c) {
-      task.c();
-    }
-
-    proc.f = null;
-
-    callback(_Scheduler_succeed({}));
-  });
-}
-
-/* STEP PROCESSES
-
-type alias Process =
-  { $ : tag
-  , id : unique_id
-  , root : Task
-  , stack : null | { $: SUCCEED | FAIL, a: callback, b: stack }
-  , mailbox : [msg]
-  }
-
-*/
-
-var _Scheduler_working = false;
-var _Scheduler_queue = [];
-
-function _Scheduler_enqueue(proc) {
-  _Scheduler_queue.push(proc);
-  if (_Scheduler_working) {
-    return;
-  }
-  _Scheduler_working = true;
-  while ((proc = _Scheduler_queue.shift())) {
-    _Scheduler_step(proc);
-  }
-  _Scheduler_working = false;
-}
-
-function _Scheduler_step(proc) {
-  while (proc.f) {
-    var rootTag = proc.f.$;
-    if (rootTag === 0 || rootTag === 1) {
-      while (proc.g && proc.g.$ !== rootTag) {
-        proc.g = proc.g.i;
-      }
-      if (!proc.g) {
-        return;
-      }
-      proc.f = proc.g.b(proc.f.a);
-      proc.g = proc.g.i;
-    } else if (rootTag === 2) {
-      proc.f.c = proc.f.b(function (newRoot) {
-        proc.f = newRoot;
-        _Scheduler_enqueue(proc);
-      });
-      return;
-    } else if (rootTag === 5) {
-      if (proc.h.length === 0) {
-        return;
-      }
-      proc.f = proc.f.b(proc.h.shift());
-    } // if (rootTag === 3 || rootTag === 4)
-    else {
-      proc.g = {
-        $: rootTag === 3 ? 0 : 1,
-        b: proc.f.b,
-        i: proc.g,
-      };
-      proc.f = proc.f.d;
-    }
-  }
-}
-var $gren_lang$core$Task$andThen = _Scheduler_andThen;
-var $gren_lang$core$Basics$apR = F2(function(x, f) {
-		return f(x);
-	});
-var $gren_lang$core$Result$Err = function (a) {
-	return { $: 'Err', a: a };
-};
-var $gren_lang$core$Result$Ok = function (a) {
-	return { $: 'Ok', a: a };
-};
-var $gren_lang$core$Basics$identity = function(x) {
-	return x;
-};
-var $gren_lang$core$Task$Perform = function (a) {
-	return { $: 'Perform', a: a };
-};
-var $gren_lang$core$Task$succeed = _Scheduler_succeed;
-var $gren_lang$core$Task$init = $gren_lang$core$Task$succeed({  });
-var $gren_lang$core$Array$map = _Array_map;
-var $gren_lang$core$Task$map = F2(function(func, taskA) {
-		return A2($gren_lang$core$Task$andThen, function(a) {
-				return $gren_lang$core$Task$succeed(func(a));
-			}, taskA);
-	});
-var $gren_lang$core$Array$foldl = _Array_foldl;
-var $gren_lang$core$Task$map2 = F3(function(func, taskA, taskB) {
-		return A2($gren_lang$core$Task$andThen, function(a) {
-				return A2($gren_lang$core$Task$andThen, function(b) {
-						return $gren_lang$core$Task$succeed(A2(func, a, b));
-					}, taskB);
-			}, taskA);
-	});
-var $gren_lang$core$Task$sequence = function(tasks) {
-	return A3($gren_lang$core$Array$foldl, $gren_lang$core$Task$map2($gren_lang$core$Array$pushLast), $gren_lang$core$Task$succeed([  ]), tasks);
+var $author$project$Main$AddLine = function (a) {
+	return { $: 'AddLine', a: a };
 };
 
 
@@ -1789,6 +1593,9 @@ function _Json_addEntry(func) {
 }
 
 var _Json_encodeNull = _Json_wrap(null);
+var $gren_lang$core$Result$Err = function (a) {
+	return { $: 'Err', a: a };
+};
 var $gren_lang$core$Json$Decode$Failure = F2(function (a, b) {
 		return { $: 'Failure', a: a, b: b };
 	});
@@ -1798,6 +1605,9 @@ var $gren_lang$core$Json$Decode$Field = F2(function (a, b) {
 var $gren_lang$core$Json$Decode$Index = F2(function (a, b) {
 		return { $: 'Index', a: a, b: b };
 	});
+var $gren_lang$core$Result$Ok = function (a) {
+	return { $: 'Ok', a: a };
+};
 var $gren_lang$core$Json$Decode$OneOf = function (a) {
 	return { $: 'OneOf', a: a };
 };
@@ -2239,6 +2049,195 @@ function _Process_sleep(time) {
     };
   });
 }
+
+
+// TASKS
+
+function _Scheduler_succeed(value) {
+  return {
+    $: 0,
+    a: value,
+  };
+}
+
+function _Scheduler_fail(error) {
+  return {
+    $: 1,
+    a: error,
+  };
+}
+
+function _Scheduler_binding(callback) {
+  return {
+    $: 2,
+    b: callback,
+    c: null,
+  };
+}
+
+var _Scheduler_andThen = F2(function (callback, task) {
+  return {
+    $: 3,
+    b: callback,
+    d: task,
+  };
+});
+
+var _Scheduler_onError = F2(function (callback, task) {
+  return {
+    $: 4,
+    b: callback,
+    d: task,
+  };
+});
+
+function _Scheduler_receive(callback) {
+  return {
+    $: 5,
+    b: callback,
+  };
+}
+
+// PROCESSES
+
+var _Scheduler_guid = 0;
+
+function _Scheduler_rawSpawn(task) {
+  var proc = {
+    $: 0,
+    e: _Scheduler_guid++,
+    f: task,
+    g: null,
+    h: [],
+  };
+
+  _Scheduler_enqueue(proc);
+
+  return proc;
+}
+
+function _Scheduler_spawn(task) {
+  return _Scheduler_binding(function (callback) {
+    callback(_Scheduler_succeed(_Scheduler_rawSpawn(task)));
+  });
+}
+
+function _Scheduler_rawSend(proc, msg) {
+  proc.h.push(msg);
+  _Scheduler_enqueue(proc);
+}
+
+var _Scheduler_send = F2(function (proc, msg) {
+  return _Scheduler_binding(function (callback) {
+    _Scheduler_rawSend(proc, msg);
+    callback(_Scheduler_succeed({}));
+  });
+});
+
+function _Scheduler_kill(proc) {
+  return _Scheduler_binding(function (callback) {
+    var task = proc.f;
+    if (task && task.$ === 2 && task.c) {
+      task.c();
+    }
+
+    proc.f = null;
+
+    callback(_Scheduler_succeed({}));
+  });
+}
+
+/* STEP PROCESSES
+
+type alias Process =
+  { $ : tag
+  , id : unique_id
+  , root : Task
+  , stack : null | { $: SUCCEED | FAIL, a: callback, b: stack }
+  , mailbox : [msg]
+  }
+
+*/
+
+var _Scheduler_working = false;
+var _Scheduler_queue = [];
+
+function _Scheduler_enqueue(proc) {
+  _Scheduler_queue.push(proc);
+  if (_Scheduler_working) {
+    return;
+  }
+  _Scheduler_working = true;
+  while ((proc = _Scheduler_queue.shift())) {
+    _Scheduler_step(proc);
+  }
+  _Scheduler_working = false;
+}
+
+function _Scheduler_step(proc) {
+  while (proc.f) {
+    var rootTag = proc.f.$;
+    if (rootTag === 0 || rootTag === 1) {
+      while (proc.g && proc.g.$ !== rootTag) {
+        proc.g = proc.g.i;
+      }
+      if (!proc.g) {
+        return;
+      }
+      proc.f = proc.g.b(proc.f.a);
+      proc.g = proc.g.i;
+    } else if (rootTag === 2) {
+      proc.f.c = proc.f.b(function (newRoot) {
+        proc.f = newRoot;
+        _Scheduler_enqueue(proc);
+      });
+      return;
+    } else if (rootTag === 5) {
+      if (proc.h.length === 0) {
+        return;
+      }
+      proc.f = proc.f.b(proc.h.shift());
+    } // if (rootTag === 3 || rootTag === 4)
+    else {
+      proc.g = {
+        $: rootTag === 3 ? 0 : 1,
+        b: proc.f.b,
+        i: proc.g,
+      };
+      proc.f = proc.f.d;
+    }
+  }
+}
+var $gren_lang$core$Platform$Cmd$batch = _Platform_batch;
+var $gren_lang$core$Basics$apR = F2(function(x, f) {
+		return f(x);
+	});
+var $gren_lang$core$Basics$identity = function(x) {
+	return x;
+};
+var $gren_lang$core$Task$Perform = function (a) {
+	return { $: 'Perform', a: a };
+};
+var $gren_lang$core$Task$andThen = _Scheduler_andThen;
+var $gren_lang$core$Task$succeed = _Scheduler_succeed;
+var $gren_lang$core$Task$init = $gren_lang$core$Task$succeed({  });
+var $gren_lang$core$Array$map = _Array_map;
+var $gren_lang$core$Task$map = F2(function(func, taskA) {
+		return A2($gren_lang$core$Task$andThen, function(a) {
+				return $gren_lang$core$Task$succeed(func(a));
+			}, taskA);
+	});
+var $gren_lang$core$Array$foldl = _Array_foldl;
+var $gren_lang$core$Task$map2 = F3(function(func, taskA, taskB) {
+		return A2($gren_lang$core$Task$andThen, function(a) {
+				return A2($gren_lang$core$Task$andThen, function(b) {
+						return $gren_lang$core$Task$succeed(A2(func, a, b));
+					}, taskB);
+			}, taskA);
+	});
+var $gren_lang$core$Task$sequence = function(tasks) {
+	return A3($gren_lang$core$Array$foldl, $gren_lang$core$Task$map2($gren_lang$core$Array$pushLast), $gren_lang$core$Task$succeed([  ]), tasks);
+};
 var $gren_lang$core$Platform$sendToApp = _Platform_sendToApp;
 var $gren_lang$core$Task$spawnCmd = F2(function(router, _v0) {
 		var task = _v0.a;
@@ -2265,6 +2264,469 @@ var $gren_lang$core$Task$onError = _Scheduler_onError;
 var $gren_lang$core$Task$attempt = F2(function(resultToMessage, task) {
 		return $gren_lang$core$Task$command($gren_lang$core$Task$Perform(A2($gren_lang$core$Task$onError, A2($gren_lang$core$Basics$composeL, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Err), A2($gren_lang$core$Task$andThen, A2($gren_lang$core$Basics$composeL, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$succeed, resultToMessage), $gren_lang$core$Result$Ok), task))));
 	});
+
+
+var crypto = function () {
+    if (typeof window === 'undefined') {
+        return require('crypto');
+    }
+    return window.crypto;
+}();
+
+var _Crypto_constructKey = function (key) {
+    return $gren_lang$core$Crypto$Key({
+        key: key,
+        algorithm: key.algorithm,
+        keyType: key.type,
+        extractable: key.extractable,
+        usages: key.usages
+    });
+};
+
+var _Crypto_randomUUID = _Scheduler_binding(function (callback) {
+    var randomUUID = crypto.randomUUID();
+    return callback(_Scheduler_succeed(randomUUID));
+});
+
+var _Crypto_getRandomValues = F2(function (arrayLength, valueType) {
+    var array;
+    switch (valueType) {
+        case "int8":
+            array = new Int8Array(arrayLength);
+            break;
+        case "uint8":
+            array = new Uint8Array(arrayLength);
+            break;
+        case "int16":
+            array = new Int16Array(arrayLength);
+            break;
+        case "uint16":
+            array = new Uint16Array(arrayLength);
+            break;
+        case "int32":
+            array = new Int32Array(arrayLength);
+            break;
+        case "uint32":
+            array = new Uint32Array(arrayLength);
+            break;
+        default:
+            array = new Int8Array(0);
+            break;
+    }
+    try {
+        var randomValues = crypto.getRandomValues(array);
+    } catch (err) {
+        console.log("err", err);
+    }
+    return _Scheduler_binding(function (callback) {
+        return callback(_Scheduler_succeed(randomValues));
+    })
+});
+
+var _Crypto_getContext = _Scheduler_binding(function (callback) {
+    if (crypto.subtle) {
+        return callback(_Scheduler_succeed($gren_lang$core$Crypto$SecureContext));
+    }
+    return callback(_Scheduler_fail);
+});
+
+// Keys
+var _Crypto_generateRsaKey = F6(function (name, modulusLength, publicExponent, hash, extractable, permissions) {
+    var algorithm = {
+        name: name,
+        modulusLength: modulusLength,
+        publicExponent: new Uint8Array(publicExponent),
+        hash: hash
+    }
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle
+            .generateKey(algorithm, extractable, permissions)
+            .then(function (key) {
+                return callback(_Scheduler_succeed(
+                    {
+                        publicKey: $gren_lang$core$Crypto$PublicKey(_Crypto_constructKey(key.publicKey)),
+                        privateKey: $gren_lang$core$Crypto$PrivateKey(_Crypto_constructKey(key.privateKey))
+                    }
+                ))
+            });
+    });
+});
+
+var _Crypto_generateKey = F3(function (algorithm, extractable, permissions) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle
+            .generateKey(algorithm, extractable, permissions)
+            .then(function (key) {
+                if (key.publicKey && key.privateKey) {
+                    return callback(_Scheduler_succeed(
+                        {
+                            publicKey: $gren_lang$core$Crypto$PublicKey(_Crypto_constructKey(key.publicKey)),
+                            privateKey: $gren_lang$core$Crypto$PrivateKey(_Crypto_constructKey(key.privateKey))
+                        }
+                    )
+                    );
+                } else {
+                    return callback(_Scheduler_succeed(_Crypto_constructKey(key)));
+                };
+            });
+    });
+});
+
+var _Crypto_exportKey = F2(function (format, key) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle
+            .exportKey(format, key)
+            .then(function (res) {
+                switch (format) {
+                    case "jwk":
+                        return callback(_Scheduler_succeed(res));
+
+                    default:
+                        return callback(_Scheduler_succeed(new DataView(res)));
+                };
+            });
+    });
+});
+
+var _Crypto_importRsaKey = F7(function (wrapper, format, keyData, algorithm, hash, extractable, keyUsages) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle
+            .importKey(format, keyData, { name: algorithm, hash: hash }, extractable, keyUsages)
+            .then(function (key) {
+                switch (wrapper) {
+                    case "public":
+                        return callback(_Scheduler_succeed($gren_lang$core$Crypto$PublicKey(_Crypto_constructKey(key))))
+                    case "private":
+                        return callback(_Scheduler_succeed($gren_lang$core$Crypto$PrivateKey(_Crypto_constructKey(key))))
+                    default:
+                        return callback(_Scheduler_succeed(_Crypto_constructKey(key)));
+                }
+            })
+            .catch(function (err) {
+                switch (err.message) {
+                    case "Invalid JWK keyData":
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyHashMismatchError));
+
+                    case "Failed to execute 'importKey' on 'SubtleCrypto': The provided value is not of type '(ArrayBuffer or ArrayBufferView or JsonWebKey)'":
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyHashMismatchError));
+
+                    case 'The JWK "alg" member was inconsistent with that specified by the Web Crypto call':
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyValueError));
+
+                    case "Hash mismatch":
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyValueError));
+
+                    default:
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyUnknownError(err.message)));
+                }
+            })
+    })
+});
+
+var _Crypto_importKey = F6(function (wrapper, format, keyData, algorithm, extractable, keyUsages) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle
+            .importKey(format, keyData, algorithm, extractable, keyUsages)
+            .then(function (key) {
+                switch (wrapper) {
+                    case "public":
+                        return callback(_Scheduler_succeed($gren_lang$core$Crypto$PublicKey(_Crypto_constructKey(key))))
+                    case "private":
+                        return callback(_Scheduler_succeed($gren_lang$core$Crypto$PrivateKey(_Crypto_constructKey(key))))
+                    default:
+                        return callback(_Scheduler_succeed(_Crypto_constructKey(key)));
+                }
+            })
+            .catch(function (err) {
+                switch (err.message) {
+                    case "Hash mismatch":
+                        return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyHashMismatchError));
+                }
+            });
+    });
+});
+
+var _Crypto_encrypt = F3(function (key, params, data) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle.encrypt(params, key.a.key, data)
+            .then(function (res) {
+                return callback(_Scheduler_succeed(new DataView(res)));
+            })
+            .catch(function (err) {
+                return callback(_Scheduler_fail(err));
+            });
+    });
+});
+
+var _Crypto_decrypt = F3(function (key, params, data) {
+    return _Scheduler_binding(function (callback) {
+        crypto.subtle.decrypt(params, key.a.key, data)
+            .then(function (res) {
+                return callback(_Scheduler_succeed(new DataView(res)));
+            })
+            .catch(function (err) {
+                return callback(_Scheduler_fail());
+            })
+    });
+});
+var $gren_lang$core$Crypto$ImportRsaKeyHashMismatchError = { $: 'ImportRsaKeyHashMismatchError' };
+var $gren_lang$core$Crypto$ImportRsaKeyUnknownError = function (a) {
+	return { $: 'ImportRsaKeyUnknownError', a: a };
+};
+var $gren_lang$core$Crypto$ImportRsaKeyValueError = { $: 'ImportRsaKeyValueError' };
+var $gren_lang$core$Crypto$Key = function (a) {
+	return { $: 'Key', a: a };
+};
+var $gren_lang$core$Crypto$PrivateKey = function (a) {
+	return { $: 'PrivateKey', a: a };
+};
+var $gren_lang$core$Crypto$PublicKey = function (a) {
+	return { $: 'PublicKey', a: a };
+};
+var $gren_lang$core$Crypto$SecureContext = { $: 'SecureContext' };
+var $gren_lang$core$Crypto$isSecureContext = _Crypto_getContext;
+var $joeybright$gren_core_crypto_test$Tests$getSecureContext = $gren_lang$core$Crypto$isSecureContext;
+var $gren_lang$core$Basics$eq = _Utils_equal;
+var $gren_lang$core$Basics$gt = _Utils_gt;
+var $gren_lang$core$Basics$lt = _Utils_lt;
+var $gren_lang$core$Crypto$clamp = F3(function(min, max, number) {
+		return (_Utils_cmp(number, min) < 0) ? min : ((_Utils_cmp(number, max) > 0) ? max : number);
+	});
+var $gren_lang$core$Crypto$getRandomInt16Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 32768, _int), 'int16');
+};
+var $gren_lang$core$Crypto$getRandomInt32Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 16384, _int), 'int32');
+};
+var $gren_lang$core$Crypto$getRandomInt8Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 65536, _int), 'int8');
+};
+var $gren_lang$core$Crypto$getRandomUInt16Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 32768, _int), 'uint16');
+};
+var $gren_lang$core$Crypto$getRandomUInt32Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 16384, _int), 'uint32');
+};
+var $gren_lang$core$Crypto$getRandomUInt8Values = function(_int) {
+	return A2(_Crypto_getRandomValues, A3($gren_lang$core$Crypto$clamp, 0, 65536, _int), 'uint8');
+};
+var $gren_lang$core$Basics$negate = function(n) {
+	return -n;
+};
+var $gren_lang$core$Task$perform = F2(function(toMessage, task) {
+		return $gren_lang$core$Task$command($gren_lang$core$Task$Perform(A2($gren_lang$core$Task$map, toMessage, task)));
+	});
+var $joeybright$gren_core_crypto_test$Tests$randomValueTests = function(func) {
+	var testGeneratedValueCount = F4(function(num, success, failure, res) {
+			return _Utils_eq($gren_lang$core$Array$length(res), num) ? func(success) : func(failure);
+		});
+	var maxInt8Values = 65536;
+	var maxInt32Values = 16384;
+	var maxInt16Values = 32768;
+	return [ A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random int8 values');
+		}, $gren_lang$core$Crypto$getRandomInt8Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt8Values, '✓ - Generates max int8 random values', 'x - Generates too many values'), $gren_lang$core$Crypto$getRandomInt8Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 int8 values', 'x - Doesn\'t generate 0 int8 values when given a negative number'), $gren_lang$core$Crypto$getRandomInt8Values(-99999)), A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random uint8 values');
+		}, $gren_lang$core$Crypto$getRandomUInt8Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt8Values, '✓ - Generates max uint8 random values', 'x - Generates too many uint8 values'), $gren_lang$core$Crypto$getRandomUInt8Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 uint8 values', 'x - Doesn\'t generate 0 uint8 values when given a negative number'), $gren_lang$core$Crypto$getRandomUInt8Values(-99999)), A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random int16 values');
+		}, $gren_lang$core$Crypto$getRandomInt16Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt16Values, '✓ - Generates max int16 random values', 'x - Generates too many uint16 values'), $gren_lang$core$Crypto$getRandomInt16Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 int16 values', 'x - Doesn\'t generate 0 uint8 values when given a negative number'), $gren_lang$core$Crypto$getRandomInt16Values(-99999)), A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random uint16 values');
+		}, $gren_lang$core$Crypto$getRandomUInt16Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt16Values, '✓ - Generates max uint16 random values', 'x - Generates too many uint16 values'), $gren_lang$core$Crypto$getRandomUInt16Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 uint16 values', 'x - Doesn\'t generate 0 uint8 values when given a negative number'), $gren_lang$core$Crypto$getRandomUInt16Values(-99999)), A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random int32 values');
+		}, $gren_lang$core$Crypto$getRandomInt32Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt32Values, '✓ - Generates max int32 random values', 'x - Generates too many int32 values'), $gren_lang$core$Crypto$getRandomInt32Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 int32 values', 'x - Doesn\'t generate 0 int32 values when given a negative number'), $gren_lang$core$Crypto$getRandomInt32Values(-99999)), A2($gren_lang$core$Task$perform, function(res) {
+			return func('✓ - Generated random uint32 values');
+		}, $gren_lang$core$Crypto$getRandomUInt32Values(3)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, maxInt32Values, '✓ - Generates max uint32 random values', 'x - Generates too many uint32 values'), $gren_lang$core$Crypto$getRandomUInt32Values(99999)), A2($gren_lang$core$Task$perform, A3(testGeneratedValueCount, 0, '✓ - Generates no fewer than 0 uint32 values', 'x - Doesn\'t generate 0 uint32 values when given a negative number'), $gren_lang$core$Crypto$getRandomUInt32Values(-99999)) ];
+};
+var $gren_lang$core$Crypto$PublicExponent3 = { $: 'PublicExponent3' };
+var $gren_lang$core$Crypto$PublicExponent65537 = { $: 'PublicExponent65537' };
+var $gren_lang$core$Crypto$Sha256 = { $: 'Sha256' };
+var $gren_lang$core$Crypto$Sha384 = { $: 'Sha384' };
+var $gren_lang$core$Crypto$Sha512 = { $: 'Sha512' };
+var $gren_lang$core$Crypto$KeyNotExportable = { $: 'KeyNotExportable' };
+var $gren_lang$core$Task$fail = _Scheduler_fail;
+var $gren_lang$core$Crypto$exportKeyHelper = F2(function(keyType, _v0) {
+		var _v1 = _v0.a;
+		var extractable = _v1.extractable;
+		var key = _v1.key;
+		return extractable ? A2(_Crypto_exportKey, keyType, key) : $gren_lang$core$Task$fail($gren_lang$core$Crypto$KeyNotExportable);
+	});
+var $gren_lang$core$Crypto$exportKeyAsJwk = function(key) {
+	return A2($gren_lang$core$Task$map, _Json_wrap, A2($gren_lang$core$Crypto$exportKeyHelper, 'jwk', key));
+};
+var $gren_lang$core$Crypto$exportRsaOaepPublicKeyAsJwk = F2(function(_v0, _v1) {
+		var key = _v1.a;
+		return $gren_lang$core$Crypto$exportKeyAsJwk(key);
+	});
+var $gren_lang$core$Crypto$CanBeExtracted = { $: 'CanBeExtracted' };
+var $gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight = { $: 'ModulusLengthNotDivisibleByEight' };
+var $gren_lang$core$Crypto$digestAlgorithmToString = function(digestAlgorithm) {
+	switch (digestAlgorithm.$) {
+		case 'Sha256':
+			return 'SHA-256';
+		case 'Sha384':
+			return 'SHA-384';
+		default:
+			return 'SHA-512';
+	}
+};
+var $gren_lang$core$Crypto$extractableToBool = function(extractable) {
+	if (extractable.$ === 'CanBeExtracted') {
+		return true;
+	} else {
+		return false;
+	}
+};
+
+
+// MATH
+
+var _Math_remainderBy = F2(function (b, a) {
+  return a % b;
+});
+
+// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/divmodnote-letter.pdf
+var _Math_modBy = F2(function (modulus, x) {
+  var answer = x % modulus;
+  return modulus === 0
+    ? _Debug_crash(11)
+    : (answer > 0 && modulus < 0) || (answer < 0 && modulus > 0)
+    ? answer + modulus
+    : answer;
+});
+
+// TRIGONOMETRY
+
+var _Math_pi = Math.PI;
+var _Math_e = Math.E;
+var _Math_cos = Math.cos;
+var _Math_sin = Math.sin;
+var _Math_tan = Math.tan;
+var _Math_acos = Math.acos;
+var _Math_asin = Math.asin;
+var _Math_atan = Math.atan;
+var _Math_atan2 = F2(Math.atan2);
+
+// MORE MATH
+
+var _Math_truncate = Math.trunc;
+var _Math_ceiling = Math.ceil;
+var _Math_floor = Math.floor;
+var _Math_round = Math.round;
+var _Math_sqrt = Math.sqrt;
+var _Math_log = Math.log;
+var _Math_log10 = Math.log10;
+var $gren_lang$core$Math$remainderBy = _Math_remainderBy;
+var $gren_lang$core$Crypto$generateRsaKeyHelper = F4(function(name, permissions, _v0, extractable) {
+		var modulusLength = _v0.modulusLength;
+		var hash = _v0.hash;
+		var publicExponent = _v0.publicExponent;
+		var publicExponentValue = function () {
+			if (publicExponent.$ === 'PublicExponent3') {
+				return [ 3 ];
+			} else {
+				return [ 1, 0, 1 ];
+			}
+		}();
+		var clampedModulusLength = A3($gren_lang$core$Crypto$clamp, 2048, 16384, modulusLength);
+		return _Utils_eq(clampedModulusLength % 8, 0) ? A6(_Crypto_generateRsaKey, name, clampedModulusLength, publicExponentValue, $gren_lang$core$Crypto$digestAlgorithmToString(hash), $gren_lang$core$Crypto$extractableToBool(extractable), permissions) : $gren_lang$core$Task$fail($gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight);
+	});
+var $gren_lang$core$Crypto$generateRsaOaepKeyPair = function(_v0) {
+	return A2($gren_lang$core$Crypto$generateRsaKeyHelper, 'RSA-OAEP', [ 'encrypt', 'decrypt' ]);
+};
+var $gren_lang$core$Task$mapError = F2(function(convert, task) {
+		return A2($gren_lang$core$Task$onError, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$fail, convert), task);
+	});
+var $joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey = F2(function(hash, exponent) {
+		return A2($gren_lang$core$Task$andThen, function(secureContext) {
+				return A2($gren_lang$core$Task$map, function(key) {
+						return { key: key, secureContext: secureContext };
+					}, A3($gren_lang$core$Crypto$generateRsaOaepKeyPair, secureContext, { hash: hash, modulusLength: 4096, publicExponent: $gren_lang$core$Crypto$PublicExponent65537 }, $gren_lang$core$Crypto$CanBeExtracted));
+			}, A2($gren_lang$core$Task$mapError, function(_v0) {
+					return $gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight;
+				}, $joeybright$gren_core_crypto_test$Tests$getSecureContext));
+	});
+var $joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk = F2(function(hash, exponent) {
+		return A2($gren_lang$core$Task$andThen, function(_v1) {
+				var key = _v1.key;
+				var secureContext = _v1.secureContext;
+				return A2($gren_lang$core$Task$map, function(exportedKey) {
+						return { exportedKey: exportedKey, key: key, secureContext: secureContext };
+					}, A2($gren_lang$core$Crypto$exportRsaOaepPublicKeyAsJwk, secureContext, key.publicKey));
+			}, A2($gren_lang$core$Task$mapError, function(_v0) {
+					return $gren_lang$core$Crypto$KeyNotExportable;
+				}, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, hash, exponent)));
+	});
+var $gren_lang$core$Crypto$importRsaOaepPublicKeyFromJwk = F4(function(_v0, jwk, _v1, extractable) {
+		var hash = _v1.hash;
+		return A7(_Crypto_importRsaKey, 'public', 'jwk', _Json_unwrap(jwk), 'RSA-OAEP', $gren_lang$core$Crypto$digestAlgorithmToString(hash), $gren_lang$core$Crypto$extractableToBool(extractable), [ 'encrypt' ]);
+	});
+var $joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk = F3(function(keyHash, keyExponent, importHash) {
+		return A2($gren_lang$core$Task$andThen, function(_v1) {
+				var key = _v1.key;
+				var secureContext = _v1.secureContext;
+				var exportedKey = _v1.exportedKey;
+				return A2($gren_lang$core$Task$map, function(importedKey) {
+						return { exportedKey: exportedKey, importedKey: importedKey, key: key, secureContext: secureContext };
+					}, A4($gren_lang$core$Crypto$importRsaOaepPublicKeyFromJwk, secureContext, exportedKey, { hash: importHash }, $gren_lang$core$Crypto$CanBeExtracted));
+			}, A2($gren_lang$core$Task$mapError, function(_v0) {
+					return $gren_lang$core$Crypto$ImportRsaKeyUnknownError('');
+				}, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, keyHash, keyExponent)));
+	});
+var $joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwkWithArbitraryJson = function(json) {
+	return A2($gren_lang$core$Task$andThen, function(secureContext) {
+			return A4($gren_lang$core$Crypto$importRsaOaepPublicKeyFromJwk, secureContext, json, { hash: $gren_lang$core$Crypto$Sha256 }, $gren_lang$core$Crypto$CanBeExtracted);
+		}, A2($gren_lang$core$Task$mapError, function(_v0) {
+				return $gren_lang$core$Crypto$ImportRsaKeyUnknownError('');
+			}, $joeybright$gren_core_crypto_test$Tests$getSecureContext));
+};
+var $gren_lang$core$Json$Encode$string = _Json_wrap;
+var $gren_lang$core$Result$map = F2(function(func, ra) {
+		if (ra.$ === 'Ok') {
+			var a = ra.a;
+			return $gren_lang$core$Result$Ok(func(a));
+		} else {
+			var e = ra.a;
+			return $gren_lang$core$Result$Err(e);
+		}
+	});
+var $gren_lang$core$Result$withDefault = F2(function(def, result) {
+		if (result.$ === 'Ok') {
+			var a = result.a;
+			return a;
+		} else {
+			return def;
+		}
+	});
+var $joeybright$gren_core_crypto_test$Tests$testHelper = F4(function(func, success, failure, result) {
+		return A2($gren_lang$core$Result$withDefault, func(failure), A2($gren_lang$core$Result$map, function(_v0) {
+					return func(success);
+				}, result));
+	});
+var $joeybright$gren_core_crypto_test$Tests$rsaTests = function(func) {
+	var test = F3(function(task, success, failure) {
+			return A2($gren_lang$core$Task$attempt, A3($joeybright$gren_core_crypto_test$Tests$testHelper, func, success, failure), task);
+		});
+	return [ A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Generated RSA-OAEP key with SHA-256 and 65537 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent3), '✓ - Generated RSA-OAEP key with SHA-256 and 3 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Generated RSA-OAEP key with SHA-384 and 65537 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent3), '✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$generateRsaOaepKey, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent3), '✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent', 'x - Problem generating RSA-OAEP key'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Exported RSA-OAEP public key with SHA-256 hash and 65537 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent3), '✓ - Exported RSA-OAEP public key with SHA-256 hash and 3 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Exported RSA-OAEP public key with SHA-384 hash and 65537 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent3), '✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent65537), '✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A2($joeybright$gren_core_crypto_test$Tests$exportRsaOaepPublicKeyAsJwk, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent3), '✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as jwk', 'x - Problem exporting RSA-OAEP public key as jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent65537, $gren_lang$core$Crypto$Sha256), '✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent3, $gren_lang$core$Crypto$Sha256), '✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent65537, $gren_lang$core$Crypto$Sha384), '✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha384, $gren_lang$core$Crypto$PublicExponent3, $gren_lang$core$Crypto$Sha384), '✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent65537, $gren_lang$core$Crypto$Sha512), '✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha512, $gren_lang$core$Crypto$PublicExponent3, $gren_lang$core$Crypto$Sha512), '✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from jwk with matching hash', 'x - Problem import RSA-OAEP public key from jwk'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent65537, $gren_lang$core$Crypto$Sha384), 'x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent', '✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent3, $gren_lang$core$Crypto$Sha384), 'x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent', '✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent65537, $gren_lang$core$Crypto$Sha512), 'x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent', '✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch'), A3(test, A3($joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwk, $gren_lang$core$Crypto$Sha256, $gren_lang$core$Crypto$PublicExponent3, $gren_lang$core$Crypto$Sha512), 'x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent', '✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch'), A3(test, $joeybright$gren_core_crypto_test$Tests$importRsaOaepPublicKeyFromJwkWithArbitraryJson($gren_lang$core$Json$Encode$string('test')), 'x - Somehow imported RSA-OAEP public key with incorrect JSON', '✓ - Appropriately failed importing a key with incorrect JSON') ];
+};
+var $gren_lang$core$Crypto$randomUuid = function(_v0) {
+	return _Crypto_randomUUID;
+};
+var $joeybright$gren_core_crypto_test$Tests$uuidTests = function(func) {
+	return [ A2($gren_lang$core$Task$attempt, function(_v0) {
+			return func('✓ - Generated random uuid');
+		}, A2($gren_lang$core$Task$andThen, function(secureContext) {
+				return $gren_lang$core$Crypto$randomUuid(secureContext);
+			}, $joeybright$gren_core_crypto_test$Tests$getSecureContext)) ];
+};
+var $joeybright$gren_core_crypto_test$Tests$tests = function(func) {
+	var test = F3(function(task, success, failure) {
+			return A2($gren_lang$core$Task$attempt, A3($joeybright$gren_core_crypto_test$Tests$testHelper, func, success, failure), task);
+		});
+	return _Utils_ap([ A3(test, $joeybright$gren_core_crypto_test$Tests$getSecureContext, '✓ - Got a secure context', 'x - Problem getting secure context') ], _Utils_ap($joeybright$gren_core_crypto_test$Tests$rsaTests(func), _Utils_ap($joeybright$gren_core_crypto_test$Tests$randomValueTests(func), $joeybright$gren_core_crypto_test$Tests$uuidTests(func))));
+};
+var $joeybright$gren_core_crypto_test$Tests$count = $gren_lang$core$Array$length($joeybright$gren_core_crypto_test$Tests$tests(function(_v0) {
+			return {  };
+		}));
 
 
 // HELPERS
@@ -4210,13 +4672,11 @@ var $gren_lang$core$Basics$apL = F2(function(f, x) {
 	});
 var $gren_lang$core$String$contains = _String_contains;
 var $gren_lang$core$String$length = _String_length;
-var $gren_lang$core$Basics$lt = _Utils_lt;
 var $gren_lang$core$String$slice = _String_slice;
 var $gren_lang$core$String$dropLeft = F2(function(n, string) {
 		return (_Utils_cmp(n, 1) < 0) ? string : A3($gren_lang$core$String$slice, n, $gren_lang$core$String$length(string), string);
 	});
 var $gren_lang$core$String$indices = _String_indexes;
-var $gren_lang$core$Basics$eq = _Utils_equal;
 var $gren_lang$core$String$isEmpty = function(string) {
 	return _Utils_eq(string, '');
 };
@@ -4299,272 +4759,27 @@ var $gren_lang$core$Basics$never = function(_v0) {
 		continue never;
 	}
 };
-var $gren_lang$core$Task$perform = F2(function(toMessage, task) {
-		return $gren_lang$core$Task$command($gren_lang$core$Task$Perform(A2($gren_lang$core$Task$map, toMessage, task)));
-	});
 var $gren_lang$browser$Browser$document = _Browser_document;
-
-
-var crypto = function () {
-    if (typeof window === 'undefined') {
-        return require('crypto');
-    }
-    return window.crypto;
-}();
-
-var _Crypto_constructKey = function (key) {
-    return $gren_lang$core$Crypto$Key({
-        key: key,
-        algorithm: key.algorithm,
-        keyType: key.type,
-        extractable: key.extractable,
-        usages: key.usages
-    });
-};
-
-var _Crypto_randomUUID = _Scheduler_binding(function (callback) {
-    var randomUUID = crypto.randomUUID();
-    return callback(_Scheduler_succeed(randomUUID));
-});
-
-var _Crypto_getRandomValues = F2(function (arrayLength, valueType) {
-    var array;
-    switch (valueType) {
-        case "int8":
-            array = new Int8Array(arrayLength);
-            break;
-        case "uint8":
-            array = new Uint8Array(arrayLength);
-            break;
-        case "int16":
-            array = new Int16Array(arrayLength);
-            break;
-        case "uint16":
-            array = new Uint16Array(arrayLength);
-            break;
-        case "int32":
-            array = new Int32Array(arrayLength);
-            break;
-        case "uint32":
-            array = new Uint32Array(arrayLength);
-            break;
-        default:
-            array = new Int8Array(0);
-            break;
-    }
-    try {
-        var randomValues = crypto.getRandomValues(array);
-    } catch (err) {
-        console.log("err", err);
-    }
-    return _Scheduler_binding(function (callback) {
-        return callback(_Scheduler_succeed(randomValues));
-    })
-});
-
-var _Crypto_getContext = _Scheduler_binding(function (callback) {
-    if (crypto.subtle) {
-        return callback(_Scheduler_succeed($gren_lang$core$Crypto$SecureContext));
-    }
-    return callback(_Scheduler_fail);
-});
-
-var _Crypto_generateKey = F3(function (algorithm, extractable, permissions) {
-    if (algorithm.publicExponent) {
-        // Creating a new Uint8Array if the passed algorithm contains a publicExponent
-        // Unsure how to pass this value directly from Gren and this is the current workaround
-        algorithm.publicExponent = new Uint8Array(algorithm.publicExponent);
-    }
-    return _Scheduler_binding(function (callback) {
-        crypto.subtle
-            .generateKey(algorithm, extractable, permissions)
-            .then(function (key) {
-                if (key.publicKey && key.privateKey) {
-                    return callback(_Scheduler_succeed(
-                        $gren_lang$core$Crypto$KeyPair(
-                            {
-                                publicKey: _Crypto_constructKey(key.publicKey),
-                                privateKey: _Crypto_constructKey(key.privateKey)
-                            }
-                        )
-                    ));
-                } else {
-                    return callback(_Scheduler_succeed(_Crypto_constructKey(key)));
-                };
-            });
-    });
-});
-
-var _Crypto_encrypt = F3(function (key, params, data) {
-    return _Scheduler_binding(function (callback) {
-        crypto.subtle.encrypt(params, key.a.key, data)
-            .then(function (res) {
-                return callback(_Scheduler_succeed(new DataView(res)));
-            })
-            .catch(function (err) {
-                return callback(_Scheduler_fail(err));
-            });
-    });
-});
-
-var _Crypto_decrypt = F3(function (key, params, data) {
-    return _Scheduler_binding(function (callback) {
-        crypto.subtle.decrypt(params, key.a.key, data)
-            .then(function (res) {
-                return callback(_Scheduler_succeed(new DataView(res)));
-            })
-            .catch(function (err) {
-                return callback(_Scheduler_fail());
-            })
-    });
-});
-
-var _Crypto_exportKey = F2(function (format, key) {
-    return _Scheduler_binding(function (callback) {
-        crypto.subtle.exportKey(format, key)
-            .then(function (res) {
-                console.log("res", res);
-                return callback(_Scheduler_succeed(new DataView(res)));
-            })
-            .catch(function (err) {
-                console.log("err", err)
-                return callback(_Scheduler_fail());
-            });
-    });
-});
-
-var _Crypto_importKey = function (key) {
-    var format = "raw";
-    return _Scheduler_binding(function (callback) {
-        crypto.subtle.importKey(format, key, { name: "RSA-OAEP" }, true, ["encrypt", "decrypt", "wrapKey", "unwrapKey"])
-            .then(function (res) {
-                return callback(_Scheduler_succeed())
-            })
-    });
-};
-var $gren_lang$core$Crypto$Key = function (a) {
-	return { $: 'Key', a: a };
-};
-var $gren_lang$core$Crypto$KeyPair = function (a) {
-	return { $: 'KeyPair', a: a };
-};
-var $gren_lang$core$Crypto$SecureContext = { $: 'SecureContext' };
-var $gren_lang$core$Basics$gt = _Utils_gt;
-var $gren_lang$core$Crypto$clamp = F3(function(min, max, number) {
-		return (_Utils_cmp(number, min) < 0) ? min : ((_Utils_cmp(number, max) > 0) ? max : number);
-	});
-var $gren_lang$core$Crypto$digestAlgorithmToString = function(digestAlgorithm) {
-	switch (digestAlgorithm.$) {
-		case 'Sha256':
-			return 'SHA-256';
-		case 'Sha384':
-			return 'SHA-384';
-		default:
-			return 'SHA-512';
-	}
-};
-var $gren_lang$core$Crypto$extractableToBool = function(extractable) {
-	if (extractable.$ === 'CanBeExtracted') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $gren_lang$core$Task$fail = _Scheduler_fail;
-
-
-// MATH
-
-var _Math_remainderBy = F2(function (b, a) {
-  return a % b;
-});
-
-// https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/divmodnote-letter.pdf
-var _Math_modBy = F2(function (modulus, x) {
-  var answer = x % modulus;
-  return modulus === 0
-    ? _Debug_crash(11)
-    : (answer > 0 && modulus < 0) || (answer < 0 && modulus > 0)
-    ? answer + modulus
-    : answer;
-});
-
-// TRIGONOMETRY
-
-var _Math_pi = Math.PI;
-var _Math_e = Math.E;
-var _Math_cos = Math.cos;
-var _Math_sin = Math.sin;
-var _Math_tan = Math.tan;
-var _Math_acos = Math.acos;
-var _Math_asin = Math.asin;
-var _Math_atan = Math.atan;
-var _Math_atan2 = F2(Math.atan2);
-
-// MORE MATH
-
-var _Math_truncate = Math.trunc;
-var _Math_ceiling = Math.ceil;
-var _Math_floor = Math.floor;
-var _Math_round = Math.round;
-var _Math_sqrt = Math.sqrt;
-var _Math_log = Math.log;
-var _Math_log10 = Math.log10;
-var $gren_lang$core$Math$remainderBy = _Math_remainderBy;
-var $gren_lang$core$Crypto$generateRsaKeyHelper = F4(function(name, permissions, _v0, extractable) {
-		var modulusLength = _v0.modulusLength;
-		var hash = _v0.hash;
-		var publicExponent = _v0.publicExponent;
-		var clampedModulusLength = A3($gren_lang$core$Crypto$clamp, 2048, 16384, modulusLength);
-		return _Utils_eq(clampedModulusLength % 8, 0) ? A3(_Crypto_generateKey, { hash: $gren_lang$core$Crypto$digestAlgorithmToString(hash), modulusLength: clampedModulusLength, name: name, publicExponent: function () {
-				if (publicExponent.$ === 'PublicExponent3') {
-					return [ 3 ];
-				} else {
-					return [ 1, 0, 1 ];
-				}
-			}() }, $gren_lang$core$Crypto$extractableToBool(extractable), permissions) : $gren_lang$core$Task$fail($gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight);
-	});
-var $gren_lang$core$Crypto$generateRsassaPkcs1V1_5Key = function(_v0) {
-	return A2($gren_lang$core$Crypto$generateRsaKeyHelper, 'RSASSA-PKCS1-v1_5', [ 'sign', 'verify' ]);
-};
-var $gren_lang$core$Crypto$isSecureContext = _Crypto_getContext;
-var $gren_lang$core$Debug$log = _Debug_log;
-var $gren_lang$core$Task$mapError = F2(function(convert, task) {
-		return A2($gren_lang$core$Task$onError, A2($gren_lang$core$Basics$composeL, $gren_lang$core$Task$fail, convert), task);
-	});
-var $gren_lang$core$Platform$Cmd$batch = _Platform_batch;
 var $gren_lang$core$Platform$Cmd$none = $gren_lang$core$Platform$Cmd$batch([  ]);
 var $gren_lang$core$Platform$Sub$batch = _Platform_batch;
 var $gren_lang$core$Platform$Sub$none = $gren_lang$core$Platform$Sub$batch([  ]);
 var $gren_lang$browser$VirtualDom$text = _VirtualDom_text;
 var $gren_lang$browser$Html$text = $gren_lang$browser$VirtualDom$text;
 var $author$project$Main$main = $gren_lang$browser$Browser$document({ init: function(_v0) {
-		return { command: A2($gren_lang$core$Task$attempt, function(res) {
-				if (res.$ === 'Ok') {
-					var val = res.a;
-					var _v4 = A2($gren_lang$core$Debug$log, 'res', val);
-					return $author$project$Main$NoOp;
-				} else {
-					return $author$project$Main$NoOp;
-				}
-			}, A2($gren_lang$core$Task$andThen, function(secureContext) {
-					var _v2 = A2($gren_lang$core$Debug$log, 'secureContext', secureContext);
-					return A3($gren_lang$core$Crypto$generateRsassaPkcs1V1_5Key, secureContext, { hash: $gren_lang$core$Crypto$Sha256, modulusLength: 4096, publicExponent: $gren_lang$core$Crypto$PublicExponent65537 }, $gren_lang$core$Crypto$CanBeExtracted);
-				}, A2($gren_lang$core$Task$mapError, function(_v1) {
-						return $gren_lang$core$Crypto$ModulusLengthNotDivisibleByEight;
-					}, $gren_lang$core$Crypto$isSecureContext))), model: {  } };
+		return { command: $gren_lang$core$Platform$Cmd$batch($joeybright$gren_core_crypto_test$Tests$tests($author$project$Main$AddLine)), model: { lines: [  ] } };
 	}, subscriptions: function(model) {
 		return $gren_lang$core$Platform$Sub$none;
 	}, update: F2(function(msg, model) {
 			if (msg.$ === 'NoOp') {
-				return { command: $gren_lang$core$Platform$Cmd$none, model: {  } };
+				return { command: $gren_lang$core$Platform$Cmd$none, model: model };
 			} else {
-				var id = msg.a;
-				var _v6 = A2($gren_lang$core$Debug$log, 'randomuuid from gren', id);
-				return { command: $gren_lang$core$Platform$Cmd$none, model: {  } };
+				var string = msg.a;
+				return { command: $gren_lang$core$Platform$Cmd$none, model: { lines: A2($gren_lang$core$Array$pushLast, string, model.lines) } };
 			}
 		}), view: function(model) {
-		return { body: [ A2($gren_lang$browser$Html$div, [  ], [ $gren_lang$browser$Html$text('hi') ]) ], title: 'hi' };
+		return { body: [ A2($gren_lang$browser$Html$div, [  ], [ $gren_lang$browser$Html$text($gren_lang$core$String$fromInt($gren_lang$core$Array$length(model.lines))), $gren_lang$browser$Html$text(' / '), $gren_lang$browser$Html$text($gren_lang$core$String$fromInt($joeybright$gren_core_crypto_test$Tests$count)) ]), A2($gren_lang$browser$Html$div, [  ], A2($gren_lang$core$Array$map, function(string) {
+					return A2($gren_lang$browser$Html$div, [  ], [ $gren_lang$browser$Html$text(string) ]);
+				}, model.lines)) ], title: 'gren-core-crypto-test' };
 	} });
 _Platform_export({'Main':{'init':$author$project$Main$main($gren_lang$core$Json$Decode$succeed({  }))(0)}});}(this.module ? this.module.exports : this));
 
