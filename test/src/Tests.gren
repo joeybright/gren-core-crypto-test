@@ -6,6 +6,13 @@ import Crypto
 import Task exposing ( Task )
 
 
+{-|-}
+count : Int
+count =
+    tests (\_ -> {})
+        |> Array.length
+
+
 {-| All of the tests in this module.
 -}
 tests : (String -> msg) -> Array (Cmd msg)

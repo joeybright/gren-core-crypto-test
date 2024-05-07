@@ -1,74 +1,63 @@
 module Main exposing (..)
 
+{-|-}
+
 import Browser
 import Crypto
 import Html
 import Task
+import Tests
 
 
+{-|-}
 type Msg
     = NoOp
-    | PrintUuid String
+    | AddLine String
 
 
-main : Program {} {} Msg
+{-|-}
+main : Program {} { lines : Array String } Msg
 main =
     Browser.document
         { init =
             \_flags ->
-                { model = {}
-                , command =
-                    Crypto.isSecureContext
-                        |> Task.mapError (\_ -> Crypto.ModulusLengthNotDivisibleByEight)
-                        |> Task.andThen (\secureContext ->
-                            let
-                                _ = Debug.log "secureContext" secureContext
-                            in
-                            Crypto.generateRsassaPkcs1V1_5Key 
-                                secureContext
-                                { modulusLength = 4096
-                                , hash = Crypto.Sha256
-                                , publicExponent = Crypto.PublicExponent65537
-                                }
-                                Crypto.CanBeExtracted
-                        )
-                        |> Task.attempt
-                            (\res ->
-                                case res of
-                                    Ok val ->
-                                        let
-                                            _ =
-                                                Debug.log "res" val
-                                        in
-                                        NoOp
-
-                                    Err _err ->
-                                        NoOp
-                            )
+                { model = 
+                    { lines = [] 
+                    }
+                , command = Cmd.batch (Tests.tests AddLine)
                 }
         , view =
             \model ->
-                { title = "hi"
+                { title = "gren-core-crypto-test"
                 , body =
-                    [ Html.div
-                        []
-                        [ Html.text "hi"
+                    [ Html.div 
+                        [] 
+                        [ Html.text (String.fromInt (Array.length model.lines)) 
+                        , Html.text " / "
+                        , Html.text (String.fromInt Tests.count)
                         ]
+                    , Html.div
+                        []
+                        (Array.map 
+                            (\string -> 
+                                Html.div [] 
+                                    [ Html.text string 
+                                    ]
+                            ) 
+                            model.lines
+                        )
                     ]
                 }
         , update =
             \msg model ->
                 case msg of
                     NoOp ->
-                        { model = {}
+                        { model = model
                         , command = Cmd.none
                         }
 
-                    PrintUuid id ->
-                        let
-                            _ = Debug.log "randomuuid from gren" id
-                        in
-                        { model = {}
+                    AddLine string ->
+                        { model = { lines = Array.pushLast string model.lines }
                         , command = Cmd.none
                         }
         , subscriptions = \model -> Sub.none

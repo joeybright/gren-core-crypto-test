@@ -8,7 +8,8 @@
     "dependencies": {
         "direct": {
             "gren-lang/browser": "3.2.0",
-            "gren-lang/core": "local:../../gren-core"
+            "gren-lang/core": "local:../../gren-core",
+            "joeybright/gren-core-crypto-test": "local:../test"
         },
         "indirect": {
             "gren-lang/url": "3.0.0"
