@@ -4,6 +4,7 @@ module Tests exposing (..)
 
 import Crypto
 import Task exposing ( Task )
+import Json.Encode
 
 
 {-|-}
@@ -137,6 +138,8 @@ rsaTests func =
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
        --
+    , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.string "test")) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
+       --
        -- RsaOaepPrivateKey
        -- exportRsaOaepPrivateKeyAsPkcs8
        -- importRsaOAepPrivateKeyFromPkcs8
@@ -263,7 +266,7 @@ exportRsaOaepPublicKeyAsJwk hash exponent =
 {-|-}
 importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
     exportRsaOaepPublicKeyAsJwk keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.HashMismatch)
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyUnknownError "")
         |> Task.andThen
                 (\{ key, secureContext, exportedKey } ->
                     Crypto.importRsaOaepPublicKeyFromJwk
@@ -282,6 +285,20 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
                                 )
                 )
 
+
+{-|-}
+importRsaOaepPublicKeyFromJwkWithArbitraryJson json =
+    getSecureContext
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyUnknownError "")
+        |> Task.andThen
+            (\secureContext ->
+                Crypto.importRsaOaepPublicKeyFromJwk
+                    secureContext
+                    json
+                    { hash = Crypto.Sha256
+                    }
+                    Crypto.CanBeExtracted
+            )
 
 
 -- AES algorithm
