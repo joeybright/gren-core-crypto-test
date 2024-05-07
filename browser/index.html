@@ -2403,6 +2403,7 @@ var _Crypto_importRsaKey = F7(function (wrapper, format, keyData, algorithm, has
                 }
             })
             .catch(function (err) {
+                console.log(err);
                 switch (err.message) {
                     case "Invalid JWK keyData":
                         return callback(_Scheduler_fail($gren_lang$core$Crypto$ImportRsaKeyHashMismatchError));
