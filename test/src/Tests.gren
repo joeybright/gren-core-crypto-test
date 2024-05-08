@@ -138,7 +138,7 @@ rsaTests func =
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
        --
-    , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.string "test")) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
+    , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.object [ { key = "test", value = Json.Encode.string "test" } ])) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
        --
        -- RsaOaepPrivateKey
        -- exportRsaOaepPrivateKeyAsPkcs8
