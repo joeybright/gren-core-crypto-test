@@ -266,7 +266,7 @@ exportRsaOaepPublicKeyAsJwk hash exponent =
 {-|-}
 importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
     exportRsaOaepPublicKeyAsJwk keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyUnknownError "")
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
         |> Task.andThen
                 (\{ key, secureContext, exportedKey } ->
                     Crypto.importRsaOaepPublicKeyFromJwk
@@ -289,7 +289,7 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
 {-|-}
 importRsaOaepPublicKeyFromJwkWithArbitraryJson json =
     getSecureContext
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyUnknownError "")
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
         |> Task.andThen
             (\secureContext ->
                 Crypto.importRsaOaepPublicKeyFromJwk
