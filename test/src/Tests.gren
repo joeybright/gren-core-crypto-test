@@ -116,27 +116,38 @@ rsaTests func =
     , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent" "x - Problem generating RSA-OAEP key"
     , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent" "x - Problem generating RSA-OAEP key"
     , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent" "x - Problem generating RSA-OAEP key"
-        -- 
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
     , test (exportRsaOaepPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as jwk" "x - Problem exporting RSA-OAEP public key as jwk"
-        --
-        -- exportRsaOaepPublicKeyAsSpki
-        --
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 65537 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-256 hash and 3 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 65537 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-384 hash and 3 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 65537 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
+    , test (exportRsaOaepPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent3) "✓ - Exported RSA-OAEP public key with SHA-512 hash and 3 exponent as spki" "x - Problem exporting RSA-OAEP public key as spki"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from jwk with matching hash" "x - Problem import RSA-OAEP public key from jwk"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 65537 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256) "✓ - Imported RSA-OAEP key with SHA-256 hash and 3 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 65537 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
         -- 
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
+      -- Note that importing a key from SPKI with a hash mismatch is allowed...
+      -- So, this will succeed. I need to consider how to handle this!
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "x - Imported RSA-OAEP public key from a spki with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from spki with hash mismatch"
        --
     , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.object [ { key = "test", value = Json.Encode.string "test" } ])) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
        --
@@ -264,6 +275,23 @@ exportRsaOaepPublicKeyAsJwk hash exponent =
 
 
 {-|-}
+exportRsaOaepPublicKeyAsSpki hash exponent =
+    generateRsaOaepKey hash exponent
+        |> Task.mapError (\_ -> Crypto.KeyNotExportable)
+        |> Task.andThen
+            (\{ key, secureContext } ->
+                Crypto.exportRsaOaepPublicKeyAsSpki secureContext key.publicKey
+                    |> Task.map
+                        (\exportedKey ->
+                            { key = key
+                            , exportedKey = exportedKey
+                            , secureContext = secureContext
+                            }
+                        )
+            )
+
+
+{-|-}
 importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
     exportRsaOaepPublicKeyAsJwk keyHash keyExponent
         |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
@@ -284,6 +312,29 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
                                     }
                                 )
                 )
+
+
+{-|-}
+importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
+    exportRsaOaepPublicKeyAsSpki keyHash keyExponent
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
+        |> Task.andThen
+            (\{ key, secureContext, exportedKey } ->
+                Crypto.importRsaOaepPublicKeyFromSpki
+                    secureContext
+                    exportedKey
+                    { hash = importHash
+                    }
+                    Crypto.CanBeExtracted
+                    |> Task.map
+                        (\importedKey ->
+                            { key = key
+                            , secureContext = secureContext
+                            , exportedKey = exportedKey
+                            , importedKey = importedKey
+                            }
+                        )
+            )
 
 
 {-|-}
