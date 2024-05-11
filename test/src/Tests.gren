@@ -218,7 +218,7 @@ rsaOaepPublicKeyTests func =
             [ test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
             ]
     in
-    generate ++ exportAsJwk ++ importFromJwk ++ importFromJwkFailures ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
+    exportAsJwk ++ importFromJwk ++ importFromJwkFailures ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
 
 
 {-|-}
