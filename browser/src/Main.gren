@@ -16,13 +16,18 @@ type Msg
 
 
 {-|-}
-main : Program {} { lines : Array String } Msg
+main :
+    Program
+        {}
+        { lines : Array String
+        }
+        Msg
 main =
     Browser.document
         { init =
             \_flags ->
-                { model = 
-                    { lines = [] 
+                { model =
+                    { lines = []
                     }
                 , command = Cmd.batch (Tests.tests AddLine)
                 }
@@ -30,20 +35,21 @@ main =
             \model ->
                 { title = "gren-core-crypto-test"
                 , body =
-                    [ Html.div 
-                        [] 
-                        [ Html.text (String.fromInt (Array.length model.lines)) 
+                    [ Html.div
+                        []
+                        [ Html.text (String.fromInt (Array.length model.lines))
                         , Html.text " / "
                         , Html.text (String.fromInt Tests.count)
                         ]
                     , Html.div
                         []
-                        (Array.map 
-                            (\string -> 
-                                Html.div [] 
-                                    [ Html.text string 
+                        (Array.map
+                            (\string ->
+                                Html.div
+                                    []
+                                    [ Html.text string
                                     ]
-                            ) 
+                            )
                             model.lines
                         )
                     ]
@@ -57,7 +63,9 @@ main =
                         }
 
                     AddLine string ->
-                        { model = { lines = Array.pushLast string model.lines }
+                        { model =
+                            { lines = Array.pushLast string model.lines
+                            }
                         , command = Cmd.none
                         }
         , subscriptions = \model -> Sub.none

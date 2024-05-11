@@ -2,10 +2,10 @@ module Tests exposing (..)
 
 {-|-}
 
-import Crypto
-import Task exposing ( Task )
-import Json.Encode
 import Bytes.Encode
+import Crypto
+import Json.Encode
+import Task exposing ( Task )
 
 
 {-|-}
@@ -146,90 +146,100 @@ rsaTests func =
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP public key from a spki even with hash mismatch" "x - Import failed for RSA-OAEP public key from spki with hash mismatch"
-    , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.object [ { key = "test", value = Json.Encode.string "test" } ])) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
+    , test
+        (importRsaOaepPublicKeyFromJwkWithArbitraryJson
+            (Json.Encode.object
+                [ { key = "test"
+                  , value = Json.Encode.string "test"
+                  }
+                ]
+            )
+        )
+        "x - Somehow imported RSA-OAEP public key with incorrect JSON"
+        "✓ - Appropriately failed importing a key with incorrect JSON"
     , test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
-       --
-       -- RsaOaepPrivateKey
-       -- exportRsaOaepPrivateKeyAsPkcs8
-       -- importRsaOAepPrivateKeyFromPkcs8
-       -- exportRsaOaepPrivateKeyAsJwk
-       -- importRsaOaepPrivateKeyFromJwk
-       --
-       -- RsaPssPublicKey
-       -- exportRsaPssPublicKeyAsSpki
-       -- importRsaPssPublicKeyFromSpki
-       -- exportRsaPssPublicKeyAsJwk
-       -- importRsaPssPublicKeyFromJwk
-       --
-       -- RsaPssPrivateKey
-       -- exportRsaPssPrivateKeyAsPkcs8
-       -- importRsaPssPrivateKeyFromPkcs8
-       -- exportRsaPssPrivateKeyAsJwk
-       -- importRsaPssPrivateKeyFromJwk
-       --
-       -- RsaSsaPkcs1V1_5PublicKey
-       -- exportRsaSsaPkcs1V1_5PublicKeyAsSpki
-       -- importRsaSsaPkcs1V1_5PublicKeyFromSpki
-       -- exportRsaSsaPkcs1V1_5PublicKeyAsJwk
-       -- importRsaSsaPkcs1V1_5PublicKeyFromJwk
-       --
-       -- RsaSsaPkcs1V1_5PrivateKey
-       -- exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
-       -- importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
-       -- exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
-       -- importRsaSsaPkcs1V1_5PrivateKeyFromJwk
-       --
-       -- AesCtrKey
-       -- exportAesCtrKeyAsRaw
-       -- importAesCtrKeyFromRaw
-       -- exportAesCtrKeyAsJwk
-       -- importAesCtrKeyFromJwk
-       --
-       -- AesCbcKey
-       -- exportAesCbcKeyAsRaw
-       -- importAesCbcKeyFromRaw
-       -- exportAesCbcKeyAsJwk
-       -- importAesCbcKeyFromJwk
-       --
-       -- AesGcmKey
-       -- exportAesGcmKeyAsRaw
-       -- importAesGcmKeyFromRaw
-       -- exportAesGcmKeyAsJwk
-       -- importAesGcmKeyFromJwk
-       --
-       -- EcdsaKeyPrivateKey
-       -- exportEcdsaPrivateKeyAsPkcs8
-       -- importEcdsaPrivateKeyFromPkcs8
-       -- exportEcdsaPrivateKeyAsJwt
-       -- importEcdsaPrivateKeyFromJwt
-       --
-       -- EcdsaKeyPublicKey
-       -- exportEcdsaPublicKeyAsRaw
-       -- importEcdsaPublicKeyFromRaw
-       -- exportEcdsaPublicKeyAsSpki
-       -- importEcdsaPublicKeyFromSpki
-       -- exportEcdsaPublicKeyAsJwt
-       -- importEcdsaPublicKeyFromJwt
-       --
-       -- EcdhKeyPrivateKey
-       -- exportEcdhPrivateKeyAsPkcs8
-       -- importEcdhPrivateKeyFromPkcs8
-       -- exportEcdhPrivateKeyAsJwt
-       -- importEcdhPrivateKeyFromJwt
-       --
-       -- EcdhKeyPublicKey
-       -- exportEcdhPublicKeyAsRaw
-       -- importEcdhPublicKeyFromRaw
-       -- exportEcdhPublicKeyAsSpki
-       -- importEcdhPublicKeyFromSpki
-       -- exportEcdhPublicKeyAsJwt
-       -- importEcdhPublicKeyFromJwt
-       --
-       -- HmacKey
-       -- exportHmacKeyAsRaw
-       -- importHmacKeyFromRaw
-       -- exportHmacKeyAsJwk
-       -- importHmacKeyFromJwk
+        -- 
+        -- RsaOaepPrivateKey
+        -- exportRsaOaepPrivateKeyAsPkcs8
+        -- importRsaOAepPrivateKeyFromPkcs8
+        -- exportRsaOaepPrivateKeyAsJwk
+        -- importRsaOaepPrivateKeyFromJwk
+        -- 
+        -- RsaPssPublicKey
+        -- exportRsaPssPublicKeyAsSpki
+        -- importRsaPssPublicKeyFromSpki
+        -- exportRsaPssPublicKeyAsJwk
+        -- importRsaPssPublicKeyFromJwk
+        -- 
+        -- RsaPssPrivateKey
+        -- exportRsaPssPrivateKeyAsPkcs8
+        -- importRsaPssPrivateKeyFromPkcs8
+        -- exportRsaPssPrivateKeyAsJwk
+        -- importRsaPssPrivateKeyFromJwk
+        -- 
+        -- RsaSsaPkcs1V1_5PublicKey
+        -- exportRsaSsaPkcs1V1_5PublicKeyAsSpki
+        -- importRsaSsaPkcs1V1_5PublicKeyFromSpki
+        -- exportRsaSsaPkcs1V1_5PublicKeyAsJwk
+        -- importRsaSsaPkcs1V1_5PublicKeyFromJwk
+        -- 
+        -- RsaSsaPkcs1V1_5PrivateKey
+        -- exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
+        -- importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
+        -- exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
+        -- importRsaSsaPkcs1V1_5PrivateKeyFromJwk
+        -- 
+        -- AesCtrKey
+        -- exportAesCtrKeyAsRaw
+        -- importAesCtrKeyFromRaw
+        -- exportAesCtrKeyAsJwk
+        -- importAesCtrKeyFromJwk
+        -- 
+        -- AesCbcKey
+        -- exportAesCbcKeyAsRaw
+        -- importAesCbcKeyFromRaw
+        -- exportAesCbcKeyAsJwk
+        -- importAesCbcKeyFromJwk
+        -- 
+        -- AesGcmKey
+        -- exportAesGcmKeyAsRaw
+        -- importAesGcmKeyFromRaw
+        -- exportAesGcmKeyAsJwk
+        -- importAesGcmKeyFromJwk
+        -- 
+        -- EcdsaKeyPrivateKey
+        -- exportEcdsaPrivateKeyAsPkcs8
+        -- importEcdsaPrivateKeyFromPkcs8
+        -- exportEcdsaPrivateKeyAsJwt
+        -- importEcdsaPrivateKeyFromJwt
+        -- 
+        -- EcdsaKeyPublicKey
+        -- exportEcdsaPublicKeyAsRaw
+        -- importEcdsaPublicKeyFromRaw
+        -- exportEcdsaPublicKeyAsSpki
+        -- importEcdsaPublicKeyFromSpki
+        -- exportEcdsaPublicKeyAsJwt
+        -- importEcdsaPublicKeyFromJwt
+        -- 
+        -- EcdhKeyPrivateKey
+        -- exportEcdhPrivateKeyAsPkcs8
+        -- importEcdhPrivateKeyFromPkcs8
+        -- exportEcdhPrivateKeyAsJwt
+        -- importEcdhPrivateKeyFromJwt
+        -- 
+        -- EcdhKeyPublicKey
+        -- exportEcdhPublicKeyAsRaw
+        -- importEcdhPublicKeyFromRaw
+        -- exportEcdhPublicKeyAsSpki
+        -- importEcdhPublicKeyFromSpki
+        -- exportEcdhPublicKeyAsJwt
+        -- importEcdhPublicKeyFromJwt
+        -- 
+        -- HmacKey
+        -- exportHmacKeyAsRaw
+        -- importHmacKeyFromRaw
+        -- exportHmacKeyAsJwk
+        -- importHmacKeyFromJwk
     ]
 
 
@@ -277,16 +287,16 @@ exportRsaOaepPublicKeyAsSpki hash exponent =
     generateRsaOaepKey hash exponent
         |> Task.mapError (\_ -> Crypto.KeyNotExportable)
         |> Task.andThen
-            (\{ key, secureContext } ->
-                Crypto.exportRsaOaepPublicKeyAsSpki secureContext key.publicKey
-                    |> Task.map
-                        (\exportedKey ->
-                            { key = key
-                            , exportedKey = exportedKey
-                            , secureContext = secureContext
-                            }
-                        )
-            )
+                (\{ key, secureContext } ->
+                    Crypto.exportRsaOaepPublicKeyAsSpki secureContext key.publicKey
+                        |> Task.map
+                                (\exportedKey ->
+                                    { key = key
+                                    , exportedKey = exportedKey
+                                    , secureContext = secureContext
+                                    }
+                                )
+                )
 
 
 {-|-}
@@ -317,22 +327,22 @@ importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
     exportRsaOaepPublicKeyAsSpki keyHash keyExponent
         |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
         |> Task.andThen
-            (\{ key, secureContext, exportedKey } ->
-                Crypto.importRsaOaepPublicKeyFromSpki
-                    secureContext
-                    exportedKey
-                    { hash = importHash
-                    }
-                    Crypto.CanBeExtracted
-                    |> Task.map
-                        (\importedKey ->
-                            { key = key
-                            , secureContext = secureContext
-                            , exportedKey = exportedKey
-                            , importedKey = importedKey
-                            }
-                        )
-            )
+                (\{ key, secureContext, exportedKey } ->
+                    Crypto.importRsaOaepPublicKeyFromSpki
+                        secureContext
+                        exportedKey
+                        { hash = importHash
+                        }
+                        Crypto.CanBeExtracted
+                        |> Task.map
+                                (\importedKey ->
+                                    { key = key
+                                    , secureContext = secureContext
+                                    , exportedKey = exportedKey
+                                    , importedKey = importedKey
+                                    }
+                                )
+                )
 
 
 {-|-}
@@ -340,14 +350,14 @@ importRsaOaepPublicKeyFromJwkWithArbitraryJson json =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
         |> Task.andThen
-            (\secureContext ->
-                Crypto.importRsaOaepPublicKeyFromJwk
-                    secureContext
-                    json
-                    { hash = Crypto.Sha256
-                    }
-                    Crypto.CanBeExtracted
-            )
+                (\secureContext ->
+                    Crypto.importRsaOaepPublicKeyFromJwk
+                        secureContext
+                        json
+                        { hash = Crypto.Sha256
+                        }
+                        Crypto.CanBeExtracted
+                )
 
 
 {-|-}
@@ -355,28 +365,20 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes bytes =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
         |> Task.andThen
-            (\secureContext ->
-                Crypto.importRsaOaepPublicKeyFromSpki
-                    secureContext
-                    bytes
-                    { hash = Crypto.Sha256
-                    }
-                    Crypto.CanBeExtracted
-            )
+                (\secureContext ->
+                    Crypto.importRsaOaepPublicKeyFromSpki
+                        secureContext
+                        bytes
+                        { hash = Crypto.Sha256
+                        }
+                        Crypto.CanBeExtracted
+                )
+
 
 
 -- AES algorithm
-
-
-
 -- ECD algorithm
-
-
-
 -- HMAC algorithm
-
-
-
 -- Utilities
 
 
