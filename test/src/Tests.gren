@@ -5,6 +5,7 @@ module Tests exposing (..)
 import Crypto
 import Task exposing ( Task )
 import Json.Encode
+import Bytes.Encode
 
 
 {-|-}
@@ -140,16 +141,13 @@ rsaTests func =
     , test (importRsaOaepPublicKeyFromSpki Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384) "✓ - Imported RSA-OAEP key with SHA-384 hash and 3 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
     , test (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 65537 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
     , test (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512) "✓ - Imported RSA-OAEP key with SHA-512 hash and 3 exponent from spki with matching hash" "x - Problem import RSA-OAEP public key from spki"
-        -- 
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "x - Imported RSA-OAEP public key from a jwk with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha384) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
-      -- Note that importing a key from SPKI with a hash mismatch is allowed...
-      -- So, this will succeed. I need to consider how to handle this!
-    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "x - Imported RSA-OAEP public key from a spki with hash mismatch and 65537 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from spki with hash mismatch"
-       --
+    , test (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384) "✓ - Imported RSA-OAEP public key from a spki even with hash mismatch" "x - Import failed for RSA-OAEP public key from spki with hash mismatch"
     , test (importRsaOaepPublicKeyFromJwkWithArbitraryJson (Json.Encode.object [ { key = "test", value = Json.Encode.string "test" } ])) "x - Somehow imported RSA-OAEP public key with incorrect JSON" "✓ - Appropriately failed importing a key with incorrect JSON"
+    , test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
        --
        -- RsaOaepPrivateKey
        -- exportRsaOaepPrivateKeyAsPkcs8
@@ -346,6 +344,21 @@ importRsaOaepPublicKeyFromJwkWithArbitraryJson json =
                 Crypto.importRsaOaepPublicKeyFromJwk
                     secureContext
                     json
+                    { hash = Crypto.Sha256
+                    }
+                    Crypto.CanBeExtracted
+            )
+
+
+{-|-}
+importRsaOaepPublicKeyFromSpkiWithArbitraryBytes bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
+        |> Task.andThen
+            (\secureContext ->
+                Crypto.importRsaOaepPublicKeyFromSpki
+                    secureContext
+                    bytes
                     { hash = Crypto.Sha256
                     }
                     Crypto.CanBeExtracted
