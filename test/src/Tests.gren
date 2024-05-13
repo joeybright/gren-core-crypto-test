@@ -375,8 +375,82 @@ exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
 
 
 {-|-}
+exportRsaPssPublicKeyAsJwk hash exponent =
+    --
+    (exportRsaPssKeyPair hash exponent)
+        Crypto.exportRsaPssPublicKeyAsJwk
+        .publicKey
+
+
+{-|-}
+exportRsaPssPublicKeyAsSpki hash exponent =
+    --
+    (exportRsaPssKeyPair hash exponent)
+        Crypto.exportRsaPssPublicKeyAsSpki
+        .publicKey
+
+
+{-|-}
+exportRsaPssPrivateKeyAsJwk hash exponent =
+   --
+    (exportRsaPssKeyPair hash exponent)
+        Crypto.exportRsaPssPrivateKeyAsJwk
+        .privateKey
+
+    
+{-|-}
+exportRsaPssPrivateKeyAsPkcs8 hash exponent =
+    --
+    (exportRsaPssKeyPair hash exponent)
+        Crypto.exportRsaPssPrivateKeyAsPkcs8
+        .privateKey
+
+
+{-|-}
+exportRsaSsaPkcs1V1_5PublicKeyAsJwk hash exponent =
+    --
+    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
+        Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsJwk
+        .publicKey
+
+
+{-|-}
+exportRsaSsaPkcs1V1_5PublicKeyAsSpki hash exponent =
+    --
+    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
+        Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsSpki
+        .publicKey
+
+
+{-|-}
+exportRsaSsaPkcs1V1_5PrivateKeyAsJwk hash exponent =
+    --
+    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
+        Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
+        .privateKey
+
+
+{-|-}
+exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 hash exponent =
+    --
+    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
+        Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
+        .privateKey
+
+
+{-|-}
 exportRsaOaepKeyPair hash exponent =
     exportKey (generateRsaOaepKeyPair hash exponent)
+
+
+{-|-}
+exportRsaPssKeyPair hash exponent =
+    exportKey (generateRsaPssKeyPair hash exponent)
+
+
+{-|-}
+exportRsaSsaPkcs1V1_5KeyPair hash exponent =
+    exportKey (generateRsaSsaPkcs1V1_5KeyPair hash exponent)
 
 
 {-|-}
