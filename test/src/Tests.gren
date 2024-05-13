@@ -112,12 +112,12 @@ rsaTests func =
             Task.attempt (testHelper func success failure) task
 
         generate =
-            [ test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-256 and 65537 exponent" "x - Problem generating RSA-OAEP key"
-            , test (generateRsaOaepKey Crypto.Sha256 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-256 and 3 exponent" "x - Problem generating RSA-OAEP key"
-            , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-384 and 65537 exponent" "x - Problem generating RSA-OAEP key"
-            , test (generateRsaOaepKey Crypto.Sha384 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent" "x - Problem generating RSA-OAEP key"
-            , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent" "x - Problem generating RSA-OAEP key"
-            , test (generateRsaOaepKey Crypto.Sha512 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent" "x - Problem generating RSA-OAEP key"
+            [ test (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-256 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+            , test (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-256 and 3 exponent" "x - Problem generating RSA-OAEP key"
+            , test (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-384 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+            , test (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-384 and 3 exponent" "x - Problem generating RSA-OAEP key"
+            , test (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent65537) "✓ - Generated RSA-OAEP key with SHA-512 and 65537 exponent" "x - Problem generating RSA-OAEP key"
+            , test (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent3) "✓ - Generated RSA-OAEP key with SHA-512 and 3 exponent" "x - Problem generating RSA-OAEP key"
             ]
 
         -- RsaPssPublicKey
@@ -283,7 +283,7 @@ rsaOaepPrivateKeyTests func =
 
 
 {-|-}
-generateRsaOaepKey hash exponent =
+generateRsaOaepKeyPair hash exponent =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
         (\secureContext -> 
@@ -318,35 +318,35 @@ generateKey errorMap keyGenFunc =
 
 {-|-}
 exportRsaOaepPublicKeyAsJwk hash exponent =
-    (exportRsaOaepKey hash exponent)
+    (exportRsaOaepKeyPair hash exponent)
         Crypto.exportRsaOaepPublicKeyAsJwk
         .publicKey
 
 
 {-|-}
 exportRsaOaepPublicKeyAsSpki hash exponent =
-    (exportRsaOaepKey hash exponent)
+    (exportRsaOaepKeyPair hash exponent)
         Crypto.exportRsaOaepPublicKeyAsSpki
         .publicKey
 
 
 {-|-}
 exportRsaOaepPrivateKeyAsJwk hash exponent =
-    (exportRsaOaepKey hash exponent)
+    (exportRsaOaepKeyPair hash exponent)
         Crypto.exportRsaOaepPrivateKeyAsJwk
         .privateKey
 
 
 {-|-}
 exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
-    (exportRsaOaepKey hash exponent)
+    (exportRsaOaepKeyPair hash exponent)
         Crypto.exportRsaOaepPrivateKeyAsPkcs8
         .privateKey
 
 
 {-|-}
-exportRsaOaepKey hash exponent =
-    exportKey (generateRsaOaepKey hash exponent)
+exportRsaOaepKeyPair hash exponent =
+    exportKey (generateRsaOaepKeyPair hash exponent)
 
 
 {-|-}
