@@ -298,6 +298,36 @@ generateRsaOaepKeyPair hash exponent =
 
 
 {-|-}
+generateRsaPssKeyPair hash exponent =
+    generateKey
+        Crypto.ModulusLengthNotDivisibleByEight
+        (\secureContext ->
+            Crypto.generateRsaPssKeyPair
+                secureContext
+                { modulusLength = 4096
+                , hash = hash
+                , publicExponent = Crypto.PublicExponent65537
+                }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+generateRsaSsaPkcs1V1_5KeyPair hash exponent =
+    generateKey
+        Crypto.ModulusLengthNotDivisibleByEight
+        (\secureContext ->
+            Crypto.generateRsaSsaPkcs1V1_5KeyPair
+                secureContext
+                { modulusLength = 4096
+                , hash = hash
+                , publicExponent = Crypto.PublicExponent65537
+                }
+                Crypto.CanBeExtracted
+        )
+        
+
+{-|-}
 generateKey errorMap keyGenFunc =
     getSecureContext
         |> Task.mapError (\_ -> errorMap)
