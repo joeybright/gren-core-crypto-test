@@ -279,19 +279,31 @@ rsaOaepPrivateKeyTests func =
     exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
 
 
+-- GENERATE KEYS
+
+
 {-|-}
 generateRsaOaepKey hash exponent =
+    generateKey
+        Crypto.ModulusLengthNotDivisibleByEight
+        (\secureContext -> 
+            Crypto.generateRsaOaepKeyPair
+                secureContext
+                { modulusLength = 4096
+                , hash = hash
+                , publicExponent = Crypto.PublicExponent65537
+                }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+generateKey errorMap keyGenFunc =
     getSecureContext
-        |> Task.mapError (\_ -> Crypto.ModulusLengthNotDivisibleByEight)
+        |> Task.mapError (\_ -> errorMap)
         |> Task.andThen
                 (\secureContext ->
-                    Crypto.generateRsaOaepKeyPair
-                        secureContext
-                        { modulusLength = 4096
-                        , hash = hash
-                        , publicExponent = Crypto.PublicExponent65537
-                        }
-                        Crypto.CanBeExtracted
+                    keyGenFunc secureContext
                         |> Task.map
                                 (\key ->
                                     { key = key
@@ -301,30 +313,49 @@ generateRsaOaepKey hash exponent =
                 )
 
 
+-- EXPORT KEYS
+
+
 {-|-}
 exportRsaOaepPublicKeyAsJwk hash exponent =
-    generateRsaOaepKey hash exponent
-        |> Task.mapError (\_ -> Crypto.KeyNotExportable)
-        |> Task.andThen
-                (\{ key, secureContext } ->
-                    Crypto.exportRsaOaepPublicKeyAsJwk secureContext key.publicKey
-                        |> Task.map
-                                (\exportedKey ->
-                                    { key = key
-                                    , exportedKey = exportedKey
-                                    , secureContext = secureContext
-                                    }
-                                )
-                )
+    (exportRsaOaepKey hash exponent)
+        Crypto.exportRsaOaepPublicKeyAsJwk
+        .publicKey
 
 
 {-|-}
 exportRsaOaepPublicKeyAsSpki hash exponent =
-    generateRsaOaepKey hash exponent
+    (exportRsaOaepKey hash exponent)
+        Crypto.exportRsaOaepPublicKeyAsSpki
+        .publicKey
+
+
+{-|-}
+exportRsaOaepPrivateKeyAsJwk hash exponent =
+    (exportRsaOaepKey hash exponent)
+        Crypto.exportRsaOaepPrivateKeyAsJwk
+        .privateKey
+
+
+{-|-}
+exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
+    (exportRsaOaepKey hash exponent)
+        Crypto.exportRsaOaepPrivateKeyAsPkcs8
+        .privateKey
+
+
+{-|-}
+exportRsaOaepKey hash exponent =
+    exportKey (generateRsaOaepKey hash exponent)
+
+
+{-|-}
+exportKey keyGenFunc exportKeyFunc keyFunc =
+    keyGenFunc
         |> Task.mapError (\_ -> Crypto.KeyNotExportable)
         |> Task.andThen
                 (\{ key, secureContext } ->
-                    Crypto.exportRsaOaepPublicKeyAsSpki secureContext key.publicKey
+                    exportKeyFunc secureContext (keyFunc key)
                         |> Task.map
                                 (\exportedKey ->
                                     { key = key
@@ -335,129 +366,66 @@ exportRsaOaepPublicKeyAsSpki hash exponent =
                 )
 
 
-{-|-}
-exportRsaOaepPrivateKeyAsJwk hash exponent =
-    generateRsaOaepKey hash exponent
-        |> Task.mapError (\_ -> Crypto.KeyNotExportable)
-        |> Task.andThen
-            (\{ key, secureContext } ->
-                Crypto.exportRsaOaepPrivateKeyAsJwk secureContext key.privateKey
-                    |> Task.map
-                        (\exportedKey ->
-                            { key = key
-                            , exportedKey = exportedKey
-                            , secureContext = secureContext
-                            }
-                        )
-            )
-
-{-|-}
-exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
-    generateRsaOaepKey hash exponent
-        |> Task.mapError (\_ -> Crypto.KeyNotExportable)
-        |> Task.andThen
-            (\{ key, secureContext } ->
-                Crypto.exportRsaOaepPrivateKeyAsPkcs8 secureContext key.privateKey
-                    |> Task.map
-                        (\exportedKey ->
-                            { key = key
-                            , exportedKey = exportedKey
-                            , secureContext = secureContext
-                            }
-                        )
-            )
+-- IMPORT KEYS
 
 
 {-|-}
 importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
-    exportRsaOaepPublicKeyAsJwk keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\{ key, secureContext, exportedKey } ->
-                    Crypto.importRsaOaepPublicKeyFromJwk
-                        secureContext
-                        exportedKey
-                        { hash = importHash
-                        }
-                        Crypto.CanBeExtracted
-                        |> Task.map
-                                (\importedKey ->
-                                    { key = key
-                                    , secureContext = secureContext
-                                    , exportedKey = exportedKey
-                                    , importedKey = importedKey
-                                    }
-                                )
-                )
-
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPublicKeyFromJwk 
+                secureContext 
+                exportedKey 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 {-|-}
 importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
-    exportRsaOaepPublicKeyAsSpki keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\{ key, secureContext, exportedKey } ->
-                    Crypto.importRsaOaepPublicKeyFromSpki
-                        secureContext
-                        exportedKey
-                        { hash = importHash
-                        }
-                        Crypto.CanBeExtracted
-                        |> Task.map
-                                (\importedKey ->
-                                    { key = key
-                                    , secureContext = secureContext
-                                    , exportedKey = exportedKey
-                                    , importedKey = importedKey
-                                    }
-                                )
-                )
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPublicKeyFromSpki 
+                secureContext 
+                exportedKey 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
 importRsaOaepPrivateKeyFromJwk keyHash keyExponent importHash =
-    exportRsaOaepPrivateKeyAsJwk keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\{ key, secureContext, exportedKey } ->
-                    Crypto.importRsaOaepPrivateKeyFromJwk
-                        secureContext
-                        exportedKey
-                        { hash = importHash
-                        }
-                        Crypto.CanBeExtracted
-                        |> Task.map
-                                (\importedKey ->
-                                    { key = key
-                                    , secureContext = secureContext
-                                    , exportedKey = exportedKey
-                                    , importedKey = importedKey
-                                    }
-                                )
-                )
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPrivateKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPrivateKeyFromJwk
+                secureContext 
+                exportedKey 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
 importRsaOaepPrivateKeyFromPkcs8 keyHash keyExponent importHash =
-    exportRsaOaepPrivateKeyAsPkcs8 keyHash keyExponent
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\{ key, secureContext, exportedKey } ->
-                    Crypto.importRsaOaepPrivateKeyFromPkcs8
-                        secureContext
-                        exportedKey
-                        { hash = importHash
-                        }
-                        Crypto.CanBeExtracted
-                        |> Task.map
-                                (\importedKey ->
-                                    { key = key
-                                    , secureContext = secureContext
-                                    , exportedKey = exportedKey
-                                    , importedKey = importedKey
-                                    }
-                                )
-                )
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPrivateKeyAsPkcs8 keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPrivateKeyFromPkcs8
+                secureContext 
+                exportedKey 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
@@ -489,6 +457,23 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes bytes =
                         Crypto.CanBeExtracted
                 )
 
+
+{-|-}
+importKey errorMap exportFunc importFunc =
+    exportFunc
+        |> Task.mapError (\_ -> errorMap)
+        |> Task.andThen 
+            (\data ->
+                importFunc data
+                    |> Task.map
+                        (\importedKey ->
+                            { key = data.key
+                            , secureContext = data.secureContext
+                            , exportedKey = data.exportedKey
+                            , importedKey = importedKey
+                            }
+                        )
+            )
 
 
 -- AES algorithm
