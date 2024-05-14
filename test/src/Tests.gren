@@ -282,6 +282,26 @@ rsaOaepPrivateKeyTests func =
     exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
 
 
+{-|-}
+rsaPssPublicKeyTests func =
+    Debug.lot ""
+
+
+{-|-}
+rsaPssPrivateKeyTests func =
+    Debug.log ""
+
+
+{-|-}
+rsaSsaPkcs1V1_5KPublicKeyTests func =
+    Debug.log ""
+
+
+{-|-}
+rsaSsaPkcs1V1_5KPrivateKeyTests func =
+    Debug.log ""
+
+
 
 -- GENERATE KEYS
 
