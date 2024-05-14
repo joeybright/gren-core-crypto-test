@@ -227,56 +227,44 @@ rsaOaepPrivateKeyTests func =
         testId int =
             "RSA-OAEP private key - " ++ String.fromInt int
 
-        successString id =
-            "✓ - " ++ id
-
-        failureString id =
-            "x - " ++ id
-
-        expectSuccess id task =
-            test task (successString id) (failureString id)
-
-        expectFailure id task =
-            test task (failureString id) (successString id)
-
         exportAsJwk =
-            [ expectSuccess (testId 1) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess (testId 2) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3)
-            , expectSuccess (testId 3) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3)
-            , expectSuccess (testId 4) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537)
-            , expectSuccess (testId 5) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537)
-            , expectSuccess (testId 6) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537)
+            [ expectSuccess test (testId 1) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3)
+            , expectSuccess test (testId 2) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3)
+            , expectSuccess test (testId 3) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3)
+            , expectSuccess test (testId 4) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 5) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 6) (exportRsaOaepPrivateKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537)
             ]
 
         exportAsPkcs8 =
-            [ expectSuccess (testId 7) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess (testId 8) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent3)
-            , expectSuccess (testId 9) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent3)
-            , expectSuccess (testId 10) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent65537)
-            , expectSuccess (testId 11) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent65537)
-            , expectSuccess (testId 12) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent65537)
+            [ expectSuccess test (testId 7) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent3)
+            , expectSuccess test (testId 8) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent3)
+            , expectSuccess test (testId 9) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent3)
+            , expectSuccess test (testId 10) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 11) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 12) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent65537)
             ]
 
         importFromJwk =
-            [ expectSuccess (testId 13) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-            , expectSuccess (testId 14) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-            , expectSuccess (testId 15) (importRsaOaepPrivateKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-            , expectSuccess (testId 16) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-            , expectSuccess (testId 17) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-            , expectSuccess (testId 19) (importRsaOaepPrivateKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
+            [ expectSuccess test (testId 13) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
+            , expectSuccess test (testId 14) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
+            , expectSuccess test (testId 15) (importRsaOaepPrivateKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
+            , expectSuccess test (testId 16) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
+            , expectSuccess test (testId 17) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
+            , expectSuccess test (testId 19) (importRsaOaepPrivateKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
                 -- Failure because of mismatched hash of created key and import
-            , expectFailure (testId 26) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
+            , expectFailure test (testId 26) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
             ]
 
         importFromPkcs8 =
-            [ expectSuccess (testId 20) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-            , expectSuccess (testId 21) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-            , expectSuccess (testId 22) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-            , expectSuccess (testId 23) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-            , expectSuccess (testId 24) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-            , expectSuccess (testId 25) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
+            [ expectSuccess test (testId 20) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
+            , expectSuccess test (testId 21) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
+            , expectSuccess test (testId 22) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
+            , expectSuccess test (testId 23) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
+            , expectSuccess test (testId 24) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
+            , expectSuccess test (testId 25) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
                 -- Below succeeds even though mismatched hash of created key vs. import
-            , expectSuccess (testId 27) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha256)
+            , expectSuccess test (testId 27) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha256)
             ]
     in
     exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
@@ -284,7 +272,7 @@ rsaOaepPrivateKeyTests func =
 
 {-|-}
 rsaPssPublicKeyTests func =
-    Debug.lot ""
+    Debug.log ""
 
 
 {-|-}
@@ -646,6 +634,26 @@ importKey errorMap exportFunc importFunc =
 -- 
 -- 
 -- Utilities
+
+
+{-|-}
+successString id =
+    "✓ - " ++ id
+
+
+{-|-}
+failureString id =
+    "x - " ++ id
+
+
+{-|-}
+expectSuccess test id task =
+    test task (successString id) (failureString id)
+
+
+{-|-}
+expectFailure test id task =
+    test task (failureString id) (successString id)
 
 
 {-|-}
