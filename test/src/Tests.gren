@@ -178,6 +178,9 @@ rsaOaepPublicKeyTests func =
             , test (importRsaOaepPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512) "x - Imported RSA-OAEP public key from jwk even with hash mismatch and 3 exponent" "✓ - Import failed expectantly for RSA-OAEP public key from jwk with hash mismatch"
             , test
                 (importRsaOaepPublicKeyFromJwkWithArbitraryJson
+                    Crypto.Sha256
+                    Crypto.PublicExponent3
+                    Crypto.Sha256
                     (Json.Encode.object
                         [ { key = "test"
                           , value = Json.Encode.string "test"
@@ -209,7 +212,10 @@ rsaOaepPublicKeyTests func =
             ]
 
         importFromSpkiFailures =
-            [ test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
+            [ test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256
+                    Crypto.PublicExponent3
+                    Crypto.Sha256
+                    (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
             ]
     in
     exportAsJwk ++ importFromJwk ++ importFromJwkFailures ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
@@ -533,33 +539,33 @@ importRsaOaepPrivateKeyFromPkcs8 keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaOaepPublicKeyFromJwkWithArbitraryJson json =
-    getSecureContext
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\secureContext ->
-                    Crypto.importRsaOaepPublicKeyFromJwk
-                        secureContext
-                        json
-                        { hash = Crypto.Sha256
-                        }
-                        Crypto.CanBeExtracted
-                )
+importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash keyExponent importHash json =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPublicKeyFromJwk
+                secureContext 
+                json 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importRsaOaepPublicKeyFromSpkiWithArbitraryBytes bytes =
-    getSecureContext
-        |> Task.mapError (\_ -> Crypto.ImportRsaKeyError)
-        |> Task.andThen
-                (\secureContext ->
-                    Crypto.importRsaOaepPublicKeyFromSpki
-                        secureContext
-                        bytes
-                        { hash = Crypto.Sha256
-                        }
-                        Crypto.CanBeExtracted
-                )
+importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash bytes =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importRsaOaepPublicKeyFromSpki
+                secureContext 
+                bytes 
+                { hash = importHash 
+                } 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
