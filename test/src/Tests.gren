@@ -212,10 +212,7 @@ rsaOaepPublicKeyTests func =
             ]
 
         importFromSpkiFailures =
-            [ test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256
-                    Crypto.PublicExponent3
-                    Crypto.Sha256
-                    (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
+            [ test (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello"))) "x - Somehow imported RSA-OAEP public key using spki with incorrect Bytes" "✓ - Appropriately failed importing a RSA-OAEP spki key with incorrect bytes"
             ]
     in
     exportAsJwk ++ importFromJwk ++ importFromJwkFailures ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
@@ -226,7 +223,7 @@ rsaOaepPrivateKeyTests func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
-            
+
         testId int =
             "RSA-OAEP private key - " ++ String.fromInt int
 
@@ -259,7 +256,7 @@ rsaOaepPrivateKeyTests func =
             , expectSuccess (testId 11) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent65537)
             , expectSuccess (testId 12) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent65537)
             ]
-        
+
         importFromJwk =
             [ expectSuccess (testId 13) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
             , expectSuccess (testId 14) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
@@ -267,7 +264,7 @@ rsaOaepPrivateKeyTests func =
             , expectSuccess (testId 16) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
             , expectSuccess (testId 17) (importRsaOaepPrivateKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
             , expectSuccess (testId 19) (importRsaOaepPrivateKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-            -- Failure because of mismatched hash of created key and import
+                -- Failure because of mismatched hash of created key and import
             , expectFailure (testId 26) (importRsaOaepPrivateKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
             ]
 
@@ -278,11 +275,12 @@ rsaOaepPrivateKeyTests func =
             , expectSuccess (testId 23) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
             , expectSuccess (testId 24) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
             , expectSuccess (testId 25) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-            -- Below succeeds even though mismatched hash of created key vs. import
+                -- Below succeeds even though mismatched hash of created key vs. import
             , expectSuccess (testId 27) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha256)
             ]
     in
     exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
+
 
 
 -- GENERATE KEYS
@@ -292,7 +290,7 @@ rsaOaepPrivateKeyTests func =
 generateRsaOaepKeyPair hash exponent =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
-        (\secureContext -> 
+        (\secureContext ->
             Crypto.generateRsaOaepKeyPair
                 secureContext
                 { modulusLength = 4096
@@ -331,7 +329,7 @@ generateRsaSsaPkcs1V1_5KeyPair hash exponent =
                 }
                 Crypto.CanBeExtracted
         )
-        
+
 
 {-|-}
 generateKey errorMap keyGenFunc =
@@ -349,99 +347,76 @@ generateKey errorMap keyGenFunc =
                 )
 
 
+
 -- EXPORT KEYS
 
 
 {-|-}
 exportRsaOaepPublicKeyAsJwk hash exponent =
-    (exportRsaOaepKeyPair hash exponent)
-        Crypto.exportRsaOaepPublicKeyAsJwk
-        .publicKey
+    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPublicKeyAsJwk .publicKey
 
 
 {-|-}
 exportRsaOaepPublicKeyAsSpki hash exponent =
-    (exportRsaOaepKeyPair hash exponent)
-        Crypto.exportRsaOaepPublicKeyAsSpki
-        .publicKey
+    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPublicKeyAsSpki .publicKey
 
 
 {-|-}
 exportRsaOaepPrivateKeyAsJwk hash exponent =
-    (exportRsaOaepKeyPair hash exponent)
-        Crypto.exportRsaOaepPrivateKeyAsJwk
-        .privateKey
+    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPrivateKeyAsJwk .privateKey
 
 
 {-|-}
 exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
-    (exportRsaOaepKeyPair hash exponent)
-        Crypto.exportRsaOaepPrivateKeyAsPkcs8
-        .privateKey
+    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
 exportRsaPssPublicKeyAsJwk hash exponent =
-    --
-    (exportRsaPssKeyPair hash exponent)
-        Crypto.exportRsaPssPublicKeyAsJwk
-        .publicKey
+    -- 
+    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsJwk .publicKey
 
 
 {-|-}
 exportRsaPssPublicKeyAsSpki hash exponent =
-    --
-    (exportRsaPssKeyPair hash exponent)
-        Crypto.exportRsaPssPublicKeyAsSpki
-        .publicKey
+    -- 
+    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsSpki .publicKey
 
 
 {-|-}
 exportRsaPssPrivateKeyAsJwk hash exponent =
-   --
-    (exportRsaPssKeyPair hash exponent)
-        Crypto.exportRsaPssPrivateKeyAsJwk
-        .privateKey
+    -- 
+    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPrivateKeyAsJwk .privateKey
 
-    
+
 {-|-}
 exportRsaPssPrivateKeyAsPkcs8 hash exponent =
-    --
-    (exportRsaPssKeyPair hash exponent)
-        Crypto.exportRsaPssPrivateKeyAsPkcs8
-        .privateKey
+    -- 
+    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
 exportRsaSsaPkcs1V1_5PublicKeyAsJwk hash exponent =
-    --
-    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
-        Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsJwk
-        .publicKey
+    -- 
+    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsJwk .publicKey
 
 
 {-|-}
 exportRsaSsaPkcs1V1_5PublicKeyAsSpki hash exponent =
-    --
-    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
-        Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsSpki
-        .publicKey
+    -- 
+    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsSpki .publicKey
 
 
 {-|-}
 exportRsaSsaPkcs1V1_5PrivateKeyAsJwk hash exponent =
-    --
-    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
-        Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
-        .privateKey
+    -- 
+    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsJwk .privateKey
 
 
 {-|-}
 exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 hash exponent =
-    --
-    (exportRsaSsaPkcs1V1_5KeyPair hash exponent)
-        Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
-        .privateKey
+    -- 
+    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
@@ -476,6 +451,7 @@ exportKey keyGenFunc exportKeyFunc keyFunc =
                 )
 
 
+
 -- IMPORT KEYS
 
 
@@ -484,26 +460,27 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
-            Crypto.importRsaOaepPublicKeyFromJwk 
-                secureContext 
-                exportedKey 
-                { hash = importHash 
-                } 
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaOaepPublicKeyFromJwk
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
+
 
 {-|-}
 importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
-            Crypto.importRsaOaepPublicKeyFromSpki 
-                secureContext 
-                exportedKey 
-                { hash = importHash 
-                } 
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaOaepPublicKeyFromSpki
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
 
@@ -513,12 +490,12 @@ importRsaOaepPrivateKeyFromJwk keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPrivateKeyAsJwk keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
+        (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromJwk
-                secureContext 
-                exportedKey 
-                { hash = importHash 
-                } 
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
 
@@ -528,12 +505,12 @@ importRsaOaepPrivateKeyFromPkcs8 keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPrivateKeyAsPkcs8 keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
+        (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromPkcs8
-                secureContext 
-                exportedKey 
-                { hash = importHash 
-                } 
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
 
@@ -543,12 +520,12 @@ importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash keyExponent importHash js
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
+        (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromJwk
-                secureContext 
-                json 
-                { hash = importHash 
-                } 
+                secureContext
+                json
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
 
@@ -558,12 +535,12 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash 
     importKey
         Crypto.ImportRsaKeyError
         (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
-        (\{ secureContext, exportedKey } -> 
+        (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromSpki
-                secureContext 
-                bytes 
-                { hash = importHash 
-                } 
+                secureContext
+                bytes
+                { hash = importHash
+                }
                 Crypto.CanBeExtracted
         )
 
@@ -572,18 +549,19 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash 
 importKey errorMap exportFunc importFunc =
     exportFunc
         |> Task.mapError (\_ -> errorMap)
-        |> Task.andThen 
-            (\data ->
-                importFunc data
-                    |> Task.map
-                        (\importedKey ->
-                            { key = data.key
-                            , secureContext = data.secureContext
-                            , exportedKey = data.exportedKey
-                            , importedKey = importedKey
-                            }
-                        )
-            )
+        |> Task.andThen
+                (\data ->
+                    importFunc data
+                        |> Task.map
+                                (\importedKey ->
+                                    { key = data.key
+                                    , secureContext = data.secureContext
+                                    , exportedKey = data.exportedKey
+                                    , importedKey = importedKey
+                                    }
+                                )
+                )
+
 
 
 -- AES algorithm
