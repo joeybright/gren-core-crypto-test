@@ -160,7 +160,7 @@ rsaTests func =
         -- exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
         -- importRsaSsaPkcs1V1_5PrivateKeyFromJwk
     in
-    generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func
+    generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func ++ rsaPssPublicKeyTests func
 
 
 {-|-}
@@ -289,7 +289,45 @@ rsaOaepPrivateKeyTests func =
 
 {-|-}
 rsaPssPublicKeyTests func =
-    Debug.log ""
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "RSA-PSS public key - " ++ String.fromInt int
+
+        exportAsJwk =
+            [ expectSuccess test (testId 1) (exportRsaPssPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent3)
+            , expectSuccess test (testId 2) (exportRsaPssPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent3)
+            , expectSuccess test (testId 3) (exportRsaPssPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent3)
+            , expectSuccess test (testId 4) (exportRsaPssPublicKeyAsJwk Crypto.Sha256 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 5) (exportRsaPssPublicKeyAsJwk Crypto.Sha384 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 6) (exportRsaPssPublicKeyAsJwk Crypto.Sha512 Crypto.PublicExponent65537)
+            ]
+
+        exportAsSpki =
+            [ expectSuccess test (testId 7) (exportRsaPssPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent3)
+            , expectSuccess test (testId 8) (exportRsaPssPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent3)
+            , expectSuccess test (testId 9) (exportRsaPssPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent3)
+            , expectSuccess test (testId 10) (exportRsaPssPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 11) (exportRsaPssPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent65537)
+            , expectSuccess test (testId 12) (exportRsaPssPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent65537)
+            ]
+
+        importAsJwk =
+            [ expectSuccess test (testId 13) (importRsaPssPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
+            , expectSuccess test (testId 14) (importRsaPssPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
+            , expectSuccess test (testId 15) (importRsaPssPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
+            , expectSuccess test (testId 16) (importRsaPssPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
+            , expectSuccess test (testId 17) (importRsaPssPublicKeyFromJwk Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
+            , expectSuccess test (testId 19) (importRsaPssPublicKeyFromJwk Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
+            , expectFailure test (testId 20) (importRsaPssPublicKeyFromJwk Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
+            ]
+
+        importAsSpki =
+            []
+    in
+    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki
 
 
 {-|-}
@@ -404,7 +442,6 @@ exportRsaPssPublicKeyAsJwk hash exponent =
 
 {-|-}
 exportRsaPssPublicKeyAsSpki hash exponent =
-    -- 
     exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsSpki .publicKey
 
 
@@ -477,7 +514,7 @@ exportKey keyGenFunc exportKeyFunc keyFunc =
 
 
 
--- IMPORT KEYS
+-- IMPORT RSA-OAEP KEYS
 
 
 {-|-}
@@ -568,6 +605,34 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash 
                 }
                 Crypto.CanBeExtracted
         )
+
+
+
+-- IMPORT RSA-PSS KEYS
+
+
+{-|-}
+importRsaPssPublicKeyFromJwk keyHash keyExponent importHash =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaPssPublicKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaPssPublicKeyFromJwk
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+importRsaPssPublicKeyFromSpki =
+    Debug.todo ""
+
+
+
+-- IMPORT KEY UTILS
 
 
 {-|-}
