@@ -135,32 +135,8 @@ rsaTests func =
             , expectSuccess test (testId 5) (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent65537)
             , expectSuccess test (testId 6) (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent3)
             ]
-
-        -- RsaPssPublicKey
-        -- exportRsaPssPublicKeyAsSpki
-        -- importRsaPssPublicKeyFromSpki
-        -- exportRsaPssPublicKeyAsJwk
-        -- importRsaPssPublicKeyFromJwk
-        -- 
-        -- RsaPssPrivateKey
-        -- exportRsaPssPrivateKeyAsPkcs8
-        -- importRsaPssPrivateKeyFromPkcs8
-        -- exportRsaPssPrivateKeyAsJwk
-        -- importRsaPssPrivateKeyFromJwk
-        -- 
-        -- RsaSsaPkcs1V1_5PublicKey
-        -- exportRsaSsaPkcs1V1_5PublicKeyAsSpki
-        -- importRsaSsaPkcs1V1_5PublicKeyFromSpki
-        -- exportRsaSsaPkcs1V1_5PublicKeyAsJwk
-        -- importRsaSsaPkcs1V1_5PublicKeyFromJwk
-        -- 
-        -- RsaSsaPkcs1V1_5PrivateKey
-        -- exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8
-        -- importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
-        -- exportRsaSsaPkcs1V1_5PrivateKeyAsJwk
-        -- importRsaSsaPkcs1V1_5PrivateKeyFromJwk
     in
-    generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func ++ rsaPssPublicKeyTests func
+    generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func ++ rsaPssPublicKeyTests func ++ rsaPssPrivateKeyTests func
 
 
 {-|-}
@@ -173,29 +149,16 @@ rsaOaepPublicKeyTests func =
             "RSA-OAEP public key - " ++ String.fromInt int
 
         exportAsJwk =
-            exportRsaKeyAsJwk "RSA-OAEP public key export jwk - " exportRsaOaepPublicKeyAsJwk func
-
-        importFromJwk =
-            importRsaKeyAsJwk "RSA-OAEP public key import jwk - " importRsaOaepPublicKeyFromJwk func
+            exportRsaKeyTests "RSA-OAEP public key export jwk - " exportRsaOaepPublicKeyAsJwk func
 
         exportAsSpki =
-            [ expectSuccess test (testId 18) (exportRsaOaepPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent65537) 
-            , expectSuccess test (testId 19) (exportRsaOaepPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess test (testId 20) (exportRsaOaepPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent65537) 
-            , expectSuccess test (testId 21) (exportRsaOaepPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent3) 
-            , expectSuccess test (testId 22) (exportRsaOaepPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent65537)
-            , expectSuccess test (testId 23) (exportRsaOaepPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent3)
-            , expectSuccess test (testId 24) (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha384)
-            ]
+            exportRsaKeyTests "RSA-OAEP public key export spki - " exportRsaOaepPublicKeyAsSpki func
+
+        importFromJwk =
+            importRsaKeyTests "RSA-OAEP public key import jwk - " importRsaOaepPublicKeyFromJwk func
 
         importFromSpki =
-            [ expectSuccess test (testId 25) (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-            , expectSuccess test (testId 26) (importRsaOaepPublicKeyFromSpki Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-            , expectSuccess test (testId 27) (importRsaOaepPublicKeyFromSpki Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-            , expectSuccess test (testId 28) (importRsaOaepPublicKeyFromSpki Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-            , expectSuccess test (testId 29) (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-            , expectSuccess test (testId 30) (importRsaOaepPublicKeyFromSpki Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-            ]
+            importRsaKeyTests "RSA-OAEP public key import spki - " importRsaOaepPublicKeyFromSpki func
 
         importFromSpkiFailures =
             [ expectFailure test (testId 31) (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
@@ -207,37 +170,17 @@ rsaOaepPublicKeyTests func =
 {-|-}
 rsaOaepPrivateKeyTests func =
     let
-        test task success failure =
-            Task.attempt (testHelper func success failure) task
-
-        testId int =
-            "RSA-OAEP private key - " ++ String.fromInt int
-
         exportAsJwk =
-            exportRsaKeyAsJwk "RSA-OAEP private key export jwk - " exportRsaOaepPrivateKeyAsJwk func
+            exportRsaKeyTests "RSA-OAEP private key export jwk - " exportRsaOaepPrivateKeyAsJwk func
 
         exportAsPkcs8 =
-            [ expectSuccess test (testId 7) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess test (testId 8) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent3)
-            , expectSuccess test (testId 9) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent3)
-            , expectSuccess test (testId 10) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha256 Crypto.PublicExponent65537)
-            , expectSuccess test (testId 11) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha384 Crypto.PublicExponent65537)
-            , expectSuccess test (testId 12) (exportRsaOaepPrivateKeyAsPkcs8 Crypto.Sha512 Crypto.PublicExponent65537)
-            ]
+            exportRsaKeyTests "RSA-OAEP private key export pkcs8 - " exportRsaOaepPrivateKeyAsPkcs8 func
 
         importFromJwk =
-            importRsaKeyAsJwk "RSA-PSS private key import jwk - " importRsaOaepPrivateKeyFromJwk func
+            importRsaKeyTests "RSA-OAEP private key import jwk - " importRsaOaepPrivateKeyFromJwk func
 
         importFromPkcs8 =
-            [ expectSuccess test (testId 20) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-            , expectSuccess test (testId 21) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-            , expectSuccess test (testId 22) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-            , expectSuccess test (testId 23) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-            , expectSuccess test (testId 24) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-            , expectSuccess test (testId 25) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-                -- Below succeeds even though mismatched hash of created key vs. import
-            , expectSuccess test (testId 27) (importRsaOaepPrivateKeyFromPkcs8 Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha256)
-            ]
+            importRsaKeyTests "RSA-OAEP public key import pkcs8 - " importRsaOaepPrivateKeyFromPkcs8 func
     in
     exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
 
@@ -245,36 +188,37 @@ rsaOaepPrivateKeyTests func =
 {-|-}
 rsaPssPublicKeyTests func =
     let
-        test task success failure =
-            Task.attempt (testHelper func success failure) task
-
-        testId int =
-            "RSA-PSS public key - " ++ String.fromInt int
-
         exportAsJwk =
-            exportRsaKeyAsJwk "RSA-PSS public key export jwk - " exportRsaPssPublicKeyAsJwk func
+            exportRsaKeyTests "RSA-PSS public key export jwk - " exportRsaPssPublicKeyAsJwk func
 
         exportAsSpki =
-            [ expectSuccess test (testId 7) (exportRsaPssPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess test (testId 8) (exportRsaPssPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent3)
-            , expectSuccess test (testId 9) (exportRsaPssPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent3)
-            , expectSuccess test (testId 10) (exportRsaPssPublicKeyAsSpki Crypto.Sha256 Crypto.PublicExponent65537)
-            , expectSuccess test (testId 11) (exportRsaPssPublicKeyAsSpki Crypto.Sha384 Crypto.PublicExponent65537)
-            , expectSuccess test (testId 12) (exportRsaPssPublicKeyAsSpki Crypto.Sha512 Crypto.PublicExponent65537)
-            ]
+            exportRsaKeyTests "RSA-PSS public key export spki - " exportRsaPssPublicKeyAsSpki func
 
         importAsJwk =
-            importRsaKeyAsJwk "RSA-PSS public key import jwk - " importRsaPssPublicKeyFromJwk func
+            importRsaKeyTests "RSA-PSS public key import jwk - " importRsaPssPublicKeyFromJwk func
 
         importAsSpki =
-            []
+            importRsaKeyTests "RSA-PSS public key import spki - " importRsaPssPublicKeyFromSpki func
     in
     exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki
 
 
 {-|-}
 rsaPssPrivateKeyTests func =
-    Debug.log ""
+    let
+        exportAsJwk =
+            exportRsaKeyTests "RSA-PSS private key export jwk - " exportRsaPssPrivateKeyAsJwk func
+
+        exportAsPkcs8 =
+            exportRsaKeyTests "RSA-PSS private key export pkcs8 - " exportRsaPssPrivateKeyAsPkcs8 func
+
+        importFromJwk =
+            importRsaKeyTests "RSA-PSS private key import jwk - " importRsaPssPrivateKeyFromJwk func
+
+        importFromPkcs8 =
+            importRsaKeyTests "RSA-PSS private key import pkcs8 - " importRsaPssPrivateKeyFromPkcs8 func
+    in
+    exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
 
 
 {-|-}
@@ -288,7 +232,7 @@ rsaSsaPkcs1V1_5KPrivateKeyTests func =
 
 
 {-|-}
-exportRsaKeyAsJwk string jwkFunc func =
+exportRsaKeyTests string jwkFunc func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
@@ -306,7 +250,7 @@ exportRsaKeyAsJwk string jwkFunc func =
 
 
 {-|-}
-importRsaKeyAsJwk string jwkFunc func =
+importRsaKeyTests string jwkFunc func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
@@ -320,8 +264,7 @@ importRsaKeyAsJwk string jwkFunc func =
     , expectSuccess test (testId 4) (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
     , expectSuccess test (testId 5) (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
     , expectSuccess test (testId 6) (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-    , expectFailure test (testId 7) (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
-    -- Todo: random JSON failure
+    -- , expectFailure test (testId 7) (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
     ]
 
 
@@ -606,8 +549,48 @@ importRsaPssPublicKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaPssPublicKeyFromSpki =
-    Debug.todo ""
+importRsaPssPublicKeyFromSpki keyHash keyExponent importHash =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaPssPublicKeyAsSpki keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaPssPublicKeyFromSpki
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+importRsaPssPrivateKeyFromJwk keyHash keyExponent importHash =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaPssPrivateKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaPssPrivateKeyFromJwk
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+importRsaPssPrivateKeyFromPkcs8 keyHash keyExponent importHash =
+    importKey
+        Crypto.ImportRsaKeyError
+        (exportRsaPssPrivateKeyAsPkcs8 keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importRsaPssPrivateKeyFromPkcs8
+                secureContext
+                exportedKey
+                { hash = importHash
+                }
+                Crypto.CanBeExtracted
+        )
 
 
 
