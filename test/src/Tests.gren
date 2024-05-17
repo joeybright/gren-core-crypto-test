@@ -575,7 +575,7 @@ exportAesCbcKey =
 
 
 {-|-}
-exportAesCtrKey =
+exportAesGcmKey =
     Debug.todo ""
 
 
