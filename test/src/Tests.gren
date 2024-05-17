@@ -438,6 +438,45 @@ exportRsaSsaPkcs1V1_5KeyPair hash exponent =
     exportKey (generateRsaSsaPkcs1V1_5KeyPair hash exponent)
 
 
+-- EcdsaKeyPrivateKey
+-- exportEcdsaPrivateKeyAsPkcs8
+-- exportEcdsaPrivateKeyAsJwt
+-- 
+-- EcdsaKeyPublicKey
+-- exportEcdsaPublicKeyAsRaw
+-- exportEcdsaPublicKeyAsSpki
+-- exportEcdsaPublicKeyAsJwt
+-- 
+-- EcdhKeyPrivateKey
+-- exportEcdhPrivateKeyAsPkcs8
+-- exportEcdhPrivateKeyAsJwk
+-- 
+-- EcdhKeyPublicKey
+-- exportEcdhPublicKeyAsRaw
+-- exportEcdhPublicKeyAsSpki
+-- exportEcdhPublicKeyAsJwt
+--
+-- HMAC algorithm
+-- 
+-- HmacKey
+-- exportHmacKeyAsRaw
+-- exportHmacKeyAsJwk
+-- AES algorithm
+-- 
+-- AesCtrKey
+-- exportAesCtrKeyAsRaw
+-- exportAesCtrKeyAsJwk
+-- 
+-- AesCbcKey
+-- exportAesCbcKeyAsRaw
+-- exportAesCbcKeyAsJwk
+-- 
+-- AesGcmKey
+-- exportAesGcmKeyAsRaw
+-- exportAesGcmKeyAsJwk
+-- 
+
+
 {-|-}
 exportKey keyGenFunc exportKeyFunc keyFunc =
     keyGenFunc
@@ -678,6 +717,107 @@ importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash keyExponent importHash =
 
 
 
+-- IMPORT AES KEYS
+
+
+{-|-}
+importAesCtrKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importAesCtrKeyFromRaw =
+    Debug.todo ""
+
+
+{-|-}
+importAesCbcKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importAesCbcKeyFromRaw =
+    Debug.todo ""
+
+
+{-|-}
+importAesGcmKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importAesGcmKeyFromRaw =
+    Debug.todo ""
+
+
+-- IMPORT ECD KEYS
+
+
+{-|-}
+importEcdsaPublicKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importEcdsaPublicKeyFromRaw =
+    Debug.todo ""
+
+
+{-|-}
+importEcdsaPublicKeyFromSpki =
+    Debug.todo ""
+
+
+{-|-}
+importEcdsaPrivateKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importEcdsaPrivateKeyFromPkcs8 =
+    Debug.todo ""
+
+
+{-|-}
+importEcdhPublicKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importEcdhPublicKeyFromRaw =
+    Debug.todo ""
+
+
+{-|-}
+importEcdhPublicKeyFromSpki =
+    Debug.todo ""
+
+
+{-|-}
+importEcdhPrivateKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importEcdhPrivateKeyFromPkcs8 =
+    Debug.todo ""
+
+
+
+-- IMPORT HMAC KEYS
+
+
+{-|-}
+importHmacKeyFromJwk =
+    Debug.todo ""
+
+
+{-|-}
+importHmacKeyFromRaw =
+    Debug.todo ""
+
+
+
 -- IMPORT KEY UTILS
 
 
@@ -700,67 +840,6 @@ importKey errorMap exportFunc importFunc =
 
 
 
--- AES algorithm
--- 
--- AesCtrKey
--- exportAesCtrKeyAsRaw
--- importAesCtrKeyFromRaw
--- exportAesCtrKeyAsJwk
--- importAesCtrKeyFromJwk
--- 
--- AesCbcKey
--- exportAesCbcKeyAsRaw
--- importAesCbcKeyFromRaw
--- exportAesCbcKeyAsJwk
--- importAesCbcKeyFromJwk
--- 
--- AesGcmKey
--- exportAesGcmKeyAsRaw
--- importAesGcmKeyFromRaw
--- exportAesGcmKeyAsJwk
--- importAesGcmKeyFromJwk
--- 
--- 
--- ECD algorithm
--- 
--- EcdsaKeyPrivateKey
--- exportEcdsaPrivateKeyAsPkcs8
--- importEcdsaPrivateKeyFromPkcs8
--- exportEcdsaPrivateKeyAsJwt
--- importEcdsaPrivateKeyFromJwt
--- 
--- EcdsaKeyPublicKey
--- exportEcdsaPublicKeyAsRaw
--- importEcdsaPublicKeyFromRaw
--- exportEcdsaPublicKeyAsSpki
--- importEcdsaPublicKeyFromSpki
--- exportEcdsaPublicKeyAsJwt
--- importEcdsaPublicKeyFromJwt
--- 
--- EcdhKeyPrivateKey
--- exportEcdhPrivateKeyAsPkcs8
--- importEcdhPrivateKeyFromPkcs8
--- exportEcdhPrivateKeyAsJwt
--- importEcdhPrivateKeyFromJwt
--- 
--- EcdhKeyPublicKey
--- exportEcdhPublicKeyAsRaw
--- importEcdhPublicKeyFromRaw
--- exportEcdhPublicKeyAsSpki
--- importEcdhPublicKeyFromSpki
--- exportEcdhPublicKeyAsJwt
--- importEcdhPublicKeyFromJwt
--- 
--- 
--- HMAC algorithm
--- 
--- HmacKey
--- exportHmacKeyAsRaw
--- importHmacKeyFromRaw
--- exportHmacKeyAsJwk
--- importHmacKeyFromJwk
--- 
--- 
 -- Utilities
 
 
