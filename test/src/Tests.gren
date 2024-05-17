@@ -343,6 +343,16 @@ generateRsaSsaPkcs1V1_5KeyPair hash exponent =
 
 
 {-|-}
+generateEcdsaKeyPair =
+    Debug.todo ""
+
+
+{-|-}
+generateEcdhKeyPair =
+    Debug.todo ""
+
+
+{-|-}
 generateKey errorMap keyGenFunc =
     getSecureContext
         |> Task.mapError (\_ -> errorMap)
@@ -359,7 +369,7 @@ generateKey errorMap keyGenFunc =
 
 
 
--- EXPORT KEYS
+-- EXPORT RSA KEYS
 
 
 {-|-}
@@ -384,7 +394,6 @@ exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
 
 {-|-}
 exportRsaPssPublicKeyAsJwk hash exponent =
-    -- 
     exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsJwk .publicKey
 
 
@@ -438,43 +447,140 @@ exportRsaSsaPkcs1V1_5KeyPair hash exponent =
     exportKey (generateRsaSsaPkcs1V1_5KeyPair hash exponent)
 
 
--- EcdsaKeyPrivateKey
--- exportEcdsaPrivateKeyAsPkcs8
--- exportEcdsaPrivateKeyAsJwt
--- 
--- EcdsaKeyPublicKey
--- exportEcdsaPublicKeyAsRaw
--- exportEcdsaPublicKeyAsSpki
--- exportEcdsaPublicKeyAsJwt
--- 
--- EcdhKeyPrivateKey
--- exportEcdhPrivateKeyAsPkcs8
--- exportEcdhPrivateKeyAsJwk
--- 
--- EcdhKeyPublicKey
--- exportEcdhPublicKeyAsRaw
--- exportEcdhPublicKeyAsSpki
--- exportEcdhPublicKeyAsJwt
---
--- HMAC algorithm
--- 
--- HmacKey
--- exportHmacKeyAsRaw
--- exportHmacKeyAsJwk
--- AES algorithm
--- 
--- AesCtrKey
--- exportAesCtrKeyAsRaw
--- exportAesCtrKeyAsJwk
--- 
--- AesCbcKey
--- exportAesCbcKeyAsRaw
--- exportAesCbcKeyAsJwk
--- 
--- AesGcmKey
--- exportAesGcmKeyAsRaw
--- exportAesGcmKeyAsJwk
--- 
+
+-- EXPORT EC KEYS
+
+
+{-|-}
+exportEcdsaPrivateKeyAsJwt =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdsaPrivateKeyAsPkcs8 =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdsaPublicKeyAsJwt =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdsaPublicKeyAsSpki =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdsaPublicKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhPrivateKeyAsJwt =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhPrivateKeyAsPkcs8 =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhPublicKeyAsJwt =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhPublicKeyAsSpki =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhPublicKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportEcdhKeyPair hash exponent =
+    exportKey (generateEcdhKeyPair hash exponent)
+
+
+{-|-}
+exportEcdsaKeyPair hash exponent =
+    exportKey (generateEcdsaKeyPair hash exponent)
+
+
+
+-- EXPORT HMAC KEYS
+
+
+{-|-}
+exportHmacKeyAsJwk =
+    Debug.todo ""
+
+
+{-|-}
+exportHmacKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportHmacKey =
+    Debug.todo ""
+
+
+
+-- EXPORT AES KEYS
+
+
+{-|-}
+exportAesCtrKeyAsJwk =
+    Debug.todo ""
+
+
+{-|-}
+exportAesCtrKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportAbcCtrKeyAsJwk =
+    Debug.todo ""
+
+
+{-|-}
+exportAbcCtrKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportAbcGcmKeyAsJwk =
+    Debug.todo ""
+
+
+{-|-}
+exportAbcGcmKeyAsRaw =
+    Debug.todo ""
+
+
+{-|-}
+exportAesCtrKey =
+    Debug.todo ""
+
+
+{-|-}
+exportAesCbcKey =
+    Debug.todo ""
+
+
+{-|-}
+exportAesCtrKey =
+    Debug.todo ""
+
+
+
+-- EXPORT KEY UTILS
 
 
 {-|-}
