@@ -307,9 +307,6 @@ hmacKeyTests func =
 
         testId int =
             "HMAC key tests" ++ String.fromInt int
-
-        _ =
-            Debug.log "test" "running `hmacKeyTests` function"
     in
     [ expectSuccess test (testId 1) (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
     ]
@@ -553,10 +550,6 @@ exportEcdsaKeyPair hash exponent =
 
 {-|-}
 exportHmacKeyAsJwk hash length =
-    let
-        _ =
-            Debug.log "test" "Running `exportHmacKeyAsJwk` function"
-    in
     exportHmacKey hash length Crypto.exportHmacKeyAsJwk identity
 
 
@@ -567,10 +560,6 @@ exportHmacKeyAsRaw hash length =
 
 {-|-}
 exportHmacKey hash length =
-    let
-        _ =
-            Debug.log "test" "Running `exportHmacKey` function"
-    in
     exportKey (generateHmacKey hash length)
 
 
