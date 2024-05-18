@@ -31,6 +31,7 @@ tests func =
         ++ rsaTests func
         ++ randomValueTests func
         ++ uuidTests func
+        ++ hmacKeyTests func
 
 
 
@@ -294,6 +295,27 @@ importRsaKeyTests string jwkFunc func =
     ]
 
 
+
+-- HMAC KEY TESTS
+
+
+{-|-}
+hmacKeyTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "HMAC key tests" ++ String.fromInt int
+
+        _ =
+            Debug.log "test" "running `hmacKeyTests` function"
+    in
+    [ expectSuccess test (testId 1) (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
+    ]
+
+
+
 -- GENERATE KEYS
 
 
@@ -350,6 +372,20 @@ generateEcdsaKeyPair =
 {-|-}
 generateEcdhKeyPair =
     Debug.todo ""
+
+
+{-|-}
+generateHmacKey hash length =
+    generateKey 
+        {}
+        (\secureContext ->
+            Crypto.generateHmacKey
+                secureContext
+                { hash = hash
+                , length = length
+                }
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
@@ -516,18 +552,26 @@ exportEcdsaKeyPair hash exponent =
 
 
 {-|-}
-exportHmacKeyAsJwk =
-    Debug.todo ""
+exportHmacKeyAsJwk hash length =
+    let
+        _ =
+            Debug.log "test" "Running `exportHmacKeyAsJwk` function"
+    in
+    exportHmacKey hash length Crypto.exportHmacKeyAsJwk identity
 
 
 {-|-}
-exportHmacKeyAsRaw =
-    Debug.todo ""
+exportHmacKeyAsRaw hash length =
+    exportHmacKey hash length Crypto.exportHmacKeyAsRaw identity
 
 
 {-|-}
-exportHmacKey =
-    Debug.todo ""
+exportHmacKey hash length =
+    let
+        _ =
+            Debug.log "test" "Running `exportHmacKey` function"
+    in
+    exportKey (generateHmacKey hash length)
 
 
 
