@@ -306,9 +306,30 @@ hmacKeyTests func =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "HMAC key tests" ++ String.fromInt int
+            "HMAC key tests - " ++ String.fromInt int
     in
     [ expectSuccess test (testId 1) (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 2) (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 3) (exportHmacKeyAsJwk Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 4) (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
+    , expectSuccess test (testId 5) (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
+    , expectSuccess test (testId 6) (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
+    -- Less than 8, but clamped to at least 8 (which results in success)
+    , expectSuccess test (testId 7) (exportHmacKeyAsJwk Crypto.Sha256 (Just 1))
+    , expectSuccess test (testId 8) (exportHmacKeyAsJwk Crypto.Sha384 (Just 1))
+    , expectSuccess test (testId 9) (exportHmacKeyAsJwk Crypto.Sha512 (Just 1))
+    -- A number not divible by 8
+    , expectFailure test (testId 10) (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
+    , expectFailure test (testId 11) (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
+    , expectFailure test (testId 12) (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
+    -- Max integer value that can be passed for the `length`, but is still not divisible by 8
+    , expectFailure test (testId 13) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2147483647))
+    , expectFailure test (testId 14) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2147483647))
+    , expectFailure test (testId 15) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2147483647))
+    -- Max integer value that can be passed for the `length`, and is divisible by 8
+    , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2147483640))
+    , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2147483640))
+    , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2147483640))
     ]
 
 
@@ -374,7 +395,7 @@ generateEcdhKeyPair =
 {-|-}
 generateHmacKey hash length =
     generateKey 
-        {}
+        Crypto.LengthNotDivisibleByEight
         (\secureContext ->
             Crypto.generateHmacKey
                 secureContext
