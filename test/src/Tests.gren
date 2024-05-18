@@ -323,13 +323,13 @@ hmacKeyTests func =
     , expectFailure test (testId 11) (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
     , expectFailure test (testId 12) (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
     -- Max integer value that can be passed for the `length`, but is still not divisible by 8
-    , expectFailure test (testId 13) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2147483647))
-    , expectFailure test (testId 14) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2147483647))
-    , expectFailure test (testId 15) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2147483647))
-    -- Max integer value that can be passed for the `length`, and is divisible by 8
-    , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2147483640))
-    , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2147483640))
-    , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2147483640))
+    , expectSuccess test (testId 13) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
+    , expectSuccess test (testId 14) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
+    , expectSuccess test (testId 15) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
+    -- Greater than the max integer value, should still succeed with clamped value
+    , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
+    , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
+    , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
     ]
 
 
