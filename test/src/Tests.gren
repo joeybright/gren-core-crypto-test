@@ -569,53 +569,53 @@ exportRsaSsaPkcs1V1_5KeyPair hash exponent =
 
 
 {-|-}
-exportEcdsaPrivateKeyAsJwt =
-    Debug.todo ""
+exportEcdsaPrivateKeyAsJwk hash exponent =
+    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPrivateKeyAsJwk .private
 
 
 {-|-}
-exportEcdsaPrivateKeyAsPkcs8 =
-    Debug.todo ""
+exportEcdsaPrivateKeyAsPkcs8 hash exponent =
+    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPrivateKeyAsPkcs8 .private
 
 
 {-|-}
-exportEcdsaPublicKeyAsJwt =
-    Debug.todo ""
+exportEcdsaPublicKeyAsJwk hash exponent =
+    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsJwk .public
 
 
 {-|-}
-exportEcdsaPublicKeyAsSpki =
-    Debug.todo ""
+exportEcdsaPublicKeyAsSpki hash exponent =
+    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsSpki .public
 
 
 {-|-}
-exportEcdsaPublicKeyAsRaw =
-    Debug.todo ""
+exportEcdsaPublicKeyAsRaw hash exponent =
+   exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsRaw .public
 
 
 {-|-}
-exportEcdhPrivateKeyAsJwt =
-    Debug.todo ""
+exportEcdhPrivateKeyAsJwk hash exponent =
+    exportEcdhKeyPair hash exponent Crypto.exportEcdhPrivateKeyAsJwk .private
 
 
 {-|-}
-exportEcdhPrivateKeyAsPkcs8 =
-    Debug.todo ""
+exportEcdhPrivateKeyAsPkcs8 hash exponent =
+    exportEcdhKeyPair hash exponent Crypto.exportEcdhPrivateKeyAsPkcs8 .private
 
 
 {-|-}
-exportEcdhPublicKeyAsJwt =
-    Debug.todo ""
+exportEcdhPublicKeyAsJwk hash exponent =
+   exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsJwk .public
 
 
 {-|-}
-exportEcdhPublicKeyAsSpki =
-    Debug.todo ""
+exportEcdhPublicKeyAsSpki hash exponent =
+    exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsSpki .public
 
 
 {-|-}
-exportEcdhPublicKeyAsRaw =
-    Debug.todo ""
+exportEcdhPublicKeyAsRaw hash exponent =
+    exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsJwk .public
 
 
 {-|-}
