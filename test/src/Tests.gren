@@ -32,6 +32,7 @@ tests func =
         ++ randomValueTests func
         ++ uuidTests func
         ++ hmacKeyTests func
+        ++ aesKeyTests func
 
 
 
@@ -295,6 +296,32 @@ importRsaKeyTests string jwkFunc func =
     ]
 
 
+-- AES KEY TESTS
+
+
+aesKeyTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "AES Key Tests - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 1) (exportAesCtrKeyAsJwk Crypto.AesLength128)
+    , expectSuccess test (testId 3) (exportAesCtrKeyAsJwk Crypto.AesLength256)
+    , expectSuccess test (testId 4) (exportAesCtrKeyAsRaw Crypto.AesLength128)
+    , expectSuccess test (testId 6) (exportAesCtrKeyAsRaw Crypto.AesLength256)
+    , expectSuccess test (testId 7) (exportAesCbcKeyAsJwk Crypto.AesLength128)
+    , expectSuccess test (testId 9) (exportAesCbcKeyAsJwk Crypto.AesLength256)
+    , expectSuccess test (testId 10) (exportAesCbcKeyAsRaw Crypto.AesLength128)
+    , expectSuccess test (testId 12) (exportAesCbcKeyAsRaw Crypto.AesLength256)
+    , expectSuccess test (testId 13) (exportAesGcmKeyAsJwk Crypto.AesLength128)
+    , expectSuccess test (testId 15) (exportAesGcmKeyAsJwk Crypto.AesLength256)
+    , expectSuccess test (testId 16) (exportAesGcmKeyAsRaw Crypto.AesLength128)
+    , expectSuccess test (testId 18) (exportAesGcmKeyAsRaw Crypto.AesLength256)
+    ]
+
+
 
 -- HMAC KEY TESTS
 
@@ -378,6 +405,42 @@ generateRsaSsaPkcs1V1_5KeyPair hash exponent =
                 , hash = hash
                 , publicExponent = Crypto.PublicExponent65537
                 }
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+generateAesCtrKey aesLength =
+    generateKey
+        {}
+        (\secureContext ->
+            Crypto.generateAesCtrKey
+                secureContext
+                aesLength
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+generateAesCbcKey aesLength =
+    generateKey
+        {}
+        (\secureContext ->
+            Crypto.generateAesCbcKey
+                secureContext
+                aesLength
+                Crypto.CanBeExtracted
+        )
+
+
+{-|-}
+generateAesGcmKey aesLength =
+    generateKey
+        {}
+        (\secureContext ->
+            Crypto.generateAesGcmKey
+                secureContext
+                aesLength
                 Crypto.CanBeExtracted
         )
 
@@ -589,48 +652,48 @@ exportHmacKey hash length =
 
 
 {-|-}
-exportAesCtrKeyAsJwk =
-    Debug.todo ""
+exportAesCtrKeyAsJwk aesLength =
+    exportAesCtrKey aesLength Crypto.exportAesCtrKeyAsJwk identity
 
 
 {-|-}
-exportAesCtrKeyAsRaw =
-    Debug.todo ""
+exportAesCtrKeyAsRaw aesLength =
+    exportAesCtrKey aesLength Crypto.exportAesCtrKeyAsRaw identity
 
 
 {-|-}
-exportAbcCtrKeyAsJwk =
-    Debug.todo ""
+exportAesCbcKeyAsJwk aesLength =
+    exportAesCbcKey aesLength Crypto.exportAesCbcKeyAsJwk identity
 
 
 {-|-}
-exportAbcCtrKeyAsRaw =
-    Debug.todo ""
+exportAesCbcKeyAsRaw aesLength =
+    exportAesCbcKey aesLength Crypto.exportAesCbcKeyAsRaw identity
 
 
 {-|-}
-exportAbcGcmKeyAsJwk =
-    Debug.todo ""
+exportAesGcmKeyAsRaw aesLength =
+    exportAesGcmKey aesLength Crypto.exportAesGcmKeyAsRaw identity
 
 
 {-|-}
-exportAbcGcmKeyAsRaw =
-    Debug.todo ""
+exportAesGcmKeyAsJwk aesLength =
+    exportAesGcmKey aesLength Crypto.exportAesGcmKeyAsJwk identity
 
 
 {-|-}
-exportAesCtrKey =
-    Debug.todo ""
+exportAesCtrKey aesLength =
+    exportKey (generateAesCtrKey aesLength)
 
 
 {-|-}
-exportAesCbcKey =
-    Debug.todo ""
+exportAesCbcKey aesLength =
+    exportKey (generateAesCbcKey aesLength)
 
 
 {-|-}
-exportAesGcmKey =
-    Debug.todo ""
+exportAesGcmKey aesLength =
+    exportKey (generateAesGcmKey aesLength)
 
 
 
