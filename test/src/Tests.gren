@@ -33,6 +33,7 @@ tests func =
         ++ uuidTests func
         ++ hmacKeyTests func
         ++ aesKeyTests func
+        ++ ecKeyTests func
 
 
 
@@ -319,6 +320,55 @@ aesKeyTests func =
     , expectSuccess test (testId 15) (exportAesGcmKeyAsJwk Crypto.AesLength256)
     , expectSuccess test (testId 16) (exportAesGcmKeyAsRaw Crypto.AesLength128)
     , expectSuccess test (testId 18) (exportAesGcmKeyAsRaw Crypto.AesLength256)
+    ]
+
+
+
+-- EC KEY TESTS
+
+
+{-|-}
+ecKeyTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "EC key tests - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 1) (exportEcdhPublicKeyAsJwk Crypto.P256)
+    , expectSuccess test (testId 2) (exportEcdhPublicKeyAsJwk Crypto.P384)
+    , expectSuccess test (testId 3) (exportEcdhPublicKeyAsJwk Crypto.P521)
+    , expectSuccess test (testId 4) (exportEcdhPublicKeyAsRaw Crypto.P256)
+    , expectSuccess test (testId 5) (exportEcdhPublicKeyAsRaw Crypto.P384)
+    , expectSuccess test (testId 6) (exportEcdhPublicKeyAsRaw Crypto.P521)
+    , expectSuccess test (testId 7) (exportEcdhPublicKeyAsSpki Crypto.P256)
+    , expectSuccess test (testId 8) (exportEcdhPublicKeyAsSpki Crypto.P384)
+    , expectSuccess test (testId 9) (exportEcdhPublicKeyAsSpki Crypto.P521)
+    --
+    , expectSuccess test (testId 1) (exportEcdsaPublicKeyAsJwk Crypto.P256)
+    , expectSuccess test (testId 2) (exportEcdsaPublicKeyAsJwk Crypto.P384)
+    , expectSuccess test (testId 3) (exportEcdsaPublicKeyAsJwk Crypto.P521)
+    , expectSuccess test (testId 4) (exportEcdsaPublicKeyAsRaw Crypto.P256)
+    , expectSuccess test (testId 5) (exportEcdsaPublicKeyAsRaw Crypto.P384)
+    , expectSuccess test (testId 6) (exportEcdsaPublicKeyAsRaw Crypto.P521)
+    , expectSuccess test (testId 7) (exportEcdsaPublicKeyAsSpki Crypto.P256)
+    , expectSuccess test (testId 8) (exportEcdsaPublicKeyAsSpki Crypto.P384)
+    , expectSuccess test (testId 9) (exportEcdsaPublicKeyAsSpki Crypto.P521)
+    --
+    , expectSuccess test (testId 10) (exportEcdhPrivateKeyAsJwk Crypto.P256)
+    , expectSuccess test (testId 11) (exportEcdhPrivateKeyAsJwk Crypto.P384)
+    , expectSuccess test (testId 12) (exportEcdhPrivateKeyAsJwk Crypto.P521)
+    , expectSuccess test (testId 13) (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
+    , expectSuccess test (testId 14) (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
+    , expectSuccess test (testId 15) (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
+    --
+    , expectSuccess test (testId 16) (exportEcdsaPrivateKeyAsJwk Crypto.P256)
+    , expectSuccess test (testId 17) (exportEcdsaPrivateKeyAsJwk Crypto.P384)
+    , expectSuccess test (testId 18) (exportEcdsaPrivateKeyAsJwk Crypto.P521)
+    , expectSuccess test (testId 19) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P256)
+    , expectSuccess test (testId 20) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P384)
+    , expectSuccess test (testId 21) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P521)
     ]
 
 
