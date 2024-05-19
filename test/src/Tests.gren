@@ -115,7 +115,7 @@ uuidTests func =
 
 
 
--- RSA algorithm
+-- RSA KEY TESTS
 
 
 {-|-}
