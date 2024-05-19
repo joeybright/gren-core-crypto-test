@@ -446,13 +446,27 @@ generateAesGcmKey aesLength =
 
 
 {-|-}
-generateEcdsaKeyPair =
-    Debug.todo ""
+generateEcdsaKeyPair curve =
+    generateKey
+        {}
+        (\secureContext ->
+            Crypto.generateEcdsaKeyPair
+                secureContext
+                curve
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-generateEcdhKeyPair =
-    Debug.todo ""
+generateEcdhKeyPair curve =
+    generateKey
+        {}
+        (\secureContext ->
+            Crypto.generateEcdhKeyPair
+                secureContext
+                curve
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
@@ -569,63 +583,63 @@ exportRsaSsaPkcs1V1_5KeyPair hash exponent =
 
 
 {-|-}
-exportEcdsaPrivateKeyAsJwk hash exponent =
-    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPrivateKeyAsJwk .private
+exportEcdsaPrivateKeyAsJwk curve =
+    exportEcdsaKeyPair curve Crypto.exportEcdsaPrivateKeyAsJwk .privateKey
 
 
 {-|-}
-exportEcdsaPrivateKeyAsPkcs8 hash exponent =
-    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPrivateKeyAsPkcs8 .private
+exportEcdsaPrivateKeyAsPkcs8 curve =
+    exportEcdsaKeyPair curve Crypto.exportEcdsaPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
-exportEcdsaPublicKeyAsJwk hash exponent =
-    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsJwk .public
+exportEcdsaPublicKeyAsJwk curve =
+    exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportEcdsaPublicKeyAsSpki hash exponent =
-    exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsSpki .public
+exportEcdsaPublicKeyAsSpki curve =
+    exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsSpki .publicKey
 
 
 {-|-}
-exportEcdsaPublicKeyAsRaw hash exponent =
-   exportEcdsaKeyPair hash exponent Crypto.exportEcdsaPublicKeyAsRaw .public
+exportEcdsaPublicKeyAsRaw curve =
+   exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsRaw .publicKey
 
 
 {-|-}
-exportEcdhPrivateKeyAsJwk hash exponent =
-    exportEcdhKeyPair hash exponent Crypto.exportEcdhPrivateKeyAsJwk .private
+exportEcdhPrivateKeyAsJwk curve =
+    exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsJwk .privateKey
 
 
 {-|-}
-exportEcdhPrivateKeyAsPkcs8 hash exponent =
-    exportEcdhKeyPair hash exponent Crypto.exportEcdhPrivateKeyAsPkcs8 .private
+exportEcdhPrivateKeyAsPkcs8 curve =
+    exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
-exportEcdhPublicKeyAsJwk hash exponent =
-   exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsJwk .public
+exportEcdhPublicKeyAsJwk curve =
+   exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportEcdhPublicKeyAsSpki hash exponent =
-    exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsSpki .public
+exportEcdhPublicKeyAsSpki curve =
+    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsSpki .publicKey
 
 
 {-|-}
-exportEcdhPublicKeyAsRaw hash exponent =
-    exportEcdhKeyPair hash exponent Crypto.exportEcdhPublicKeyAsJwk .public
+exportEcdhPublicKeyAsRaw curve =
+    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportEcdhKeyPair hash exponent =
-    exportKey (generateEcdhKeyPair hash exponent)
+exportEcdhKeyPair curve =
+    exportKey (generateEcdhKeyPair curve)
 
 
 {-|-}
-exportEcdsaKeyPair hash exponent =
-    exportKey (generateEcdsaKeyPair hash exponent)
+exportEcdsaKeyPair curve =
+    exportKey (generateEcdsaKeyPair curve)
 
 
 
