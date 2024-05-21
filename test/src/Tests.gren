@@ -407,6 +407,17 @@ hmacKeyTests func =
     , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
     , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
     , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
+    --
+    , expectSuccess test (testId 19) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 20) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 21) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 22) (importHmacKeyFromJwk Crypto.Sha512 (Just 256) Crypto.Sha512 Nothing)
+    -- Fails when there's a length mismatch between the generated and imported key
+    , expectSuccess test (testId 23) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 (Just 511))
+    , expectSuccess test (testId 24) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 24) (importHmacKeyFromJwk Crypto.Sha512 (Just 512) Crypto.Sha512 (Just 512))
+    -- Fails when the hashes of the generated key does not match the import
+    , expectFailure test (testId 23) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
     ]
 
 
@@ -1096,13 +1107,33 @@ importEcdhPrivateKeyFromPkcs8 =
 
 
 {-|-}
-importHmacKeyFromJwk =
-    Debug.todo ""
+importHmacKeyFromJwk keyHash keyExponent importHash importLength =
+    importKey
+        Crypto.ImportHmacKeyError
+        (exportHmacKeyAsJwk keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importHmacKeyFromJwk
+                secureContext
+                exportedKey
+                importHash
+                importLength
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importHmacKeyFromRaw =
-    Debug.todo ""
+importHmacKeyFromRaw keyHash keyExponent importHash importLength =
+    importKey
+        Crypto.ImportHmacKeyError
+        (exportHmacKeyAsRaw keyHash keyExponent)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importHmacKeyFromRaw
+                secureContext
+                exportedKey
+                importHash
+                importLength
+                Crypto.CanBeExtracted
+        )
 
 
 
