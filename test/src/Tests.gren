@@ -293,7 +293,6 @@ importRsaKeyTests string jwkFunc func =
     , expectSuccess test (testId 4) (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
     , expectSuccess test (testId 5) (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
     , expectSuccess test (testId 6) (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-        -- , expectFailure test (testId 7) (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
     ]
 
 
@@ -385,7 +384,7 @@ hmacImportKeyFromJwkTests func =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "HMAC import key from JWK tests - " ++ String.fromInt int
+            "HMAC import key from JWK test - " ++ String.fromInt int
     in
     [ expectSuccess test (testId 1) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
     , expectFailure test (testId 2) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
@@ -407,17 +406,17 @@ hmacImportKeyFromRawTests func =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "HMAC import key tests - " ++ String.fromInt int
+            "HMAC import key from raw test - " ++ String.fromInt int
     in
-    [ expectSuccess test (testId 10) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
-    , expectSuccess test (testId 11) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
-    , expectSuccess test (testId 12) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
-    , expectSuccess test (testId 13) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
-    , expectSuccess test (testId 14) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
-    , expectSuccess test (testId 15) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
-    , expectSuccess test (testId 16) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
-    , expectSuccess test (testId 17) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
-    , expectSuccess test (testId 18) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    [ expectSuccess test (testId 1) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 2) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 3) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 4) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 5) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 6) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 7) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 8) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 9) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
 
 
@@ -431,20 +430,19 @@ hmacImportKeyTests func =
     hmacImportKeyFromRawTests func ++ hmacImportKeyFromJwkTests func
 
 
-{-| Note: There are no tests for importing keys with different lengths given the behavior 
-is inconsistent across `browser` and `web` platforms.
--}
-hmacKeyTests func =
+{-|-}
+hmacExportKeyTests func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "HMAC key tests - " ++ String.fromInt int
+            "HMAC export key tests - " ++ String.fromInt int
     in
     [ expectSuccess test (testId 1) (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
     , expectSuccess test (testId 2) (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
     , expectSuccess test (testId 3) (exportHmacKeyAsJwk Crypto.Sha512 Nothing)
+        -- Exactly 8, which is the minimum value and should succeed
     , expectSuccess test (testId 4) (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
     , expectSuccess test (testId 5) (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
     , expectSuccess test (testId 6) (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
@@ -456,7 +454,7 @@ hmacKeyTests func =
     , expectFailure test (testId 10) (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
     , expectFailure test (testId 11) (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
     , expectFailure test (testId 12) (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
-        -- Max integer value that can be passed for the `length`, but is still not divisible by 8
+        -- Max integer value that can be passed for the `length`, but is still divisible by 8
     , expectSuccess test (testId 13) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
     , expectSuccess test (testId 14) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
     , expectSuccess test (testId 15) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
@@ -464,13 +462,13 @@ hmacKeyTests func =
     , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
     , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
     , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
-        -- 
-    , expectSuccess test (testId 19) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
-    , expectSuccess test (testId 20) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
-    , expectSuccess test (testId 21) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
-    , expectSuccess test (testId 22) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
-        ++ hmacImportKeyTests func
+
+
+{-| All HMAC key tests
+-}
+hmacKeyTests func =
+    hmacExportKeyTests func ++ hmacImportKeyTests func
 
 
 
