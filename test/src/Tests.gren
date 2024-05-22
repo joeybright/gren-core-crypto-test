@@ -293,8 +293,9 @@ importRsaKeyTests string jwkFunc func =
     , expectSuccess test (testId 4) (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
     , expectSuccess test (testId 5) (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
     , expectSuccess test (testId 6) (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
-    -- , expectFailure test (testId 7) (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
+        -- , expectFailure test (testId 7) (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha512)
     ]
+
 
 
 -- AES KEY TESTS
@@ -345,7 +346,7 @@ ecKeyTests func =
     , expectSuccess test (testId 7) (exportEcdhPublicKeyAsSpki Crypto.P256)
     , expectSuccess test (testId 8) (exportEcdhPublicKeyAsSpki Crypto.P384)
     , expectSuccess test (testId 9) (exportEcdhPublicKeyAsSpki Crypto.P521)
-    --
+        -- 
     , expectSuccess test (testId 1) (exportEcdsaPublicKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 2) (exportEcdsaPublicKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 3) (exportEcdsaPublicKeyAsJwk Crypto.P521)
@@ -355,14 +356,14 @@ ecKeyTests func =
     , expectSuccess test (testId 7) (exportEcdsaPublicKeyAsSpki Crypto.P256)
     , expectSuccess test (testId 8) (exportEcdsaPublicKeyAsSpki Crypto.P384)
     , expectSuccess test (testId 9) (exportEcdsaPublicKeyAsSpki Crypto.P521)
-    --
+        -- 
     , expectSuccess test (testId 10) (exportEcdhPrivateKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 11) (exportEcdhPrivateKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 12) (exportEcdhPrivateKeyAsJwk Crypto.P521)
     , expectSuccess test (testId 13) (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
     , expectSuccess test (testId 14) (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
     , expectSuccess test (testId 15) (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
-    --
+        -- 
     , expectSuccess test (testId 16) (exportEcdsaPrivateKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 17) (exportEcdsaPrivateKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 18) (exportEcdsaPrivateKeyAsJwk Crypto.P521)
@@ -427,8 +428,7 @@ because of inconsistencies between results on `browser` and `node` platforms. Th
 in `gren-core` mention this.
 -}
 hmacImportKeyTests func =
-    hmacImportKeyFromRawTests func
-        ++ hmacImportKeyFromJwkTests func
+    hmacImportKeyFromRawTests func ++ hmacImportKeyFromJwkTests func
 
 
 {-| Note: There are no tests for importing keys with different lengths given the behavior 
@@ -448,29 +448,30 @@ hmacKeyTests func =
     , expectSuccess test (testId 4) (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
     , expectSuccess test (testId 5) (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
     , expectSuccess test (testId 6) (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
-    -- Less than 8, but clamped to at least 8 (which results in success)
+        -- Less than 8, but clamped to at least 8 (which results in success)
     , expectSuccess test (testId 7) (exportHmacKeyAsJwk Crypto.Sha256 (Just 1))
     , expectSuccess test (testId 8) (exportHmacKeyAsJwk Crypto.Sha384 (Just 1))
     , expectSuccess test (testId 9) (exportHmacKeyAsJwk Crypto.Sha512 (Just 1))
-    -- A number not divible by 8
+        -- A number not divible by 8
     , expectFailure test (testId 10) (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
     , expectFailure test (testId 11) (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
     , expectFailure test (testId 12) (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
-    -- Max integer value that can be passed for the `length`, but is still not divisible by 8
+        -- Max integer value that can be passed for the `length`, but is still not divisible by 8
     , expectSuccess test (testId 13) (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
     , expectSuccess test (testId 14) (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
     , expectSuccess test (testId 15) (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
-    -- Greater than the max integer value, should still succeed with clamped value
+        -- Greater than the max integer value, should still succeed with clamped value
     , expectSuccess test (testId 16) (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
     , expectSuccess test (testId 17) (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
     , expectSuccess test (testId 18) (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
-    --
+        -- 
     , expectSuccess test (testId 19) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
     , expectSuccess test (testId 20) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
     , expectSuccess test (testId 21) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     , expectSuccess test (testId 22) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
         ++ hmacImportKeyTests func
+
 
 
 -- GENERATE KEYS
@@ -523,67 +524,32 @@ generateRsaSsaPkcs1V1_5KeyPair hash exponent =
 
 {-|-}
 generateAesCtrKey aesLength =
-    generateKey
-        {}
-        (\secureContext ->
-            Crypto.generateAesCtrKey
-                secureContext
-                aesLength
-                Crypto.CanBeExtracted
-        )
+    generateKey {} (\secureContext -> Crypto.generateAesCtrKey secureContext aesLength Crypto.CanBeExtracted)
 
 
 {-|-}
 generateAesCbcKey aesLength =
-    generateKey
-        {}
-        (\secureContext ->
-            Crypto.generateAesCbcKey
-                secureContext
-                aesLength
-                Crypto.CanBeExtracted
-        )
+    generateKey {} (\secureContext -> Crypto.generateAesCbcKey secureContext aesLength Crypto.CanBeExtracted)
 
 
 {-|-}
 generateAesGcmKey aesLength =
-    generateKey
-        {}
-        (\secureContext ->
-            Crypto.generateAesGcmKey
-                secureContext
-                aesLength
-                Crypto.CanBeExtracted
-        )
+    generateKey {} (\secureContext -> Crypto.generateAesGcmKey secureContext aesLength Crypto.CanBeExtracted)
 
 
 {-|-}
 generateEcdsaKeyPair curve =
-    generateKey
-        {}
-        (\secureContext ->
-            Crypto.generateEcdsaKeyPair
-                secureContext
-                curve
-                Crypto.CanBeExtracted
-        )
+    generateKey {} (\secureContext -> Crypto.generateEcdsaKeyPair secureContext curve Crypto.CanBeExtracted)
 
 
 {-|-}
 generateEcdhKeyPair curve =
-    generateKey
-        {}
-        (\secureContext ->
-            Crypto.generateEcdhKeyPair
-                secureContext
-                curve
-                Crypto.CanBeExtracted
-        )
+    generateKey {} (\secureContext -> Crypto.generateEcdhKeyPair secureContext curve Crypto.CanBeExtracted)
 
 
 {-|-}
 generateHmacKey hash length =
-    generateKey 
+    generateKey
         Crypto.LengthNotDivisibleByEight
         (\secureContext ->
             Crypto.generateHmacKey
@@ -716,7 +682,7 @@ exportEcdsaPublicKeyAsSpki curve =
 
 {-|-}
 exportEcdsaPublicKeyAsRaw curve =
-   exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsRaw .publicKey
+    exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsRaw .publicKey
 
 
 {-|-}
@@ -731,7 +697,7 @@ exportEcdhPrivateKeyAsPkcs8 curve =
 
 {-|-}
 exportEcdhPublicKeyAsJwk curve =
-   exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
+    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
 
 
 {-|-}
@@ -1005,7 +971,7 @@ importRsaPssPrivateKeyFromPkcs8 keyHash keyExponent importHash =
 -- IMPORT RSA-SSA-PKCS1V1.5K KEYS
 
 
-{-|-}   
+{-|-}
 importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
@@ -1020,7 +986,7 @@ importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash keyExponent importHash =
         )
 
 
-{-|-}   
+{-|-}
 importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
@@ -1035,7 +1001,7 @@ importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash keyExponent importHash =
         )
 
 
-{-|-}   
+{-|-}
 importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
@@ -1050,7 +1016,7 @@ importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash keyExponent importHash =
         )
 
 
-{-|-}   
+{-|-}
 importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash keyExponent importHash =
     importKey
         Crypto.ImportRsaKeyError
@@ -1159,32 +1125,12 @@ importEcdhPrivateKeyFromPkcs8 =
 
 {-|-}
 importHmacKeyFromJwk keyHash keyExponent importHash importLength =
-    importKey
-        Crypto.ImportHmacKeyError
-        (exportHmacKeyAsJwk keyHash keyExponent)
-        (\{ secureContext, exportedKey } ->
-            Crypto.importHmacKeyFromJwk
-                secureContext
-                exportedKey
-                importHash
-                importLength
-                Crypto.CanBeExtracted
-        )
+    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsJwk keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromJwk secureContext exportedKey importHash importLength Crypto.CanBeExtracted)
 
 
 {-|-}
 importHmacKeyFromRaw keyHash keyExponent importHash importLength =
-    importKey
-        Crypto.ImportHmacKeyError
-        (exportHmacKeyAsRaw keyHash keyExponent)
-        (\{ secureContext, exportedKey } ->
-            Crypto.importHmacKeyFromRaw
-                secureContext
-                exportedKey
-                importHash
-                importLength
-                Crypto.CanBeExtracted
-        )
+    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsRaw keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromRaw secureContext exportedKey importHash importLength Crypto.CanBeExtracted)
 
 
 
