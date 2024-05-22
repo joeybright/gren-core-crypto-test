@@ -376,7 +376,64 @@ ecKeyTests func =
 -- HMAC KEY TESTS
 
 
-{-|-}
+{-| Importing HMAC keys from JWK tests
+-}
+hmacImportKeyFromJwkTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "HMAC import key from JWK tests - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 1) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectFailure test (testId 2) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
+    , expectFailure test (testId 3) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
+    , expectFailure test (testId 4) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 5) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectFailure test (testId 6) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
+    , expectFailure test (testId 7) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
+    , expectFailure test (testId 8) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 9) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    ]
+
+
+{-| Importing HMAC keys from raw tests
+-}
+hmacImportKeyFromRawTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "HMAC import key tests - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 10) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 11) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 12) (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 13) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 14) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 15) (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess test (testId 16) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 17) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess test (testId 18) (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    ]
+
+
+{-| Tests for importing HMAC keys.
+
+Note that these tests do _not_ test for importing keys with different lengths. This is
+because of inconsistencies between results on `browser` and `node` platforms. The docs
+in `gren-core` mention this.
+-}
+hmacImportKeyTests func =
+    hmacImportKeyFromRawTests func
+        ++ hmacImportKeyFromJwkTests func
+
+
+{-| Note: There are no tests for importing keys with different lengths given the behavior 
+is inconsistent across `browser` and `web` platforms.
+-}
 hmacKeyTests func =
     let
         test task success failure =
@@ -411,15 +468,9 @@ hmacKeyTests func =
     , expectSuccess test (testId 19) (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
     , expectSuccess test (testId 20) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
     , expectSuccess test (testId 21) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
-    , expectSuccess test (testId 22) (importHmacKeyFromJwk Crypto.Sha512 (Just 256) Crypto.Sha512 Nothing)
-    -- Fails when there's a length mismatch between the generated and imported key
-    , expectSuccess test (testId 23) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 (Just 511))
-    , expectSuccess test (testId 24) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
-    , expectSuccess test (testId 24) (importHmacKeyFromJwk Crypto.Sha512 (Just 512) Crypto.Sha512 (Just 512))
-    -- Fails when the hashes of the generated key does not match the import
-    , expectFailure test (testId 23) (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess test (testId 22) (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
-
+        ++ hmacImportKeyTests func
 
 
 -- GENERATE KEYS
