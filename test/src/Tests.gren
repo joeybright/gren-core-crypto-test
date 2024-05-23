@@ -1059,8 +1059,8 @@ importAesGcmKeyFromJwk aesLength =
 
 
 {-|-}
-importAesGcmKeyFromRaw =
-    Debug.todo ""
+importAesGcmKeyFromRaw aesLength =
+    importKey Crypto.ImportAesKeyError (exportAesGcmKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesGcmKeyFromRaw secureContext exportedKey Crypto.CanBeExtracted)
 
 
 
