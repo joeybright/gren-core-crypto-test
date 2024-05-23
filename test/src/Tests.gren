@@ -300,13 +300,22 @@ importRsaKeyTests string jwkFunc func =
 -- AES KEY TESTS
 
 
-aesKeyTests func =
+-- importAesCtrKeyFromJwk
+-- importAesCtrKeyFromRaw
+-- importAesCbcKeyFromJwk
+-- importAesCbcKeyFromRaw
+-- importAesGcmKeyFromJwk
+-- importAesGcmKeyFromRaw
+
+
+{-|-}
+exportAesKeyTests func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "AES Key Tests - " ++ String.fromInt int
+            "AES export key tests - " ++ String.fromInt int
     in
     [ expectSuccess test (testId 1) (exportAesCtrKeyAsJwk Crypto.AesLength128)
     , expectSuccess test (testId 3) (exportAesCtrKeyAsJwk Crypto.AesLength256)
@@ -321,6 +330,35 @@ aesKeyTests func =
     , expectSuccess test (testId 16) (exportAesGcmKeyAsRaw Crypto.AesLength128)
     , expectSuccess test (testId 18) (exportAesGcmKeyAsRaw Crypto.AesLength256)
     ]
+
+
+{-|-}
+importAesKeyTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "AES import key tests - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 1) (importAesCtrKeyFromJwk Crypto.AesLength128)
+    , expectSuccess test (testId 3) (importAesCtrKeyFromJwk Crypto.AesLength256)
+    , expectSuccess test (testId 4) (importAesCtrKeyFromRaw Crypto.AesLength128)
+    , expectSuccess test (testId 6) (importAesCtrKeyFromRaw Crypto.AesLength256)
+    , expectSuccess test (testId 7) (importAesCbcKeyFromJwk Crypto.AesLength128)
+    , expectSuccess test (testId 9) (importAesCbcKeyFromJwk Crypto.AesLength256)
+    , expectSuccess test (testId 10) (importAesCbcKeyFromRaw Crypto.AesLength128)
+    , expectSuccess test (testId 12) (importAesCbcKeyFromRaw Crypto.AesLength256)
+    , expectSuccess test (testId 13) (importAesGcmKeyFromJwk Crypto.AesLength128)
+    , expectSuccess test (testId 15) (importAesGcmKeyFromJwk Crypto.AesLength256)
+    , expectSuccess test (testId 16) (importAesGcmKeyFromRaw Crypto.AesLength128)
+    , expectSuccess test (testId 18) (importAesGcmKeyFromRaw Crypto.AesLength256)
+    ]
+
+
+{-|-}
+aesKeyTests func =
+    exportAesKeyTests func ++ importAesKeyTests func
 
 
 
