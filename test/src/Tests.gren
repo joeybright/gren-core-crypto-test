@@ -1034,28 +1034,68 @@ importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash keyExponent importHash =
 
 
 {-|-}
-importAesCtrKeyFromJwk =
-    Debug.todo ""
+importAesCtrKeyFromJwk aesLength =
+    importKey
+        Crypto.ImportAesKeyError
+        (exportAesCtrKeyAsJwk aesLength)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importAesCtrKeyFromJwk
+                secureContext
+                exportedKey
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importAesCtrKeyFromRaw =
-    Debug.todo ""
+importAesCtrKeyFromRaw aesLength =
+    importKey
+        Crypto.ImportAesKeyError
+        (exportAesCtrKeyAsRaw aesLength)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importAesCtrKeyFromRaw
+                secureContext
+                exportedKey
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importAesCbcKeyFromJwk =
-    Debug.todo ""
+importAesCbcKeyFromJwk aesLength =
+    importKey
+        Crypto.ImportAesKeyError
+        (exportAesCbcKeyAsJwk aesLength)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importAesCbcKeyFromJwk
+                secureContext
+                exportedKey
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importAesCbcKeyFromRaw =
-    Debug.todo ""
+importAesCbcKeyFromRaw aesLength =
+    importKey
+        Crypto.ImportAesKeyError
+        (exportAesCbcKeyAsRaw aesLength)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importAesCbcKeyFromRaw
+                secureContext
+                exportedKey
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importAesGcmKeyFromJwk =
-    Debug.todo ""
+importAesGcmKeyFromJwk aesLength =
+    importKey
+        Crypto.ImportAesKeyError
+        (exportAesGcmKeyAsJwk aesLength)
+        (\{ secureContext, exportedKey } ->
+            Crypto.importAesGcmKeyFromJwk
+                secureContext
+                exportedKey
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
