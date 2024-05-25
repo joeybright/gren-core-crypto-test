@@ -300,14 +300,6 @@ importRsaKeyTests string jwkFunc func =
 -- AES KEY TESTS
 
 
--- importAesCtrKeyFromJwk
--- importAesCtrKeyFromRaw
--- importAesCbcKeyFromJwk
--- importAesCbcKeyFromRaw
--- importAesGcmKeyFromJwk
--- importAesGcmKeyFromRaw
-
-
 {-|-}
 exportAesKeyTests func =
     let
