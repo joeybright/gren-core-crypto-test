@@ -45,7 +45,7 @@ getSecurecontextTests func =
             "Secure context - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 getSecureContext
     ]
@@ -63,7 +63,7 @@ randomValueTests func =
             "Random value tests - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         testGeneratedValueCount num =
             Task.mapError (\_ -> {})
@@ -116,7 +116,7 @@ uuidTests func =
             "Uuid  - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         generateRandomUuid =
             getSecureContext
@@ -138,7 +138,7 @@ rsaTests func =
             "RSA key - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         generate =
             [ success 1 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent65537)
@@ -159,7 +159,7 @@ rsaOaepPublicKeyTests func =
             "RSA-OAEP public key - " ++ String.fromInt int
 
         failure int =
-            expectFailure2 (testHelper2 func) (testLabel int)
+            expectFailureHelper (testHelper func) (testLabel int)
 
         exportAsJwk =
             exportRsaKeyTests "RSA-OAEP public key export jwk - " exportRsaOaepPublicKeyAsJwk func
@@ -277,7 +277,7 @@ exportRsaKeyTests string jwkFunc func =
             string ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3)
     , success 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3)
@@ -295,7 +295,7 @@ importRsaKeyTests string jwkFunc func =
             string ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
     , success 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
@@ -317,7 +317,7 @@ exportAesKeyTests func =
             "AES export key tests - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (exportAesCtrKeyAsJwk Crypto.AesLength128)
     , success 2 (exportAesCtrKeyAsJwk Crypto.AesLength256)
@@ -341,7 +341,7 @@ importAesKeyTests func =
             "AES import key tests - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (importAesCtrKeyFromJwk Crypto.AesLength128)
     , success 2 (importAesCtrKeyFromJwk Crypto.AesLength256)
@@ -374,7 +374,7 @@ ecImportKeyTests func =
             "EC import key tests - " ++ String.fromInt int
 
         failure int =
-            expectFailure2 (testHelper2 func) (testLabel int)
+            expectFailureHelper (testHelper func) (testLabel int)
     in
     ecImportKeyTestsHelper func "EC import ecdsa public key from jwk tests" importEcdsaPublicKeyFromJwk
         ++ ecImportKeyTestsHelper func "EC import ecdsa public key from raw tests" importEcdsaPublicKeyFromRaw
@@ -400,7 +400,7 @@ ecExportKeyTests func =
             "EC export key tests - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (exportEcdhPublicKeyAsJwk Crypto.P256)
     , success 2 (exportEcdhPublicKeyAsJwk Crypto.P384)
@@ -447,10 +447,10 @@ ecImportKeyTestsHelper func string exportFunc =
             string ++ " - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         failure int =
-            expectFailure2 (testHelper2 func) (testLabel int)
+            expectFailureHelper (testHelper func) (testLabel int)
     in
     [ success 1 (exportFunc Crypto.P256 Crypto.P256 identity)
     , failure 2 (exportFunc Crypto.P256 Crypto.P384 identity)
@@ -476,10 +476,10 @@ hmacImportKeyFromJwkTests func =
             "HMAC import key from JWK test - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         failure int =
-            expectFailure2 (testHelper2 func) (testLabel int)
+            expectFailureHelper (testHelper func) (testLabel int)
     in
     [ success 1 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
     , failure 2 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
@@ -501,7 +501,7 @@ hmacImportKeyFromRawTests func =
             "HMAC import key from raw test - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
     in
     [ success 1 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
     , success 2 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
@@ -532,10 +532,10 @@ hmacExportKeyTests func =
             "HMAC export key tests - " ++ String.fromInt int
 
         success int =
-            expectSuccess2 (testHelper2 func) (testLabel int)
+            expectSuccessHelper (testHelper func) (testLabel int)
 
         failure int =
-            expectFailure2 (testHelper2 func) (testLabel int)
+            expectFailureHelper (testHelper func) (testLabel int)
     in
     [ success 1 (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
     , success 2 (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
@@ -1267,35 +1267,18 @@ failureString id =
 
 
 {-|-}
-expectSuccess test id task =
-    test task (successString id) (failureString id)
-
-
-{-|-}
-expectFailure test id task = 
-    test task (failureString id) (successString id)
-
-
-{-|-}
-expectSuccess2 test id =
+expectSuccessHelper test id =
     test (successString id) (failureString id)
 
 
 {-|-}
-expectFailure2 test id =
+expectFailureHelper test id =
     test (failureString id) (successString id)
 
 
 {-|-}
-testHelper : (String -> msg) -> String -> String -> Result a b -> msg
-testHelper func success failure result =
-    result
-        |> Result.map (\_ -> func success)
-        |> Result.withDefault (func failure)
-
-{-|-}
-testHelper2 : (String -> msg) -> String -> String -> Task a b -> Cmd msg
-testHelper2 mapFunc onSuccess onFailure =
+testHelper : (String -> msg) -> String -> String -> Task a b -> Cmd msg
+testHelper mapFunc onSuccess onFailure =
     Task.attempt (
         Result.map (\_ -> mapFunc onSuccess)
             >> Result.withDefault (mapFunc onFailure)
