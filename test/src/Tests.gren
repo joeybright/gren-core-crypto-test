@@ -44,10 +44,10 @@ getSecurecontextTests func =
         testLabel int =
             "Secure context - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 getSecureContext
+    [ expectSuccess 1 getSecureContext
     ]
 
 
@@ -62,7 +62,7 @@ randomValueTests func =
         testLabel int =
             "Random value tests - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         testGeneratedValueCount num =
@@ -75,33 +75,33 @@ randomValueTests func =
                                 Task.fail {}
                         )
     in
-    [ success 1 (Crypto.getRandomInt8Values 3)
-    , success 2 (Crypto.getRandomInt8Values 99999)
-    , success 3 (Crypto.getRandomInt8Values -99999)
-    , success 4 (Crypto.getRandomUInt8Values 3)
-    , success 5 (Crypto.getRandomUInt8Values 99999)
-    , success 6 (Crypto.getRandomUInt8Values -99999)
-    , success 7 (Crypto.getRandomInt16Values 3)
-    , success 8 (Crypto.getRandomInt16Values 99999)
-    , success 9 (Crypto.getRandomInt16Values -99999)
-    , success 10 (Crypto.getRandomUInt16Values 3)
-    , success 11 (Crypto.getRandomUInt16Values 99999)
-    , success 12 (Crypto.getRandomUInt16Values -99999)
-    , success 13 (Crypto.getRandomInt32Values 3)
-    , success 14 (Crypto.getRandomInt32Values 99999)
-    , success 15 (Crypto.getRandomInt32Values -99999)
-    , success 16 (Crypto.getRandomUInt32Values 3)
-    , success 17 (Crypto.getRandomUInt32Values 99999)
-    , success 18 (Crypto.getRandomUInt32Values -99999)
+    [ expectSuccess 1 (Crypto.getRandomInt8Values 3)
+    , expectSuccess 2 (Crypto.getRandomInt8Values 99999)
+    , expectSuccess 3 (Crypto.getRandomInt8Values -99999)
+    , expectSuccess 4 (Crypto.getRandomUInt8Values 3)
+    , expectSuccess 5 (Crypto.getRandomUInt8Values 99999)
+    , expectSuccess 6 (Crypto.getRandomUInt8Values -99999)
+    , expectSuccess 7 (Crypto.getRandomInt16Values 3)
+    , expectSuccess 8 (Crypto.getRandomInt16Values 99999)
+    , expectSuccess 9 (Crypto.getRandomInt16Values -99999)
+    , expectSuccess 10 (Crypto.getRandomUInt16Values 3)
+    , expectSuccess 11 (Crypto.getRandomUInt16Values 99999)
+    , expectSuccess 12 (Crypto.getRandomUInt16Values -99999)
+    , expectSuccess 13 (Crypto.getRandomInt32Values 3)
+    , expectSuccess 14 (Crypto.getRandomInt32Values 99999)
+    , expectSuccess 15 (Crypto.getRandomInt32Values -99999)
+    , expectSuccess 16 (Crypto.getRandomUInt32Values 3)
+    , expectSuccess 17 (Crypto.getRandomUInt32Values 99999)
+    , expectSuccess 18 (Crypto.getRandomUInt32Values -99999)
         {- Testing to make sure the max and min of generated values is respected, even
         when the number of values requested is higher (or lower) than the max value
         -}
-    , success 19 (testGeneratedValueCount 0 (Crypto.getRandomUInt32Values -99999))
-    , success 20 (testGeneratedValueCount 16384 (Crypto.getRandomUInt32Values 99999))
-    , success 21 (testGeneratedValueCount 0 (Crypto.getRandomUInt16Values -99999))
-    , success 22 (testGeneratedValueCount 32768 (Crypto.getRandomUInt16Values 99999))
-    , success 23 (testGeneratedValueCount 0 (Crypto.getRandomUInt8Values -99999))
-    , success 24 (testGeneratedValueCount 65536 (Crypto.getRandomUInt8Values 99999))
+    , expectSuccess 19 (testGeneratedValueCount 0 (Crypto.getRandomUInt32Values -99999))
+    , expectSuccess 20 (testGeneratedValueCount 16384 (Crypto.getRandomUInt32Values 99999))
+    , expectSuccess 21 (testGeneratedValueCount 0 (Crypto.getRandomUInt16Values -99999))
+    , expectSuccess 22 (testGeneratedValueCount 32768 (Crypto.getRandomUInt16Values 99999))
+    , expectSuccess 23 (testGeneratedValueCount 0 (Crypto.getRandomUInt8Values -99999))
+    , expectSuccess 24 (testGeneratedValueCount 65536 (Crypto.getRandomUInt8Values 99999))
     ]
 
 
@@ -115,14 +115,14 @@ uuidTests func =
         testLabel int =
             "Uuid  - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         generateRandomUuid =
             getSecureContext
                 |> Task.andThen (\secureContext -> Crypto.randomUuid secureContext)
     in
-    [ success 1 generateRandomUuid
+    [ expectSuccess 1 generateRandomUuid
     ]
 
 
@@ -137,16 +137,16 @@ rsaTests func =
         testLabel int =
             "RSA key - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         generate =
-            [ success 1 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent65537)
-            , success 2 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent3)
-            , success 3 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent65537)
-            , success 4 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent3)
-            , success 5 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent65537)
-            , success 6 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent3)
+            [ expectSuccess 1 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent65537)
+            , expectSuccess 2 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent3)
+            , expectSuccess 3 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent65537)
+            , expectSuccess 4 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent3)
+            , expectSuccess 5 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent65537)
+            , expectSuccess 6 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent3)
             ]
     in
     generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func ++ rsaPssPublicKeyTests func ++ rsaPssPrivateKeyTests func ++ rsaSsaPkcs1V1_5KPublicKeyTests func ++ rsaSsaPkcs1V1_5KPrivateKeyTests func
@@ -158,7 +158,7 @@ rsaOaepPublicKeyTests func =
         testLabel int =
             "RSA-OAEP public key - " ++ String.fromInt int
 
-        failure int =
+        expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
 
         exportAsJwk =
@@ -174,7 +174,7 @@ rsaOaepPublicKeyTests func =
             importRsaKeyTests "RSA-OAEP public key import spki - " importRsaOaepPublicKeyFromSpki func
 
         importFromSpkiFailures =
-            [ failure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
+            [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
             ]
     in
     exportAsJwk ++ importFromJwk ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
@@ -276,15 +276,15 @@ exportRsaKeyTests string jwkFunc func =
         testLabel int =
             string ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3)
-    , success 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3)
-    , success 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3)
-    , success 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537)
-    , success 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537)
-    , success 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537)
+    [ expectSuccess 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3)
+    , expectSuccess 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3)
+    , expectSuccess 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3)
+    , expectSuccess 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537)
+    , expectSuccess 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537)
+    , expectSuccess 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537)
     ]
 
 
@@ -294,15 +294,15 @@ importRsaKeyTests string jwkFunc func =
         testLabel int =
             string ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-    , success 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-    , success 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-    , success 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-    , success 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-    , success 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
+    [ expectSuccess 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
+    , expectSuccess 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
+    , expectSuccess 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
+    , expectSuccess 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
+    , expectSuccess 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
+    , expectSuccess 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
     ]
 
 
@@ -316,21 +316,21 @@ exportAesKeyTests func =
         testLabel int =
             "AES export key tests - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (exportAesCtrKeyAsJwk Crypto.AesLength128)
-    , success 2 (exportAesCtrKeyAsJwk Crypto.AesLength256)
-    , success 3 (exportAesCtrKeyAsRaw Crypto.AesLength128)
-    , success 4 (exportAesCtrKeyAsRaw Crypto.AesLength256)
-    , success 5 (exportAesCbcKeyAsJwk Crypto.AesLength128)
-    , success 6 (exportAesCbcKeyAsJwk Crypto.AesLength256)
-    , success 7 (exportAesCbcKeyAsRaw Crypto.AesLength128)
-    , success 8 (exportAesCbcKeyAsRaw Crypto.AesLength256)
-    , success 9 (exportAesGcmKeyAsJwk Crypto.AesLength128)
-    , success 10 (exportAesGcmKeyAsJwk Crypto.AesLength256)
-    , success 11 (exportAesGcmKeyAsRaw Crypto.AesLength128)
-    , success 12 (exportAesGcmKeyAsRaw Crypto.AesLength256)
+    [ expectSuccess 1 (exportAesCtrKeyAsJwk Crypto.AesLength128)
+    , expectSuccess 2 (exportAesCtrKeyAsJwk Crypto.AesLength256)
+    , expectSuccess 3 (exportAesCtrKeyAsRaw Crypto.AesLength128)
+    , expectSuccess 4 (exportAesCtrKeyAsRaw Crypto.AesLength256)
+    , expectSuccess 5 (exportAesCbcKeyAsJwk Crypto.AesLength128)
+    , expectSuccess 6 (exportAesCbcKeyAsJwk Crypto.AesLength256)
+    , expectSuccess 7 (exportAesCbcKeyAsRaw Crypto.AesLength128)
+    , expectSuccess 8 (exportAesCbcKeyAsRaw Crypto.AesLength256)
+    , expectSuccess 9 (exportAesGcmKeyAsJwk Crypto.AesLength128)
+    , expectSuccess 10 (exportAesGcmKeyAsJwk Crypto.AesLength256)
+    , expectSuccess 11 (exportAesGcmKeyAsRaw Crypto.AesLength128)
+    , expectSuccess 12 (exportAesGcmKeyAsRaw Crypto.AesLength256)
     ]
 
 
@@ -340,21 +340,21 @@ importAesKeyTests func =
         testLabel int =
             "AES import key tests - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (importAesCtrKeyFromJwk Crypto.AesLength128)
-    , success 2 (importAesCtrKeyFromJwk Crypto.AesLength256)
-    , success 3 (importAesCtrKeyFromRaw Crypto.AesLength128)
-    , success 4 (importAesCtrKeyFromRaw Crypto.AesLength256)
-    , success 5 (importAesCbcKeyFromJwk Crypto.AesLength128)
-    , success 6 (importAesCbcKeyFromJwk Crypto.AesLength256)
-    , success 7 (importAesCbcKeyFromRaw Crypto.AesLength128)
-    , success 8 (importAesCbcKeyFromRaw Crypto.AesLength256)
-    , success 9 (importAesGcmKeyFromJwk Crypto.AesLength128)
-    , success 10 (importAesGcmKeyFromJwk Crypto.AesLength256)
-    , success 11 (importAesGcmKeyFromRaw Crypto.AesLength128)
-    , success 12 (importAesGcmKeyFromRaw Crypto.AesLength256)
+    [ expectSuccess 1 (importAesCtrKeyFromJwk Crypto.AesLength128)
+    , expectSuccess 2 (importAesCtrKeyFromJwk Crypto.AesLength256)
+    , expectSuccess 3 (importAesCtrKeyFromRaw Crypto.AesLength128)
+    , expectSuccess 4 (importAesCtrKeyFromRaw Crypto.AesLength256)
+    , expectSuccess 5 (importAesCbcKeyFromJwk Crypto.AesLength128)
+    , expectSuccess 6 (importAesCbcKeyFromJwk Crypto.AesLength256)
+    , expectSuccess 7 (importAesCbcKeyFromRaw Crypto.AesLength128)
+    , expectSuccess 8 (importAesCbcKeyFromRaw Crypto.AesLength256)
+    , expectSuccess 9 (importAesGcmKeyFromJwk Crypto.AesLength128)
+    , expectSuccess 10 (importAesGcmKeyFromJwk Crypto.AesLength256)
+    , expectSuccess 11 (importAesGcmKeyFromRaw Crypto.AesLength128)
+    , expectSuccess 12 (importAesGcmKeyFromRaw Crypto.AesLength256)
     ]
 
 
@@ -373,7 +373,7 @@ ecImportKeyTests func =
         testLabel int =
             "EC import key tests - " ++ String.fromInt int
 
-        failure int =
+        expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
     in
     ecImportKeyTestsHelper func "EC import ecdsa public key from jwk tests" importEcdsaPublicKeyFromJwk
@@ -386,10 +386,10 @@ ecImportKeyTests func =
         ++ ecImportKeyTestsHelper func "EC import ecdh public key from spki tests" importEcdhPublicKeyFromSpki
         ++ ecImportKeyTestsHelper func "EC import ecdh private key from jwk tests" importEcdhPrivateKeyFromJwk
         ++ ecImportKeyTestsHelper func "EC import ecdh private key from pkcs8 tests" importEcdhPrivateKeyFromPkcs8
-        ++ [ failure 1 (importEcdsaPublicKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
-            , failure 2 (importEcdsaPublicKeyFromRaw Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
-            , failure 3 (importEcdsaPublicKeyFromSpki Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
-            , failure 4 (importEcdsaPrivateKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
+        ++ [ expectFailure 1 (importEcdsaPublicKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
+            , expectFailure 2 (importEcdsaPublicKeyFromRaw Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
+            , expectFailure 3 (importEcdsaPublicKeyFromSpki Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
+            , expectFailure 4 (importEcdsaPrivateKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
             ]
 
 
@@ -399,39 +399,39 @@ ecExportKeyTests func =
         testLabel int =
             "EC export key tests - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (exportEcdhPublicKeyAsJwk Crypto.P256)
-    , success 2 (exportEcdhPublicKeyAsJwk Crypto.P384)
-    , success 3 (exportEcdhPublicKeyAsJwk Crypto.P521)
-    , success 4 (exportEcdhPublicKeyAsRaw Crypto.P256)
-    , success 5 (exportEcdhPublicKeyAsRaw Crypto.P384)
-    , success 6 (exportEcdhPublicKeyAsRaw Crypto.P521)
-    , success 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
-    , success 8 (exportEcdhPublicKeyAsSpki Crypto.P384)
-    , success 9 (exportEcdhPublicKeyAsSpki Crypto.P521)
-    , success 10 (exportEcdsaPublicKeyAsJwk Crypto.P256)
-    , success 11 (exportEcdsaPublicKeyAsJwk Crypto.P384)
-    , success 12 (exportEcdsaPublicKeyAsJwk Crypto.P521)
-    , success 13 (exportEcdsaPublicKeyAsRaw Crypto.P256)
-    , success 14 (exportEcdsaPublicKeyAsRaw Crypto.P384)
-    , success 15 (exportEcdsaPublicKeyAsRaw Crypto.P521)
-    , success 16 (exportEcdsaPublicKeyAsSpki Crypto.P256)
-    , success 17 (exportEcdsaPublicKeyAsSpki Crypto.P384)
-    , success 18 (exportEcdsaPublicKeyAsSpki Crypto.P521)
-    , success 19 (exportEcdhPrivateKeyAsJwk Crypto.P256)
-    , success 20 (exportEcdhPrivateKeyAsJwk Crypto.P384)
-    , success 21 (exportEcdhPrivateKeyAsJwk Crypto.P521)
-    , success 22 (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
-    , success 23 (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
-    , success 24 (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
-    , success 25 (exportEcdsaPrivateKeyAsJwk Crypto.P256)
-    , success 26 (exportEcdsaPrivateKeyAsJwk Crypto.P384)
-    , success 27 (exportEcdsaPrivateKeyAsJwk Crypto.P521)
-    , success 28 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P256)
-    , success 29 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P384)
-    , success 30 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P521)
+    [ expectSuccess 1 (exportEcdhPublicKeyAsJwk Crypto.P256)
+    , expectSuccess 2 (exportEcdhPublicKeyAsJwk Crypto.P384)
+    , expectSuccess 3 (exportEcdhPublicKeyAsJwk Crypto.P521)
+    , expectSuccess 4 (exportEcdhPublicKeyAsRaw Crypto.P256)
+    , expectSuccess 5 (exportEcdhPublicKeyAsRaw Crypto.P384)
+    , expectSuccess 6 (exportEcdhPublicKeyAsRaw Crypto.P521)
+    , expectSuccess 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
+    , expectSuccess 8 (exportEcdhPublicKeyAsSpki Crypto.P384)
+    , expectSuccess 9 (exportEcdhPublicKeyAsSpki Crypto.P521)
+    , expectSuccess 10 (exportEcdsaPublicKeyAsJwk Crypto.P256)
+    , expectSuccess 11 (exportEcdsaPublicKeyAsJwk Crypto.P384)
+    , expectSuccess 12 (exportEcdsaPublicKeyAsJwk Crypto.P521)
+    , expectSuccess 13 (exportEcdsaPublicKeyAsRaw Crypto.P256)
+    , expectSuccess 14 (exportEcdsaPublicKeyAsRaw Crypto.P384)
+    , expectSuccess 15 (exportEcdsaPublicKeyAsRaw Crypto.P521)
+    , expectSuccess 16 (exportEcdsaPublicKeyAsSpki Crypto.P256)
+    , expectSuccess 17 (exportEcdsaPublicKeyAsSpki Crypto.P384)
+    , expectSuccess 18 (exportEcdsaPublicKeyAsSpki Crypto.P521)
+    , expectSuccess 19 (exportEcdhPrivateKeyAsJwk Crypto.P256)
+    , expectSuccess 20 (exportEcdhPrivateKeyAsJwk Crypto.P384)
+    , expectSuccess 21 (exportEcdhPrivateKeyAsJwk Crypto.P521)
+    , expectSuccess 22 (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
+    , expectSuccess 23 (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
+    , expectSuccess 24 (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
+    , expectSuccess 25 (exportEcdsaPrivateKeyAsJwk Crypto.P256)
+    , expectSuccess 26 (exportEcdsaPrivateKeyAsJwk Crypto.P384)
+    , expectSuccess 27 (exportEcdsaPrivateKeyAsJwk Crypto.P521)
+    , expectSuccess 28 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P256)
+    , expectSuccess 29 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P384)
+    , expectSuccess 30 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P521)
     ]
 
 
@@ -446,21 +446,21 @@ ecImportKeyTestsHelper func string exportFunc =
         testLabel int =
             string ++ " - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
-        failure int =
+        expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (exportFunc Crypto.P256 Crypto.P256 identity)
-    , failure 2 (exportFunc Crypto.P256 Crypto.P384 identity)
-    , failure 3 (exportFunc Crypto.P256 Crypto.P521 identity)
-    , failure 4 (exportFunc Crypto.P384 Crypto.P256 identity)
-    , success 5 (exportFunc Crypto.P384 Crypto.P384 identity)
-    , failure 6 (exportFunc Crypto.P384 Crypto.P521 identity)
-    , failure 7 (exportFunc Crypto.P521 Crypto.P256 identity)
-    , failure 8 (exportFunc Crypto.P521 Crypto.P384 identity)
-    , success 9 (exportFunc Crypto.P521 Crypto.P521 identity)
+    [ expectSuccess 1 (exportFunc Crypto.P256 Crypto.P256 identity)
+    , expectFailure 2 (exportFunc Crypto.P256 Crypto.P384 identity)
+    , expectFailure 3 (exportFunc Crypto.P256 Crypto.P521 identity)
+    , expectFailure 4 (exportFunc Crypto.P384 Crypto.P256 identity)
+    , expectSuccess 5 (exportFunc Crypto.P384 Crypto.P384 identity)
+    , expectFailure 6 (exportFunc Crypto.P384 Crypto.P521 identity)
+    , expectFailure 7 (exportFunc Crypto.P521 Crypto.P256 identity)
+    , expectFailure 8 (exportFunc Crypto.P521 Crypto.P384 identity)
+    , expectSuccess 9 (exportFunc Crypto.P521 Crypto.P521 identity)
     ]
 
 
@@ -475,21 +475,21 @@ hmacImportKeyFromJwkTests func =
         testLabel int =
             "HMAC import key from JWK test - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
-        failure int =
+        expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
-    , failure 2 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
-    , failure 3 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
-    , failure 4 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
-    , success 5 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
-    , failure 6 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
-    , failure 7 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
-    , failure 8 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
-    , success 9 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    [ expectSuccess 1 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectFailure 2 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
+    , expectFailure 3 (importHmacKeyFromJwk Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
+    , expectFailure 4 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess 5 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectFailure 6 (importHmacKeyFromJwk Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
+    , expectFailure 7 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
+    , expectFailure 8 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess 9 (importHmacKeyFromJwk Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
 
 
@@ -500,18 +500,18 @@ hmacImportKeyFromRawTests func =
         testLabel int =
             "HMAC import key from raw test - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
-    , success 2 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
-    , success 3 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
-    , success 4 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
-    , success 5 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
-    , success 6 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
-    , success 7 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
-    , success 8 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
-    , success 9 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
+    [ expectSuccess 1 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess 2 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess 3 (importHmacKeyFromRaw Crypto.Sha256 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess 4 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess 5 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess 6 (importHmacKeyFromRaw Crypto.Sha384 Nothing Crypto.Sha512 Nothing)
+    , expectSuccess 7 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha256 Nothing)
+    , expectSuccess 8 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha384 Nothing)
+    , expectSuccess 9 (importHmacKeyFromRaw Crypto.Sha512 Nothing Crypto.Sha512 Nothing)
     ]
 
 
@@ -531,35 +531,35 @@ hmacExportKeyTests func =
         testLabel int =
             "HMAC export key tests - " ++ String.fromInt int
 
-        success int =
+        expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
 
-        failure int =
+        expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
     in
-    [ success 1 (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
-    , success 2 (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
-    , success 3 (exportHmacKeyAsJwk Crypto.Sha512 Nothing)
+    [ expectSuccess 1 (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
+    , expectSuccess 2 (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
+    , expectSuccess 3 (exportHmacKeyAsJwk Crypto.Sha512 Nothing)
         -- Exactly 8, which is the minimum value and should succeed
-    , success 4 (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
-    , success 5 (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
-    , success 6 (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
+    , expectSuccess 4 (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
+    , expectSuccess 5 (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
+    , expectSuccess 6 (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
         -- Less than 8, but clamped to at least 8 (which results in success)
-    , success 7 (exportHmacKeyAsJwk Crypto.Sha256 (Just 1))
-    , success 8 (exportHmacKeyAsJwk Crypto.Sha384 (Just 1))
-    , success 9 (exportHmacKeyAsJwk Crypto.Sha512 (Just 1))
+    , expectSuccess 7 (exportHmacKeyAsJwk Crypto.Sha256 (Just 1))
+    , expectSuccess 8 (exportHmacKeyAsJwk Crypto.Sha384 (Just 1))
+    , expectSuccess 9 (exportHmacKeyAsJwk Crypto.Sha512 (Just 1))
         -- A number not divible by 8
-    , failure 10 (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
-    , failure 11 (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
-    , failure 12 (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
+    , expectFailure 10 (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
+    , expectFailure 11 (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
+    , expectFailure 12 (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
         -- Max integer value that can be passed for the `length`, but is still divisible by 8
-    , success 13 (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
-    , success 14 (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
-    , success 15 (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
+    , expectSuccess 13 (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
+    , expectSuccess 14 (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
+    , expectSuccess 15 (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
         -- Greater than the max integer value, should still succeed with clamped value
-    , success 16 (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
-    , success 17 (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
-    , success 18 (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
+    , expectSuccess 16 (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
+    , expectSuccess 17 (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
+    , expectSuccess 18 (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
     ]
 
 
