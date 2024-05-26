@@ -358,13 +358,41 @@ aesKeyTests func =
 
 
 {-|-}
-ecKeyTests func =
+ecImportKeyTests func =
     let
         test task success failure =
             Task.attempt (testHelper func success failure) task
 
         testId int =
-            "EC key tests - " ++ String.fromInt int
+            "EC import key tests - " ++ String.fromInt int
+            
+    in
+    ecImportKeyTestsHelper func "EC import ecdsa public key from jwk tests" importEcdsaPublicKeyFromJwk
+        ++ ecImportKeyTestsHelper func "EC import ecdsa public key from raw tests" importEcdsaPublicKeyFromRaw
+        ++ ecImportKeyTestsHelper func "EC import ecdsa public key from spki tests" importEcdsaPublicKeyFromSpki
+        ++ ecImportKeyTestsHelper func "EC import ecdsa private key from jwk tests" importEcdsaPrivateKeyFromJwk
+        ++ ecImportKeyTestsHelper func "EC import ecdsa private key from pkcs8 tests" importEcdsaPrivateKeyFromPkcs8
+        ++ ecImportKeyTestsHelper func "EC import ecdh public key from jwk tests" importEcdhPublicKeyFromJwk
+        ++ ecImportKeyTestsHelper func "EC import ecdh public key from raw tests" importEcdhPublicKeyFromRaw
+        ++ ecImportKeyTestsHelper func "EC import ecdh public key from spki tests" importEcdhPublicKeyFromSpki
+        ++ ecImportKeyTestsHelper func "EC import ecdh private key from jwk tests" importEcdhPrivateKeyFromJwk
+        ++ ecImportKeyTestsHelper func "EC import ecdh private key from pkcs8 tests" importEcdhPrivateKeyFromPkcs8
+        ++ 
+            [ expectFailure test (testId 1) (importEcdsaPublicKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
+            , expectFailure test (testId 1) (importEcdsaPublicKeyFromRaw Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
+            , expectFailure test (testId 1) (importEcdsaPublicKeyFromSpki Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
+            , expectFailure test (testId 1) (importEcdsaPrivateKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))            
+            ]
+
+
+{-|-}
+ecExportKeyTests func =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            "EC export key tests - " ++ String.fromInt int
     in
     [ expectSuccess test (testId 1) (exportEcdhPublicKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 2) (exportEcdhPublicKeyAsJwk Crypto.P384)
@@ -375,7 +403,6 @@ ecKeyTests func =
     , expectSuccess test (testId 7) (exportEcdhPublicKeyAsSpki Crypto.P256)
     , expectSuccess test (testId 8) (exportEcdhPublicKeyAsSpki Crypto.P384)
     , expectSuccess test (testId 9) (exportEcdhPublicKeyAsSpki Crypto.P521)
-        -- 
     , expectSuccess test (testId 1) (exportEcdsaPublicKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 2) (exportEcdsaPublicKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 3) (exportEcdsaPublicKeyAsJwk Crypto.P521)
@@ -385,20 +412,44 @@ ecKeyTests func =
     , expectSuccess test (testId 7) (exportEcdsaPublicKeyAsSpki Crypto.P256)
     , expectSuccess test (testId 8) (exportEcdsaPublicKeyAsSpki Crypto.P384)
     , expectSuccess test (testId 9) (exportEcdsaPublicKeyAsSpki Crypto.P521)
-        -- 
     , expectSuccess test (testId 10) (exportEcdhPrivateKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 11) (exportEcdhPrivateKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 12) (exportEcdhPrivateKeyAsJwk Crypto.P521)
     , expectSuccess test (testId 13) (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
     , expectSuccess test (testId 14) (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
     , expectSuccess test (testId 15) (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
-        -- 
     , expectSuccess test (testId 16) (exportEcdsaPrivateKeyAsJwk Crypto.P256)
     , expectSuccess test (testId 17) (exportEcdsaPrivateKeyAsJwk Crypto.P384)
     , expectSuccess test (testId 18) (exportEcdsaPrivateKeyAsJwk Crypto.P521)
     , expectSuccess test (testId 19) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P256)
     , expectSuccess test (testId 20) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P384)
     , expectSuccess test (testId 21) (exportEcdsaPrivateKeyAsPkcs8 Crypto.P521)
+    ]
+
+
+{-|-}
+ecKeyTests func =
+    ecExportKeyTests func ++ ecImportKeyTests func
+
+
+{-|-}
+ecImportKeyTestsHelper func string exportFunc =
+    let
+        test task success failure =
+            Task.attempt (testHelper func success failure) task
+
+        testId int =
+            string ++ " - " ++ String.fromInt int
+    in
+    [ expectSuccess test (testId 1) (exportFunc Crypto.P256 Crypto.P256 identity)
+    , expectFailure test (testId 2) (exportFunc Crypto.P256 Crypto.P384 identity)
+    , expectFailure test (testId 3) (exportFunc Crypto.P256 Crypto.P521 identity)
+    , expectFailure test (testId 4) (exportFunc Crypto.P384 Crypto.P256 identity)
+    , expectSuccess test (testId 5) (exportFunc Crypto.P384 Crypto.P384 identity)
+    , expectFailure test (testId 6) (exportFunc Crypto.P384 Crypto.P521 identity)
+    , expectFailure test (testId 7) (exportFunc Crypto.P521 Crypto.P256 identity)
+    , expectFailure test (testId 8) (exportFunc Crypto.P521 Crypto.P384 identity)
+    , expectSuccess test (testId 9) (exportFunc Crypto.P521 Crypto.P521 identity)
     ]
 
 
@@ -735,7 +786,7 @@ exportEcdhPublicKeyAsSpki curve =
 
 {-|-}
 exportEcdhPublicKeyAsRaw curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
+    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsRaw .publicKey
 
 
 {-|-}
@@ -1098,53 +1149,144 @@ importAesGcmKeyFromRaw aesLength =
 
 
 {-|-}
-importEcdsaPublicKeyFromJwk =
-    Debug.todo ""
+importEcdsaPublicKeyFromJwk exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdsaPublicKeyAsJwk exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdsaPublicKeyFromJwk 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdsaPublicKeyFromRaw =
-    Debug.todo ""
+importEcdsaPublicKeyFromRaw exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdsaPublicKeyAsRaw exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdsaPublicKeyFromRaw 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdsaPublicKeyFromSpki =
-    Debug.todo ""
+importEcdsaPublicKeyFromSpki exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdsaPublicKeyAsSpki exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdsaPublicKeyFromSpki 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdsaPrivateKeyFromJwk =
-    Debug.todo ""
+importEcdsaPrivateKeyFromJwk exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdsaPrivateKeyAsJwk exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdsaPrivateKeyFromJwk 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdsaPrivateKeyFromPkcs8 =
-    Debug.todo ""
+importEcdsaPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdsaPrivateKeyAsPkcs8 exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdsaPrivateKeyFromPkcs8 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdhPublicKeyFromJwk =
-    Debug.todo ""
+importEcdhPublicKeyFromJwk exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdhPublicKeyAsJwk exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdhPublicKeyFromJwk 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdhPublicKeyFromRaw =
-    Debug.todo ""
+importEcdhPublicKeyFromRaw exportNamedCurve importNamedCurve key =
+    -- Debug.todo ""
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdhPublicKeyAsRaw exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdhPublicKeyFromRaw 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdhPublicKeyFromSpki =
-    Debug.todo ""
+importEcdhPublicKeyFromSpki exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdhPublicKeyAsSpki exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdhPublicKeyFromSpki 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdhPrivateKeyFromJwk =
-    Debug.todo ""
+importEcdhPrivateKeyFromJwk exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdhPrivateKeyAsJwk exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdhPrivateKeyFromJwk 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 {-|-}
-importEcdhPrivateKeyFromPkcs8 =
-    Debug.todo ""
+importEcdhPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
+    importKey
+        Crypto.ImportEcKeyError 
+        (exportEcdhPrivateKeyAsPkcs8 exportNamedCurve) 
+        (\{ secureContext, exportedKey } -> 
+            Crypto.importEcdhPrivateKeyFromPkcs8 
+                secureContext
+                importNamedCurve
+                (key exportedKey) 
+                Crypto.CanBeExtracted
+        )
 
 
 
