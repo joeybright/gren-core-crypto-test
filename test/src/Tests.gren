@@ -368,6 +368,11 @@ aesKeyTests func =
 
 
 {-|-}
+ecKeyTests func =
+    ecdsaPublicKeyTests func ++ ecdsaPrivateKeyTests func ++ ecdhPublicKeyTests func ++ ecdhPrivateKeyTests func
+
+
+{-|-}
 ecdsaPublicKeyTests func =
     let
         exportAsJwk =
@@ -488,11 +493,6 @@ importEcKeyTests string importFunc func =
     , expectFailure 8 (importFunc Crypto.P521 Crypto.P384 identity)
     , expectSuccess 9 (importFunc Crypto.P521 Crypto.P521 identity)
     ]
-
-
-{-|-}
-ecKeyTests func =
-    ecdsaPublicKeyTests func ++ ecdsaPrivateKeyTests func ++ ecdhPublicKeyTests func ++ ecdhPrivateKeyTests func
 
 
 
