@@ -368,100 +368,131 @@ aesKeyTests func =
 
 
 {-|-}
-ecImportKeyTests func =
+ecdsaPublicKeyTests func =
     let
-        testLabel int =
-            "EC import key tests - " ++ String.fromInt int
+        exportAsJwk =
+            exportEcKeyTests "ECDSA public key export jwk - " exportEcdsaPublicKeyAsJwk func
 
-        expectFailure int =
-            expectFailureHelper (testHelper func) (testLabel int)
+        exportAsRaw =
+            exportEcKeyTests "ECDSA public key export raw - " exportEcdsaPublicKeyAsRaw func
+        
+        exportAsSpki =
+            exportEcKeyTests "ECDSA public key export spki - " exportEcdsaPublicKeyAsSpki func
+
+        importAsJwk =
+            importEcKeyTests "ECDSA private key import jwk - " importEcdsaPublicKeyFromJwk func
+
+        importAsRaw =
+            importEcKeyTests "ECDSA private key import raw - " importEcdsaPublicKeyFromRaw func
+
+        importAsSpki =
+            importEcKeyTests "ECDSA private key import spki - " importEcdsaPublicKeyFromSpki func
     in
-    ecImportKeyTestsHelper func "EC import ecdsa public key from jwk tests" importEcdsaPublicKeyFromJwk
-        ++ ecImportKeyTestsHelper func "EC import ecdsa public key from raw tests" importEcdsaPublicKeyFromRaw
-        ++ ecImportKeyTestsHelper func "EC import ecdsa public key from spki tests" importEcdsaPublicKeyFromSpki
-        ++ ecImportKeyTestsHelper func "EC import ecdsa private key from jwk tests" importEcdsaPrivateKeyFromJwk
-        ++ ecImportKeyTestsHelper func "EC import ecdsa private key from pkcs8 tests" importEcdsaPrivateKeyFromPkcs8
-        ++ ecImportKeyTestsHelper func "EC import ecdh public key from jwk tests" importEcdhPublicKeyFromJwk
-        ++ ecImportKeyTestsHelper func "EC import ecdh public key from raw tests" importEcdhPublicKeyFromRaw
-        ++ ecImportKeyTestsHelper func "EC import ecdh public key from spki tests" importEcdhPublicKeyFromSpki
-        ++ ecImportKeyTestsHelper func "EC import ecdh private key from jwk tests" importEcdhPrivateKeyFromJwk
-        ++ ecImportKeyTestsHelper func "EC import ecdh private key from pkcs8 tests" importEcdhPrivateKeyFromPkcs8
-        ++ [ expectFailure 1 (importEcdsaPublicKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
-            , expectFailure 2 (importEcdsaPublicKeyFromRaw Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
-            , expectFailure 3 (importEcdsaPublicKeyFromSpki Crypto.P521 Crypto.P256 (\_ -> Bytes.Encode.encode (Bytes.Encode.string "hi")))
-            , expectFailure 4 (importEcdsaPrivateKeyFromJwk Crypto.P521 Crypto.P256 (\_ -> Json.Encode.string "hi"))
-            ]
+    exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki
 
 
 {-|-}
-ecExportKeyTests func =
+ecdsaPrivateKeyTests func =
+    let
+        exportAsJwk =
+            exportEcKeyTests "ECDSA private key export jwk - " exportEcdsaPrivateKeyAsJwk func
+
+        exportAsPkcs8 =
+            exportEcKeyTests "ECDSA private key export pkcs8 - " exportEcdsaPrivateKeyAsPkcs8 func
+
+        importAsJwk =
+            importEcKeyTests "ECDSA private key import jwk - " importEcdsaPrivateKeyFromJwk func
+
+        importAsPkcs8 =
+            importEcKeyTests "ECDSA private key import pkcs8 - " importEcdsaPrivateKeyFromPkcs8 func
+    in
+    exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
+
+
+{-|-}
+ecdhPublicKeyTests func =
+    let
+        exportAsJwk =
+            exportEcKeyTests "ECDH public key export jwk - " exportEcdhPublicKeyAsJwk func
+
+        exportAsRaw =
+            exportEcKeyTests "ECDH public key export pkcs8 - " exportEcdhPublicKeyAsRaw func
+
+        exportAsSpki =
+            exportEcKeyTests "ECDH public key export spki - " exportEcdhPublicKeyAsSpki func
+
+        importAsJwk =
+            importEcKeyTests "ECDH public key import jwk - " importEcdhPublicKeyFromJwk func
+
+        importAsRaw =
+            importEcKeyTests "ECDH public key import pkcs8 - " importEcdhPublicKeyFromRaw func
+
+        importAsSpki =
+            importEcKeyTests "ECDH public key import spki - " importEcdhPublicKeyFromSpki func
+    in
+    exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki
+
+
+{-|-}
+ecdhPrivateKeyTests func =
+    let
+        exportAsJwk =
+            exportEcKeyTests "ECDH private key export jwk - " exportEcdhPrivateKeyAsJwk func
+
+        exportAsPkcs8 =
+            exportEcKeyTests "ECDH private key export pkcs8 - " exportEcdhPrivateKeyAsPkcs8 func
+
+        importAsJwk =
+            importEcKeyTests "ECDH private key import jwk - " importEcdhPrivateKeyFromJwk func
+
+        importAsPkcs8 =
+            importEcKeyTests "ECDH private key import pkcs8 - " importEcdhPrivateKeyFromPkcs8 func
+    in
+    exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
+
+
+{-|-}
+exportEcKeyTests string exportFunc func =
     let
         testLabel int =
-            "EC export key tests - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ expectSuccess 1 (exportEcdhPublicKeyAsJwk Crypto.P256)
-    , expectSuccess 2 (exportEcdhPublicKeyAsJwk Crypto.P384)
-    , expectSuccess 3 (exportEcdhPublicKeyAsJwk Crypto.P521)
-    , expectSuccess 4 (exportEcdhPublicKeyAsRaw Crypto.P256)
-    , expectSuccess 5 (exportEcdhPublicKeyAsRaw Crypto.P384)
-    , expectSuccess 6 (exportEcdhPublicKeyAsRaw Crypto.P521)
-    , expectSuccess 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
+    [ expectSuccess 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
     , expectSuccess 8 (exportEcdhPublicKeyAsSpki Crypto.P384)
     , expectSuccess 9 (exportEcdhPublicKeyAsSpki Crypto.P521)
-    , expectSuccess 10 (exportEcdsaPublicKeyAsJwk Crypto.P256)
-    , expectSuccess 11 (exportEcdsaPublicKeyAsJwk Crypto.P384)
-    , expectSuccess 12 (exportEcdsaPublicKeyAsJwk Crypto.P521)
-    , expectSuccess 13 (exportEcdsaPublicKeyAsRaw Crypto.P256)
-    , expectSuccess 14 (exportEcdsaPublicKeyAsRaw Crypto.P384)
-    , expectSuccess 15 (exportEcdsaPublicKeyAsRaw Crypto.P521)
-    , expectSuccess 16 (exportEcdsaPublicKeyAsSpki Crypto.P256)
-    , expectSuccess 17 (exportEcdsaPublicKeyAsSpki Crypto.P384)
-    , expectSuccess 18 (exportEcdsaPublicKeyAsSpki Crypto.P521)
-    , expectSuccess 19 (exportEcdhPrivateKeyAsJwk Crypto.P256)
-    , expectSuccess 20 (exportEcdhPrivateKeyAsJwk Crypto.P384)
-    , expectSuccess 21 (exportEcdhPrivateKeyAsJwk Crypto.P521)
-    , expectSuccess 22 (exportEcdhPrivateKeyAsPkcs8 Crypto.P256)
-    , expectSuccess 23 (exportEcdhPrivateKeyAsPkcs8 Crypto.P384)
-    , expectSuccess 24 (exportEcdhPrivateKeyAsPkcs8 Crypto.P521)
-    , expectSuccess 25 (exportEcdsaPrivateKeyAsJwk Crypto.P256)
-    , expectSuccess 26 (exportEcdsaPrivateKeyAsJwk Crypto.P384)
-    , expectSuccess 27 (exportEcdsaPrivateKeyAsJwk Crypto.P521)
-    , expectSuccess 28 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P256)
-    , expectSuccess 29 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P384)
-    , expectSuccess 30 (exportEcdsaPrivateKeyAsPkcs8 Crypto.P521)
+    ]
+
+
+{-|-}
+importEcKeyTests string importFunc func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+    in
+    [ expectSuccess 1 (importFunc Crypto.P256 Crypto.P256 identity)
+    , expectFailure 2 (importFunc Crypto.P256 Crypto.P384 identity)
+    , expectFailure 3 (importFunc Crypto.P256 Crypto.P521 identity)
+    , expectFailure 4 (importFunc Crypto.P384 Crypto.P256 identity)
+    , expectSuccess 5 (importFunc Crypto.P384 Crypto.P384 identity)
+    , expectFailure 6 (importFunc Crypto.P384 Crypto.P521 identity)
+    , expectFailure 7 (importFunc Crypto.P521 Crypto.P256 identity)
+    , expectFailure 8 (importFunc Crypto.P521 Crypto.P384 identity)
+    , expectSuccess 9 (importFunc Crypto.P521 Crypto.P521 identity)
     ]
 
 
 {-|-}
 ecKeyTests func =
-    ecExportKeyTests func ++ ecImportKeyTests func
-
-
-{-|-}
-ecImportKeyTestsHelper func string exportFunc =
-    let
-        testLabel int =
-            string ++ " - " ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-
-        expectFailure int =
-            expectFailureHelper (testHelper func) (testLabel int)
-    in
-    [ expectSuccess 1 (exportFunc Crypto.P256 Crypto.P256 identity)
-    , expectFailure 2 (exportFunc Crypto.P256 Crypto.P384 identity)
-    , expectFailure 3 (exportFunc Crypto.P256 Crypto.P521 identity)
-    , expectFailure 4 (exportFunc Crypto.P384 Crypto.P256 identity)
-    , expectSuccess 5 (exportFunc Crypto.P384 Crypto.P384 identity)
-    , expectFailure 6 (exportFunc Crypto.P384 Crypto.P521 identity)
-    , expectFailure 7 (exportFunc Crypto.P521 Crypto.P256 identity)
-    , expectFailure 8 (exportFunc Crypto.P521 Crypto.P384 identity)
-    , expectSuccess 9 (exportFunc Crypto.P521 Crypto.P521 identity)
-    ]
+    ecdsaPublicKeyTests func ++ ecdsaPrivateKeyTests func ++ ecdhPublicKeyTests func ++ ecdhPrivateKeyTests func
 
 
 
