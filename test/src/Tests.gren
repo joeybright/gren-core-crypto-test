@@ -552,8 +552,11 @@ hmacKeyTests func =
 
         exportAsRawk =
             exportHmacKeyTests "HMAC key export raw - " exportHmacKeyAsRaw func
+
+        deriveTe =
+            deriveHmacKeyTests "HMAC derive - " func
     in
-    importAsJwk ++ importAsRaw ++ exportAsJwk
+    importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveTe
 
 
 {-| Importing HMAC keys from JWK tests
@@ -638,6 +641,24 @@ exportHmacKeyTests string exportFunc func =
     , expectSuccess 16 (exportFunc Crypto.Sha256 (Just 41313431134))
     , expectSuccess 17 (exportFunc Crypto.Sha384 (Just 41313431134))
     , expectSuccess 18 (exportFunc Crypto.Sha512 (Just 41313431134))
+    ]
+
+
+{-|-}
+deriveHmacKeyTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+    in
+    [ expectSuccess 1 (deriveHmacKeyUsingEcdh Crypto.P256 Crypto.P256 Crypto.Sha256 Nothing)
+    , expectFailure 2 (deriveHmacKeyUsingEcdh Crypto.P256 Crypto.P384 Crypto.Sha256 Nothing)
+    , expectFailure 3 (deriveHmacKeyUsingEcdh Crypto.P256 Crypto.P521 Crypto.Sha256 Nothing)
     ]
 
 
@@ -1325,7 +1346,30 @@ importKey errorMap exportFunc importFunc =
 
 
 
--- Utilities
+-- DERIVE HMAC KEY
+
+
+{-|-}
+deriveHmacKeyUsingEcdh publicKeyCurve privateKeyCurve keyHash length =
+    generateEcdhKeyPair publicKeyCurve
+        |> Task.mapError (\_ -> Crypto.DeriveHmacKeyUnknownError)
+        |> Task.andThen (\firstEcdhKey ->
+            generateEcdhKeyPair privateKeyCurve
+                |> Task.mapError (\_ -> Crypto.DeriveHmacKeyUnknownError)
+                |> Task.andThen (\secondEcdhKey ->
+                    Crypto.deriveHmacKeyUsingEcdh
+                        { hash = keyHash
+                        , length = length
+                        }
+                        firstEcdhKey.key.publicKey
+                        secondEcdhKey.key.privateKey
+                        Crypto.CanBeExtracted
+                )
+        )
+
+
+
+-- UTILITIES
 
 
 {-|-}
