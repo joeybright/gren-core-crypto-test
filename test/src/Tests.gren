@@ -20,9 +20,9 @@ count =
 tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     getSecurecontextTests func
-        ++ rsaTests func
         ++ randomValueTests func
         ++ uuidTests func
+        ++ rsaKeyTests func
         ++ hmacKeyTests func
         ++ aesKeyTests func
         ++ ecKeyTests func
@@ -131,8 +131,8 @@ uuidTests func =
 
 
 {-|-}
-rsaTests : (String -> msg) -> Array (Cmd msg)
-rsaTests func =
+rsaKeyTests : (String -> msg) -> Array (Cmd msg)
+rsaKeyTests func =
     let
         testLabel int =
             "RSA key - " ++ String.fromInt int
@@ -311,56 +311,90 @@ importRsaKeyTests string jwkFunc func =
 
 
 {-|-}
-exportAesKeyTests func =
-    let
-        testLabel int =
-            "AES export key tests - " ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-    in
-    [ expectSuccess 1 (exportAesCtrKeyAsJwk Crypto.AesLength128)
-    , expectSuccess 2 (exportAesCtrKeyAsJwk Crypto.AesLength256)
-    , expectSuccess 3 (exportAesCtrKeyAsRaw Crypto.AesLength128)
-    , expectSuccess 4 (exportAesCtrKeyAsRaw Crypto.AesLength256)
-    , expectSuccess 5 (exportAesCbcKeyAsJwk Crypto.AesLength128)
-    , expectSuccess 6 (exportAesCbcKeyAsJwk Crypto.AesLength256)
-    , expectSuccess 7 (exportAesCbcKeyAsRaw Crypto.AesLength128)
-    , expectSuccess 8 (exportAesCbcKeyAsRaw Crypto.AesLength256)
-    , expectSuccess 9 (exportAesGcmKeyAsJwk Crypto.AesLength128)
-    , expectSuccess 10 (exportAesGcmKeyAsJwk Crypto.AesLength256)
-    , expectSuccess 11 (exportAesGcmKeyAsRaw Crypto.AesLength128)
-    , expectSuccess 12 (exportAesGcmKeyAsRaw Crypto.AesLength256)
-    ]
-
-
-{-|-}
-importAesKeyTests func =
-    let
-        testLabel int =
-            "AES import key tests - " ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-    in
-    [ expectSuccess 1 (importAesCtrKeyFromJwk Crypto.AesLength128)
-    , expectSuccess 2 (importAesCtrKeyFromJwk Crypto.AesLength256)
-    , expectSuccess 3 (importAesCtrKeyFromRaw Crypto.AesLength128)
-    , expectSuccess 4 (importAesCtrKeyFromRaw Crypto.AesLength256)
-    , expectSuccess 5 (importAesCbcKeyFromJwk Crypto.AesLength128)
-    , expectSuccess 6 (importAesCbcKeyFromJwk Crypto.AesLength256)
-    , expectSuccess 7 (importAesCbcKeyFromRaw Crypto.AesLength128)
-    , expectSuccess 8 (importAesCbcKeyFromRaw Crypto.AesLength256)
-    , expectSuccess 9 (importAesGcmKeyFromJwk Crypto.AesLength128)
-    , expectSuccess 10 (importAesGcmKeyFromJwk Crypto.AesLength256)
-    , expectSuccess 11 (importAesGcmKeyFromRaw Crypto.AesLength128)
-    , expectSuccess 12 (importAesGcmKeyFromRaw Crypto.AesLength256)
-    ]
-
-
-{-|-}
 aesKeyTests func =
-    exportAesKeyTests func ++ importAesKeyTests func
+    aesCtrKeyTests func ++ aesCbcKeyTests func ++ aesGcmKeyTests func
+
+
+{-|-}
+aesCtrKeyTests func =
+    let
+        exportAsJwk =
+            exportAesKeyTests "AES-CTR key export jwk - " exportAesCtrKeyAsJwk func
+        
+        exportAsRaw =
+            exportAesKeyTests "AES-CTR key export raw - " exportAesCtrKeyAsRaw func
+
+        importAsJwk =
+            importAesKeyTests "AES-CTR key import jwk - " importAesCtrKeyFromJwk func
+        
+        importAsRaw =
+            importAesKeyTests "AES-CTR key import raw - " importAesCtrKeyFromRaw func
+    in
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw
+
+
+{-|-}
+aesCbcKeyTests func =
+    let
+        exportAsJwk =
+            exportAesKeyTests "AES-CBC key export jwk - " exportAesCbcKeyAsJwk func
+        
+        exportAsRaw =
+            exportAesKeyTests "AES-CBC key export raw - " exportAesCbcKeyAsRaw func
+
+        importAsJwk =
+            importAesKeyTests "AES-CBC key import jwk - " importAesCbcKeyFromJwk func
+        
+        importAsRaw =
+            importAesKeyTests "AES-CBC key import raw - " importAesCbcKeyFromRaw func
+    in
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw
+
+
+{-|-}
+aesGcmKeyTests func =
+    let
+        exportAsJwk =
+            exportAesKeyTests "AES-GCM key export jwk - " exportAesGcmKeyAsJwk func
+        
+        exportAsRaw =
+            exportAesKeyTests "AES-GCM key export raw - " exportAesGcmKeyAsRaw func
+
+        importAsJwk =
+            importAesKeyTests "AES-GCM key import jwk - " importAesGcmKeyFromJwk func
+        
+        importAsRaw =
+            importAesKeyTests "AES-GCM key import raw - " importAesGcmKeyFromRaw func
+    in
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw
+
+
+{-|-}
+exportAesKeyTests string exportFunc func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+    in
+    [ expectSuccess 1 (exportFunc Crypto.AesLength128)
+    , expectSuccess 2 (exportFunc Crypto.AesLength256)
+    ]
+
+
+{-|-}
+importAesKeyTests string importFunc func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+    in
+    [ expectSuccess 1 (importFunc Crypto.AesLength128)
+    , expectSuccess 2 (importFunc Crypto.AesLength256)
+    ]
 
 
 
@@ -499,12 +533,35 @@ importEcKeyTests string importFunc func =
 -- HMAC KEY TESTS
 
 
+{-| All HMAC key tests
+
+Note that these tests for importing do _not_ test for importing keys with different 
+lengths. This is because of inconsistencies between results on `browser` and `node` 
+platforms. The docs in `gren-core` mention this.
+-}
+hmacKeyTests func =
+    let
+        importAsJwk =
+            importHmacKeyFromJwkTests "HMAC key import jwk - " func
+
+        importAsRaw =
+            importHmacKeyFromRawTests "HMAC key import raw - " func
+
+        exportAsJwk =
+            exportHmacKeyTests "HMAC key export jwk - " exportHmacKeyAsJwk func
+
+        exportAsRawk =
+            exportHmacKeyTests "HMAC key export raw - " exportHmacKeyAsRaw func
+    in
+    importAsJwk ++ importAsRaw ++ exportAsJwk
+
+
 {-| Importing HMAC keys from JWK tests
 -}
-hmacImportKeyFromJwkTests func =
+importHmacKeyFromJwkTests string func =
     let
         testLabel int =
-            "HMAC import key from JWK test - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
@@ -526,10 +583,10 @@ hmacImportKeyFromJwkTests func =
 
 {-| Importing HMAC keys from raw tests
 -}
-hmacImportKeyFromRawTests func =
+importHmacKeyFromRawTests string func =
     let
         testLabel int =
-            "HMAC import key from raw test - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
@@ -546,21 +603,11 @@ hmacImportKeyFromRawTests func =
     ]
 
 
-{-| Tests for importing HMAC keys.
-
-Note that these tests do _not_ test for importing keys with different lengths. This is
-because of inconsistencies between results on `browser` and `node` platforms. The docs
-in `gren-core` mention this.
--}
-hmacImportKeyTests func =
-    hmacImportKeyFromRawTests func ++ hmacImportKeyFromJwkTests func
-
-
 {-|-}
-hmacExportKeyTests func =
+exportHmacKeyTests string exportFunc func =
     let
         testLabel int =
-            "HMAC export key tests - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
@@ -568,36 +615,30 @@ hmacExportKeyTests func =
         expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
     in
-    [ expectSuccess 1 (exportHmacKeyAsJwk Crypto.Sha256 Nothing)
-    , expectSuccess 2 (exportHmacKeyAsJwk Crypto.Sha384 Nothing)
-    , expectSuccess 3 (exportHmacKeyAsJwk Crypto.Sha512 Nothing)
+    [ expectSuccess 1 (exportFunc Crypto.Sha256 Nothing)
+    , expectSuccess 2 (exportFunc Crypto.Sha384 Nothing)
+    , expectSuccess 3 (exportFunc Crypto.Sha512 Nothing)
         -- Exactly 8, which is the minimum value and should succeed
-    , expectSuccess 4 (exportHmacKeyAsJwk Crypto.Sha256 (Just 8))
-    , expectSuccess 5 (exportHmacKeyAsJwk Crypto.Sha384 (Just 8))
-    , expectSuccess 6 (exportHmacKeyAsJwk Crypto.Sha512 (Just 8))
+    , expectSuccess 4 (exportFunc Crypto.Sha256 (Just 8))
+    , expectSuccess 5 (exportFunc Crypto.Sha384 (Just 8))
+    , expectSuccess 6 (exportFunc Crypto.Sha512 (Just 8))
         -- Less than 8, but clamped to at least 8 (which results in success)
-    , expectSuccess 7 (exportHmacKeyAsJwk Crypto.Sha256 (Just 1))
-    , expectSuccess 8 (exportHmacKeyAsJwk Crypto.Sha384 (Just 1))
-    , expectSuccess 9 (exportHmacKeyAsJwk Crypto.Sha512 (Just 1))
+    , expectSuccess 7 (exportFunc Crypto.Sha256 (Just 1))
+    , expectSuccess 8 (exportFunc Crypto.Sha384 (Just 1))
+    , expectSuccess 9 (exportFunc Crypto.Sha512 (Just 1))
         -- A number not divible by 8
-    , expectFailure 10 (exportHmacKeyAsJwk Crypto.Sha256 (Just 14))
-    , expectFailure 11 (exportHmacKeyAsJwk Crypto.Sha384 (Just 14))
-    , expectFailure 12 (exportHmacKeyAsJwk Crypto.Sha512 (Just 14))
+    , expectFailure 10 (exportFunc Crypto.Sha256 (Just 14))
+    , expectFailure 11 (exportFunc Crypto.Sha384 (Just 14))
+    , expectFailure 12 (exportFunc Crypto.Sha512 (Just 14))
         -- Max integer value that can be passed for the `length`, but is still divisible by 8
-    , expectSuccess 13 (exportHmacKeyAsJwk Crypto.Sha256 (Just 2048))
-    , expectSuccess 14 (exportHmacKeyAsJwk Crypto.Sha384 (Just 2048))
-    , expectSuccess 15 (exportHmacKeyAsJwk Crypto.Sha512 (Just 2048))
+    , expectSuccess 13 (exportFunc Crypto.Sha256 (Just 2048))
+    , expectSuccess 14 (exportFunc Crypto.Sha384 (Just 2048))
+    , expectSuccess 15 (exportFunc Crypto.Sha512 (Just 2048))
         -- Greater than the max integer value, should still succeed with clamped value
-    , expectSuccess 16 (exportHmacKeyAsJwk Crypto.Sha256 (Just 41313431134))
-    , expectSuccess 17 (exportHmacKeyAsJwk Crypto.Sha384 (Just 41313431134))
-    , expectSuccess 18 (exportHmacKeyAsJwk Crypto.Sha512 (Just 41313431134))
+    , expectSuccess 16 (exportFunc Crypto.Sha256 (Just 41313431134))
+    , expectSuccess 17 (exportFunc Crypto.Sha384 (Just 41313431134))
+    , expectSuccess 18 (exportFunc Crypto.Sha512 (Just 41313431134))
     ]
-
-
-{-| All HMAC key tests
--}
-hmacKeyTests func =
-    hmacExportKeyTests func ++ hmacImportKeyTests func
 
 
 
