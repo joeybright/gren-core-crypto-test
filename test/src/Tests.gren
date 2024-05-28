@@ -553,10 +553,10 @@ hmacKeyTests func =
         exportAsRawk =
             exportHmacKeyTests "HMAC key export raw - " exportHmacKeyAsRaw func
 
-        deriveTe =
-            deriveHmacKeyTests "HMAC derive - " func
+        deriveFromEcdh =
+            deriveHmacKeyFromEcdhTests "HMAC derive ecdh - " func
     in
-    importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveTe
+    importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveFromEcdh
 
 
 {-| Importing HMAC keys from JWK tests
@@ -645,7 +645,7 @@ exportHmacKeyTests string exportFunc func =
 
 
 {-|-}
-deriveHmacKeyTests string func =
+deriveHmacKeyFromEcdhTests string func =
     let
         testLabel int =
             string ++ String.fromInt int
