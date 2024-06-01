@@ -176,8 +176,11 @@ rsaOaepPublicKeyTests func =
         importFromSpkiFailures =
             [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
             ]
+
+        encrypt =
+            encryptWithRsaOaepTests "RSA-OAEP public key encrypt - " func
     in
-    exportAsJwk ++ importFromJwk ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures
+    exportAsJwk ++ importFromJwk ++ exportAsSpki ++ importFromSpki ++ importFromSpkiFailures ++ encrypt
 
 
 {-|-}
@@ -194,8 +197,11 @@ rsaOaepPrivateKeyTests func =
 
         importFromPkcs8 =
             importRsaKeyTests "RSA-OAEP public key import pkcs8 - " importRsaOaepPrivateKeyFromPkcs8 func
+
+        decrypt =
+            decryptWithRsaOaepTests "RSA-OAEP private key decrypt - " func
     in
-    exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
+    exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8 ++ decrypt
 
 
 {-|-}
@@ -715,6 +721,88 @@ deriveHmacKeyFromEcdhTests string func =
     , expectFailure 52 (deriveHmacKeyUsingEcdh Crypto.P521 Crypto.P256 Crypto.Sha512 (Just 512))
     , expectFailure 53 (deriveHmacKeyUsingEcdh Crypto.P521 Crypto.P384 Crypto.Sha512 (Just 512))
     , expectSuccess 54 (deriveHmacKeyUsingEcdh Crypto.P521 Crypto.P521 Crypto.Sha512 (Just 512)) --
+    ]
+
+
+
+-- ENCRYPT KEY TESTS
+
+
+{-|-}
+encryptWithRsaOaepTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+        
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+
+        testKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "testing label")
+    in
+    [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 Nothing testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 Nothing testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 Nothing testBytes)
+        --
+    , expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    ]
+
+
+
+-- DECRYPT KEY TESTS
+
+
+{-|-}
+decryptWithRsaOaepTests string func =
+    let
+        testLabel int modifier =
+            string ++ modifier ++ String.fromInt int
+
+        expectSuccess modifier int =
+            expectSuccessHelper (testHelper func) (testLabel int modifier)
+
+        expectFailure modifier int =
+            expectFailureHelper (testHelper func) (testLabel int modifier)
+
+        testKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "test label")
+
+        alternateTestKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "test label alternate")
+    in
+    decryptWithRsaOaepTestsHelper (expectSuccess "both no labels") Nothing Nothing
+        ++ decryptWithRsaOaepTestsHelper (expectSuccess "both with labels") (Just testKeyLabel) (Just testKeyLabel)
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with nothing") (Just testKeyLabel) Nothing
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with nothing, decrypt with label") Nothing (Just testKeyLabel)
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with different label") (Just testKeyLabel) (Just alternateTestKeyLabel)
+
+
+{-|-}
+decryptWithRsaOaepTestsHelper testFunc encryptionLabel decryptionLabel =
+    let
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+    in
+    [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    , testFunc 3 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 4 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    , testFunc 5 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 6 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
     ]
 
 
@@ -1420,6 +1508,36 @@ deriveHmacKeyUsingEcdh publicKeyCurve privateKeyCurve keyHash length =
                         firstEcdhKey.key.publicKey
                         secondEcdhKey.key.privateKey
                         Crypto.CanBeExtracted
+                )
+        )
+
+
+
+-- ENCRYPT
+
+
+{-|-}
+encryptWithRsaOaep keyHash keyExponent label bytes =
+    generateRsaOaepKeyPair keyHash keyExponent
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\{ key } ->
+            Crypto.encryptWithRsaOaep label key.publicKey bytes
+        )
+
+
+
+-- DECRYPT
+
+
+{-|-}
+decryptWithRsaOaep keyHash keyExponent encryptionLabel decryptionLabel bytes =
+    generateRsaOaepKeyPair keyHash keyExponent
+        |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
+        |> Task.andThen (\{ key } ->
+            Crypto.encryptWithRsaOaep encryptionLabel key.publicKey bytes
+                |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
+                |> Task.andThen (\encryptedBytes ->
+                    Crypto.decryptWithRsaOaep decryptionLabel key.privateKey encryptedBytes
                 )
         )
 
