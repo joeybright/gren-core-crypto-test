@@ -338,9 +338,12 @@ aesCtrKeyTests func =
             importAesKeyTests "AES-CTR key import raw - " importAesCtrKeyFromRaw func
 
         encrypt =
-            encryptWithAesCtrTests "AES-CTR export" func
+            encryptWithAesCtrTests "AES-CTR encrypt" func
+
+        decrypt =
+            decryptWithAesCtrTests "AES-CTR decrypt" func
     in
-    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw ++ encrypt
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw ++ encrypt ++ decrypt
 
 
 {-|-}
@@ -848,6 +851,54 @@ encryptWithAesCtrTests string func =
     , expectFailure 11 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 10000 testBytes)
     , expectFailure 12 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 10000 testBytes)
     ]
+
+
+{-|-}
+decryptWithAesCtrTests string func =
+    let
+        testLabel int =
+            string ++ " - " ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        counter int =
+            Task.map2
+                (\e -> 
+                    Array.map (Bytes.Encode.unsignedInt32 e)
+                )
+                Bytes.getHostEndianness
+                (Crypto.getRandomUInt32Values int)
+                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+
+        decryptWithAesCtrTestHelper offset aesLength =
+            [ expectSuccess (offset + 1) (decryptWithAesCtr aesLength (counter 4) (counter 4) 64 64 testBytes)
+            , expectFailure (offset + 2) (decryptWithAesCtr aesLength (counter 2) (counter 4) 64 64 testBytes)
+            , expectFailure (offset + 3) (decryptWithAesCtr aesLength (counter 4) (counter 2) 64 64 testBytes)
+            , expectSuccess (offset + 4) (decryptWithAesCtr aesLength (counter 4) (counter 4) 128 128 testBytes)
+            , expectFailure (offset + 5) (decryptWithAesCtr aesLength (counter 2) (counter 4) 128 128 testBytes)
+            , expectFailure (offset + 6) (decryptWithAesCtr aesLength (counter 4) (counter 2) 128 128 testBytes)
+            , expectSuccess (offset + 7) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 8) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 9) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
+            , expectSuccess (offset + 10) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 11) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 12) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
+            , expectSuccess (offset + 13) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 14) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 15) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
+            , expectSuccess (offset + 16) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 17) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 18) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
+            ]
+    in
+    decryptWithAesCtrTestHelper 0 Crypto.AesLength128 ++ decryptWithAesCtrTestHelper 18 Crypto.AesLength256
 
 
 
@@ -1596,6 +1647,26 @@ decryptWithRsaOaep keyHash keyExponent encryptionLabel decryptionLabel bytes =
                 |> Task.andThen (\encryptedBytes ->
                     Crypto.decryptWithRsaOaep decryptionLabel key.privateKey encryptedBytes
                 )
+        )
+
+    
+{-|-}
+decryptWithAesCtr aesKeyLength encryptionCounterTask decryptionCounterTask encryptionLength decryptionLength bytes =
+    generateAesCtrKey aesKeyLength
+        |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
+        |> Task.andThen (\{ key } ->
+            encryptionCounterTask
+                |> Task.andThen (\counter ->
+                    Crypto.encryptWithAesCtr { counter = counter, length = encryptionLength } key bytes
+                )
+                |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
+                |> Task.andThen (\encryptedBytes -> 
+                    decryptionCounterTask
+                        |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
+                        |> Task.andThen (\decryptionCounter ->
+                            Crypto.decryptWithAesCtr { counter = decryptionCounter, length = decryptionLength } key encryptedBytes
+                        )
+                )                
         )
 
 
