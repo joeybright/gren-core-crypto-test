@@ -313,6 +313,79 @@ importRsaKeyTests string jwkFunc func =
     ]
 
 
+{-|-}
+encryptWithRsaOaepTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+        
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+
+        testKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "testing label")
+    in
+    [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 Nothing testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 Nothing testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 Nothing testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 Nothing testBytes)
+        --
+    , expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    ]
+
+
+{-|-}
+decryptWithRsaOaepTests string func =
+    let
+        testLabel int modifier =
+            string ++ modifier ++ String.fromInt int
+
+        expectSuccess modifier int =
+            expectSuccessHelper (testHelper func) (testLabel int modifier)
+
+        expectFailure modifier int =
+            expectFailureHelper (testHelper func) (testLabel int modifier)
+
+        testKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "test label")
+
+        alternateTestKeyLabel =
+            Bytes.Encode.encode (Bytes.Encode.string "test label alternate")
+    in
+    decryptWithRsaOaepTestsHelper (expectSuccess "both no labels") Nothing Nothing
+        ++ decryptWithRsaOaepTestsHelper (expectSuccess "both with labels") (Just testKeyLabel) (Just testKeyLabel)
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with nothing") (Just testKeyLabel) Nothing
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with nothing, decrypt with label") Nothing (Just testKeyLabel)
+        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with different label") (Just testKeyLabel) (Just alternateTestKeyLabel)
+
+
+{-|-}
+decryptWithRsaOaepTestsHelper testFunc encryptionLabel decryptionLabel =
+    let
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+    in
+    [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    , testFunc 3 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 4 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    , testFunc 5 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
+    , testFunc 6 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    ]
+
 
 -- AES KEY TESTS
 
@@ -414,6 +487,94 @@ importAesKeyTests string importFunc func =
     [ expectSuccess 1 (importFunc Crypto.AesLength128)
     , expectSuccess 2 (importFunc Crypto.AesLength256)
     ]
+
+
+{-|-}
+encryptWithAesCtrTests string func =
+    let
+        testLabel int =
+            string ++ " - " ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        counter int =
+            Task.map2
+                (\e -> 
+                    Array.map (Bytes.Encode.unsignedInt32 e)
+                )
+                Bytes.getHostEndianness
+                (Crypto.getRandomUInt32Values int)
+                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+    in
+    [ expectSuccess 1 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 64 testBytes)
+    , expectSuccess 2 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 64 testBytes)
+    , expectSuccess 3 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 0 testBytes)
+    , expectSuccess 4 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 0 testBytes)
+    , expectSuccess 5 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 10000 testBytes)
+    , expectSuccess 6 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 10000 testBytes)
+        --
+    , expectFailure 7 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 64 testBytes)
+    , expectFailure 8 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 64 testBytes)
+    , expectFailure 9 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 0 testBytes)
+    , expectFailure 10 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 0 testBytes)
+    , expectFailure 11 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 10000 testBytes)
+    , expectFailure 12 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 10000 testBytes)
+    ]
+
+
+{-|-}
+decryptWithAesCtrTests string func =
+    let
+        testLabel int =
+            string ++ " - " ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        counter int =
+            Task.map2
+                (\e -> 
+                    Array.map (Bytes.Encode.unsignedInt32 e)
+                )
+                Bytes.getHostEndianness
+                (Crypto.getRandomUInt32Values int)
+                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+
+        decryptWithAesCtrTestHelper offset aesLength =
+            [ expectSuccess (offset + 1) (decryptWithAesCtr aesLength (counter 4) (counter 4) 64 64 testBytes)
+            , expectFailure (offset + 2) (decryptWithAesCtr aesLength (counter 2) (counter 4) 64 64 testBytes)
+            , expectFailure (offset + 3) (decryptWithAesCtr aesLength (counter 4) (counter 2) 64 64 testBytes)
+            , expectSuccess (offset + 4) (decryptWithAesCtr aesLength (counter 4) (counter 4) 128 128 testBytes)
+            , expectFailure (offset + 5) (decryptWithAesCtr aesLength (counter 2) (counter 4) 128 128 testBytes)
+            , expectFailure (offset + 6) (decryptWithAesCtr aesLength (counter 4) (counter 2) 128 128 testBytes)
+            , expectSuccess (offset + 7) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 8) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 9) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
+            , expectSuccess (offset + 10) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 11) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
+            , expectFailure (offset + 12) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
+            , expectSuccess (offset + 13) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 14) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 15) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
+            , expectSuccess (offset + 16) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 17) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
+            , expectFailure (offset + 18) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
+            ]
+    in
+    decryptWithAesCtrTestHelper 0 Crypto.AesLength128 ++ decryptWithAesCtrTestHelper 18 Crypto.AesLength256
 
 
 
@@ -735,176 +896,6 @@ deriveHmacKeyFromEcdhTests string func =
     , expectFailure 53 (deriveHmacKeyUsingEcdh Crypto.P521 Crypto.P384 Crypto.Sha512 (Just 512))
     , expectSuccess 54 (deriveHmacKeyUsingEcdh Crypto.P521 Crypto.P521 Crypto.Sha512 (Just 512)) --
     ]
-
-
-
--- ENCRYPT KEY TESTS
-
-
-{-|-}
-encryptWithRsaOaepTests string func =
-    let
-        testLabel int =
-            string ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-
-        expectFailure int =
-            expectFailureHelper (testHelper func) (testLabel int)
-        
-        testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
-
-        testKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "testing label")
-    in
-    [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 Nothing testBytes)
-    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 Nothing testBytes)
-    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 Nothing testBytes)
-        --
-    , expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
-    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
-    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
-    ]
-
-
-
--- DECRYPT KEY TESTS
-
-
-{-|-}
-decryptWithRsaOaepTests string func =
-    let
-        testLabel int modifier =
-            string ++ modifier ++ String.fromInt int
-
-        expectSuccess modifier int =
-            expectSuccessHelper (testHelper func) (testLabel int modifier)
-
-        expectFailure modifier int =
-            expectFailureHelper (testHelper func) (testLabel int modifier)
-
-        testKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "test label")
-
-        alternateTestKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "test label alternate")
-    in
-    decryptWithRsaOaepTestsHelper (expectSuccess "both no labels") Nothing Nothing
-        ++ decryptWithRsaOaepTestsHelper (expectSuccess "both with labels") (Just testKeyLabel) (Just testKeyLabel)
-        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with nothing") (Just testKeyLabel) Nothing
-        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with nothing, decrypt with label") Nothing (Just testKeyLabel)
-        ++ decryptWithRsaOaepTestsHelper (expectFailure "encrypt with label, decrypt with different label") (Just testKeyLabel) (Just alternateTestKeyLabel)
-
-
-{-|-}
-decryptWithRsaOaepTestsHelper testFunc encryptionLabel decryptionLabel =
-    let
-        testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
-    in
-    [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
-    , testFunc 3 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 4 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
-    , testFunc 5 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 6 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
-    ]
-
-
-{-|-}
-encryptWithAesCtrTests string func =
-    let
-        testLabel int =
-            string ++ " - " ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-
-        expectFailure int =
-            expectFailureHelper (testHelper func) (testLabel int)
-
-        counter int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
-
-        testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
-    in
-    [ expectSuccess 1 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 64 testBytes)
-    , expectSuccess 2 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 64 testBytes)
-    , expectSuccess 3 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 0 testBytes)
-    , expectSuccess 4 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 0 testBytes)
-    , expectSuccess 5 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 10000 testBytes)
-    , expectSuccess 6 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 10000 testBytes)
-        --
-    , expectFailure 7 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 64 testBytes)
-    , expectFailure 8 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 64 testBytes)
-    , expectFailure 9 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 0 testBytes)
-    , expectFailure 10 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 0 testBytes)
-    , expectFailure 11 (encryptWithAesCtr Crypto.AesLength128 (counter 1) 10000 testBytes)
-    , expectFailure 12 (encryptWithAesCtr Crypto.AesLength256 (counter 1) 10000 testBytes)
-    ]
-
-
-{-|-}
-decryptWithAesCtrTests string func =
-    let
-        testLabel int =
-            string ++ " - " ++ String.fromInt int
-
-        expectSuccess int =
-            expectSuccessHelper (testHelper func) (testLabel int)
-
-        expectFailure int =
-            expectFailureHelper (testHelper func) (testLabel int)
-
-        counter int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
-
-        testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
-
-        decryptWithAesCtrTestHelper offset aesLength =
-            [ expectSuccess (offset + 1) (decryptWithAesCtr aesLength (counter 4) (counter 4) 64 64 testBytes)
-            , expectFailure (offset + 2) (decryptWithAesCtr aesLength (counter 2) (counter 4) 64 64 testBytes)
-            , expectFailure (offset + 3) (decryptWithAesCtr aesLength (counter 4) (counter 2) 64 64 testBytes)
-            , expectSuccess (offset + 4) (decryptWithAesCtr aesLength (counter 4) (counter 4) 128 128 testBytes)
-            , expectFailure (offset + 5) (decryptWithAesCtr aesLength (counter 2) (counter 4) 128 128 testBytes)
-            , expectFailure (offset + 6) (decryptWithAesCtr aesLength (counter 4) (counter 2) 128 128 testBytes)
-            , expectSuccess (offset + 7) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
-            , expectFailure (offset + 8) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
-            , expectFailure (offset + 9) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
-            , expectSuccess (offset + 10) (decryptWithAesCtr aesLength (counter 4) (counter 4) 0 0 testBytes)
-            , expectFailure (offset + 11) (decryptWithAesCtr aesLength (counter 2) (counter 4) 0 0 testBytes)
-            , expectFailure (offset + 12) (decryptWithAesCtr aesLength (counter 4) (counter 2) 0 0 testBytes)
-            , expectSuccess (offset + 13) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
-            , expectFailure (offset + 14) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
-            , expectFailure (offset + 15) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
-            , expectSuccess (offset + 16) (decryptWithAesCtr aesLength (counter 4) (counter 4) 10000 10000 testBytes)
-            , expectFailure (offset + 17) (decryptWithAesCtr aesLength (counter 2) (counter 4) 10000 10000 testBytes)
-            , expectFailure (offset + 18) (decryptWithAesCtr aesLength (counter 4) (counter 2) 10000 10000 testBytes)
-            ]
-    in
-    decryptWithAesCtrTestHelper 0 Crypto.AesLength128 ++ decryptWithAesCtrTestHelper 18 Crypto.AesLength256
 
 
 
