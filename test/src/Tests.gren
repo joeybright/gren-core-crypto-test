@@ -360,8 +360,14 @@ aesCbcKeyTests func =
         
         importAsRaw =
             importAesKeyTests "AES-CBC key import raw - " importAesCbcKeyFromRaw func
+
+        encrypt =
+            []
+
+        decrypt =
+            []
     in
-    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw ++ encrypt ++ decrypt
 
 
 {-|-}
