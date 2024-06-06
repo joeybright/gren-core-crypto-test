@@ -457,8 +457,14 @@ aesGcmKeyTests func =
         
         importAsRaw =
             importAesKeyTests "AES-GCM key import raw - " importAesGcmKeyFromRaw func
+
+        encrypt =
+            []
+
+        decrypt =
+            []
     in
-    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw
+    exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw ++ encrypt ++ decrypt
 
 
 {-|-}
