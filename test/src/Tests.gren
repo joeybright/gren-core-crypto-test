@@ -1613,22 +1613,32 @@ deriveHmacKeyUsingEcdh publicKeyCurve privateKeyCurve keyHash length =
 
 {-|-}
 encryptWithRsaOaep keyHash keyExponent label bytes =
-    generateRsaOaepKeyPair keyHash keyExponent
+    getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen (\{ key } ->
-            Crypto.encryptWithRsaOaep label key.publicKey bytes
+        |> Task.andThen (\secureContext ->
+            generateRsaOaepKeyPair keyHash keyExponent
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\{ key } ->
+                    Crypto.encryptWithRsaOaep secureContext label key.publicKey bytes
+                )
         )
 
 
 {-|-}
 encryptWithAesCtr aesKeyLength counterTask length bytes =
-    generateAesCtrKey aesKeyLength
+    getSecureContext
         |> Task.mapError (\_ -> Crypto.AesCtrEncryptError)
-        |> Task.andThen (\{ key } ->
-            counterTask
+        |> Task.andThen (\secureContext ->
+            generateAesCtrKey aesKeyLength
                 |> Task.mapError (\_ -> Crypto.AesCtrEncryptError)
-                |> Task.andThen (\counter ->
-                    Crypto.encryptWithAesCtr { counter = counter, length = length } key bytes
+                |> Task.andThen (\{ key } ->
+                    counterTask
+                        |> Task.mapError (\_ -> Crypto.AesCtrEncryptError)
+                        |> Task.andThen (\counter ->
+                            Crypto.encryptWithAesCtr secureContext { counter = counter, length = length } key bytes
+                        )
+                )
+        )
                 )
         )
 
@@ -1652,21 +1662,25 @@ decryptWithRsaOaep keyHash keyExponent encryptionLabel decryptionLabel bytes =
     
 {-|-}
 decryptWithAesCtr aesKeyLength encryptionCounterTask decryptionCounterTask encryptionLength decryptionLength bytes =
-    generateAesCtrKey aesKeyLength
+    getSecureContext
         |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
-        |> Task.andThen (\{ key } ->
-            encryptionCounterTask
-                |> Task.andThen (\counter ->
-                    Crypto.encryptWithAesCtr { counter = counter, length = encryptionLength } key bytes
-                )
+        |> Task.andThen (\secureContext ->
+            generateAesCtrKey aesKeyLength
                 |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
-                |> Task.andThen (\encryptedBytes -> 
-                    decryptionCounterTask
-                        |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
-                        |> Task.andThen (\decryptionCounter ->
-                            Crypto.decryptWithAesCtr { counter = decryptionCounter, length = decryptionLength } key encryptedBytes
+                |> Task.andThen (\{ key } ->
+                    encryptionCounterTask
+                        |> Task.andThen (\counter ->
+                            Crypto.encryptWithAesCtr secureContext { counter = counter, length = encryptionLength } key bytes
                         )
-                )                
+                        |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
+                        |> Task.andThen (\encryptedBytes -> 
+                            decryptionCounterTask
+                                |> Task.mapError (\_ -> Crypto.AesCtrDecryptError)
+                                |> Task.andThen (\decryptionCounter ->
+                                    Crypto.decryptWithAesCtr { counter = decryptionCounter, length = decryptionLength } key encryptedBytes
+                                )
+                        )                
+                )
         )
 
 
