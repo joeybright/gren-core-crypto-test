@@ -499,7 +499,7 @@ importAesKeyTests string importFunc func =
 encryptWithAesCtrTests string func =
     let
         testLabel int =
-            string ++ " - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
@@ -539,7 +539,7 @@ encryptWithAesCtrTests string func =
 decryptWithAesCtrTests string func =
     let
         testLabel int =
-            string ++ " - " ++ String.fromInt int
+            string ++ String.fromInt int
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
