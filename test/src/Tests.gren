@@ -1645,6 +1645,21 @@ encryptWithAesCtr aesKeyLength counterTask length bytes =
                         )
                 )
         )
+
+
+{-|-}
+encryptWithAesCbc aesKeyLength ivTask bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> Crypto.AesCbcEncryptionError)
+        |> Task.andThen (\secureContext ->
+            generateAesCbcKey aesKeyLength
+                |> Task.mapError (\_ -> Crypto.AesCbcEncryptionError)
+                |> Task.andThen (\{ key } ->
+                    ivTask
+                        |> Task.mapError (\_ -> Crypto.AesCbcEncryptionError)
+                        |> Task.andThen (\iv ->
+                            Crypto.encryptWithAesCbc secureContext { iv = iv } key bytes
+                        )
                 )
         )
 
