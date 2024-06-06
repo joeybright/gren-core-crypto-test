@@ -411,10 +411,10 @@ aesCtrKeyTests func =
             importAesKeyTests "AES-CTR key import raw - " importAesCtrKeyFromRaw func
 
         encrypt =
-            encryptWithAesCtrTests "AES-CTR encrypt" func
+            encryptWithAesCtrTests "AES-CTR encrypt - " func
 
         decrypt =
-            decryptWithAesCtrTests "AES-CTR decrypt" func
+            decryptWithAesCtrTests "AES-CTR decrypt - " func
     in
     exportAsJwk ++ exportAsRaw ++ importAsJwk ++ importAsRaw ++ encrypt ++ decrypt
 
