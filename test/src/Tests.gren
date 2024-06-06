@@ -1670,13 +1670,17 @@ encryptWithAesCbc aesKeyLength ivTask bytes =
 
 {-|-}
 decryptWithRsaOaep keyHash keyExponent encryptionLabel decryptionLabel bytes =
-    generateRsaOaepKeyPair keyHash keyExponent
+    getSecureContext
         |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
-        |> Task.andThen (\{ key } ->
-            Crypto.encryptWithRsaOaep encryptionLabel key.publicKey bytes
+        |> Task.andThen (\secureContext ->
+            generateRsaOaepKeyPair keyHash keyExponent
                 |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
-                |> Task.andThen (\encryptedBytes ->
-                    Crypto.decryptWithRsaOaep decryptionLabel key.privateKey encryptedBytes
+                |> Task.andThen (\{ key } ->
+                    Crypto.encryptWithRsaOaep secureContext encryptionLabel key.publicKey bytes
+                        |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
+                        |> Task.andThen (\encryptedBytes ->
+                            Crypto.decryptWithRsaOaep decryptionLabel key.privateKey encryptedBytes
+                        )
                 )
         )
 
