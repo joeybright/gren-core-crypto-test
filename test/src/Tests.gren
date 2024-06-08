@@ -459,7 +459,7 @@ aesGcmKeyTests func =
             importAesKeyTests "AES-GCM key import raw - " importAesGcmKeyFromRaw func
 
         encrypt =
-            []
+            encryptWithAesGcmTests "AES-GCM encrypt - " func
 
         decrypt =
             []
@@ -654,6 +654,57 @@ decryptWithAesCbcTests string func =
     , expectFailure 7 (decryptWithAesCbc Crypto.AesLength256 encryptionIv4 (iv 4) testBytes)
     , expectFailure 8 (decryptWithAesCbc Crypto.AesLength256 encryptionIv2 (iv 4) testBytes)
     ]
+
+
+{-|-}
+encryptWithAesGcmTests string func =
+    let
+        testLabel int =
+            string ++ " - " ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        iv int =
+            Task.map2
+                (\e -> 
+                    Array.map (Bytes.Encode.unsignedInt32 e)
+                )
+                Bytes.getHostEndianness
+                (Crypto.getRandomUInt32Values int)
+                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+
+        encryptWithAesGcmTestHelper offset length ivInt =
+            [ expectSuccess (offset + 1) (encryptWithAesGcm length (iv ivInt) Nothing Nothing testBytes)
+            , expectSuccess (offset + 2) (encryptWithAesGcm length (iv ivInt) (Just testBytes) Nothing testBytes)
+            , expectSuccess (offset + 3) (encryptWithAesGcm length (iv ivInt) (Just testBytes) (Just Crypto.AesGcmTagLength96) testBytes)
+            , expectSuccess (offset + 4) (encryptWithAesGcm length (iv ivInt) (Just testBytes) (Just Crypto.AesGcmTagLength104) testBytes)
+            , expectSuccess (offset + 5) (encryptWithAesGcm length (iv ivInt) (Just testBytes) (Just Crypto.AesGcmTagLength112) testBytes)
+            , expectSuccess (offset + 6) (encryptWithAesGcm length (iv ivInt) (Just testBytes) (Just Crypto.AesGcmTagLength120) testBytes)
+            , expectSuccess (offset + 7) (encryptWithAesGcm length (iv ivInt) (Just testBytes) (Just Crypto.AesGcmTagLength128) testBytes)
+            , expectSuccess (offset + 8) (encryptWithAesGcm length (iv ivInt) Nothing (Just Crypto.AesGcmTagLength96) testBytes)
+            , expectSuccess (offset + 9) (encryptWithAesGcm length (iv ivInt) Nothing (Just Crypto.AesGcmTagLength104) testBytes)
+            , expectSuccess (offset + 10) (encryptWithAesGcm length (iv ivInt) Nothing (Just Crypto.AesGcmTagLength112) testBytes)
+            , expectSuccess (offset + 11) (encryptWithAesGcm length (iv ivInt) Nothing (Just Crypto.AesGcmTagLength120) testBytes)
+            , expectSuccess (offset + 12) (encryptWithAesGcm length (iv ivInt) Nothing (Just Crypto.AesGcmTagLength128) testBytes)
+            ]
+    in
+    encryptWithAesGcmTestHelper 0 Crypto.AesLength128 32
+        ++ encryptWithAesGcmTestHelper 12 Crypto.AesLength256 32
+        ++ encryptWithAesGcmTestHelper 24 Crypto.AesLength128 3
+        ++ encryptWithAesGcmTestHelper 32 Crypto.AesLength256 3
+        ++ 
+        [ expectFailure 44 (encryptWithAesGcm Crypto.AesLength128 (iv 2) Nothing Nothing testBytes)
+        , expectFailure 45 (encryptWithAesGcm Crypto.AesLength256 (iv 2) Nothing Nothing testBytes)
+        , expectFailure 46 (encryptWithAesGcm Crypto.AesLength128 (iv 33) Nothing Nothing testBytes)
+        , expectFailure 47 (encryptWithAesGcm Crypto.AesLength256 (iv 33) Nothing Nothing testBytes)
+        ]
 
 
 
@@ -1729,6 +1780,30 @@ encryptWithAesCbc aesKeyLength ivTask bytes =
                         |> Task.mapError (\_ -> Crypto.AesCbcEncryptionError)
                         |> Task.andThen (\iv ->
                             Crypto.encryptWithAesCbc secureContext { iv = iv } key bytes
+                        )
+                )
+        )
+
+
+{-|-}
+encryptWithAesGcm aesKeyLength ivTask additionalData tagLength bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            generateAesGcmKey aesKeyLength
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen(\{ key } ->
+                    ivTask
+                        |> Task.mapError(\_ -> {})
+                        |> Task.andThen (\iv ->
+                            Crypto.encryptWithAesGcm 
+                                secureContext
+                                { iv = iv
+                                , additionalData = additionalData
+                                , tagLength = tagLength
+                                }
+                                key
+                                bytes
                         )
                 )
         )
