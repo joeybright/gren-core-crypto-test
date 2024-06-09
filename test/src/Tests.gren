@@ -1788,13 +1788,13 @@ encryptWithAesCbc aesKeyLength ivTask bytes =
 {-|-}
 encryptWithAesGcm aesKeyLength ivTask additionalData tagLength bytes =
     getSecureContext
-        |> Task.mapError (\_ -> {})
+        |> Task.mapError (\_ -> Crypto.AesGcmEncryptionError)
         |> Task.andThen (\secureContext ->
             generateAesGcmKey aesKeyLength
-                |> Task.mapError (\_ -> {})
+                |> Task.mapError (\_ -> Crypto.AesGcmEncryptionError)
                 |> Task.andThen(\{ key } ->
                     ivTask
-                        |> Task.mapError(\_ -> {})
+                        |> Task.mapError(\_ -> Crypto.AesGcmEncryptionError)
                         |> Task.andThen (\iv ->
                             Crypto.encryptWithAesGcm 
                                 secureContext
