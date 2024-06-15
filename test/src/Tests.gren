@@ -21,12 +21,12 @@ count =
 tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     getSecurecontextTests func
-        -- ++ randomValueTests func
-        -- ++ uuidTests func
-        -- ++ rsaKeyTests func
-        -- ++ hmacKeyTests func
+        ++ randomValueTests func
+        ++ uuidTests func
+        ++ rsaKeyTests func
+        ++ hmacKeyTests func
         ++ aesKeyTests func
-        -- ++ ecKeyTests func
+        ++ ecKeyTests func
 
 
 
@@ -142,12 +142,18 @@ rsaKeyTests func =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         generate =
-            [ expectSuccess 1 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent65537)
-            , expectSuccess 2 (generateRsaOaepKeyPair Crypto.Sha256 Crypto.PublicExponent3)
-            , expectSuccess 3 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent65537)
-            , expectSuccess 4 (generateRsaOaepKeyPair Crypto.Sha384 Crypto.PublicExponent3)
-            , expectSuccess 5 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent65537)
-            , expectSuccess 6 (generateRsaOaepKeyPair Crypto.Sha512 Crypto.PublicExponent3)
+            [ expectSuccess 1 (generateRsaOaepKeyPair 4096 Crypto.Sha256)
+            , expectSuccess 2 (generateRsaOaepKeyPair 4096 Crypto.Sha256)
+            , expectSuccess 3 (generateRsaOaepKeyPair 4096 Crypto.Sha384)
+            , expectSuccess 4 (generateRsaOaepKeyPair 4096 Crypto.Sha384)
+            , expectSuccess 5 (generateRsaOaepKeyPair 4096 Crypto.Sha512)
+            , expectSuccess 6 (generateRsaOaepKeyPair 4096 Crypto.Sha512)
+            , expectSuccess 7 (generateRsaOaepKeyPair 2048 Crypto.Sha256)
+            , expectSuccess 8 (generateRsaOaepKeyPair 3072 Crypto.Sha256)
+            , expectSuccess 9 (generateRsaOaepKeyPair 3072 Crypto.Sha384)
+            , expectSuccess 10 (generateRsaOaepKeyPair 3072 Crypto.Sha384)
+            , expectSuccess 11 (generateRsaOaepKeyPair 3072 Crypto.Sha512)
+            , expectSuccess 12 (generateRsaOaepKeyPair 3072 Crypto.Sha512)
             ]
     in
     generate ++ rsaOaepPublicKeyTests func ++ rsaOaepPrivateKeyTests func ++ rsaPssPublicKeyTests func ++ rsaPssPrivateKeyTests func ++ rsaSsaPkcs1V1_5KPublicKeyTests func ++ rsaSsaPkcs1V1_5KPrivateKeyTests func
@@ -175,7 +181,7 @@ rsaOaepPublicKeyTests func =
             importRsaKeyTests "RSA-OAEP public key import spki - " importRsaOaepPublicKeyFromSpki func
 
         importFromSpkiFailures =
-            [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
+            [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
             ]
 
         encrypt =
@@ -219,8 +225,11 @@ rsaPssPublicKeyTests func =
 
         importAsSpki =
             importRsaKeyTests "RSA-PSS public key import spki - " importRsaPssPublicKeyFromSpki func
+
+        verify =
+            verifyWithRsaPssTests "RSA-PSS public key verify - " func
     in
-    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki
+    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki ++ verify
 
 
 {-|-}
@@ -237,8 +246,11 @@ rsaPssPrivateKeyTests func =
 
         importFromPkcs8 =
             importRsaKeyTests "RSA-PSS private key import pkcs8 - " importRsaPssPrivateKeyFromPkcs8 func
+
+        sign =
+            signWithRsaPssTests "RSA-PSS private key sign - " func
     in
-    exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8
+    exportAsJwk ++ exportAsPkcs8 ++ importFromJwk ++ importFromPkcs8 ++ sign
 
 
 {-|-}
@@ -255,26 +267,132 @@ rsaSsaPkcs1V1_5KPublicKeyTests func =
 
         importAsSpki =
             importRsaKeyTests "RSASSA-PKCS1-v1_5 public key import spki - " importRsaSsaPkcs1V1_5PublicKeyFromSpki func
+
+        verify =
+            verifyWithRsaSsaPkcs1V1_5Tests "RSASSA-PKCS1-v1_5 verify with public key - " func
     in
-    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki
+    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki ++ verify
 
 
 {-|-}
 rsaSsaPkcs1V1_5KPrivateKeyTests func =
     let
         exportAsJwk =
-            exportRsaKeyTests "RSASSA-PKCS1-v1_5 public key export jwk - " exportRsaSsaPkcs1V1_5PrivateKeyAsJwk func
+            exportRsaKeyTests "RSASSA-PKCS1-v1_5 private key export jwk - " exportRsaSsaPkcs1V1_5PrivateKeyAsJwk func
 
         exportAsSpki =
-            exportRsaKeyTests "RSASSA-PKCS1-v1_5 public key export spki - " exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 func
+            exportRsaKeyTests "RSASSA-PKCS1-v1_5 private key export spki - " exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 func
 
         importAsJwk =
-            importRsaKeyTests "RSASSA-PKCS1-v1_5 public key import jwk - " importRsaSsaPkcs1V1_5PrivateKeyFromJwk func
+            importRsaKeyTests "RSASSA-PKCS1-v1_5 private key import jwk - " importRsaSsaPkcs1V1_5PrivateKeyFromJwk func
 
         importAsSpki =
-            importRsaKeyTests "RSASSA-PKCS1-v1_5 public key import spki - " importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 func
+            importRsaKeyTests "RSASSA-PKCS1-v1_5 private key import spki - " importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 func
+
+        sign =
+            signWithRsaSsaPkcs1V1_5Tests "RSASSA-PKCS1-v1_5 sign with private key - " func
     in
-    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki
+    exportAsJwk ++ importAsJwk ++ exportAsSpki ++ importAsSpki ++ sign
+
+
+{-|-}
+signWithRsaPssTests string func =
+    -- Safari doesn't let the salt length be higher than the hash algorithm in bytes
+    -- (Sha256 is 32 bytes, for example)
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")    
+    in
+    [ expectSuccess 1 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 0 testBytes)
+    , expectSuccess 2 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 32 testBytes)
+    , expectSuccess 3 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 16 testBytes)
+    , expectSuccess 4 (signWithRsaPss 0 Crypto.Sha512 Crypto.CanBeExtracted 64 testBytes)
+        -- Can't just expect failure; depends on platform! `node` is fine, but `safari` fails...
+        -- Not sure how to handle this...
+    , expectFailure 5 (signWithRsaPss 0 Crypto.Sha512 Crypto.CanBeExtracted 65 testBytes)
+    ]
+
+
+{-|-}
+verifyWithRsaPssTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        expectFailure int =
+            expectFailureHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")    
+    in
+    [ expectSuccess 1 (verifyWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 2 (verifyWithRsaPss 0 Crypto.Sha384 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 3 (verifyWithRsaPss 0 Crypto.Sha512 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 4 (verifyWithRsaPss 9999999 Crypto.Sha256 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 5 (verifyWithRsaPss 9999999 Crypto.Sha384 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 6 (verifyWithRsaPss 9999999 Crypto.Sha512 Crypto.CanBeExtracted 32 32 testBytes)
+    , expectSuccess 7 (verifyWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 16 32 testBytes)
+    ]
+
+
+{-|-}
+signWithRsaSsaPkcs1V1_5Tests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+    in
+    [ expectSuccess 1 (signWithRsaSsaPkcs1V1_5 0 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 2 (signWithRsaSsaPkcs1V1_5 0 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 3 (signWithRsaSsaPkcs1V1_5 0 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 4 (signWithRsaSsaPkcs1V1_5 4096 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 5 (signWithRsaSsaPkcs1V1_5 4096 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 6 (signWithRsaSsaPkcs1V1_5 4096 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 7 (signWithRsaSsaPkcs1V1_5 8192 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 8 (signWithRsaSsaPkcs1V1_5 8192 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 9 (signWithRsaSsaPkcs1V1_5 8192 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    ]
+
+
+{-|-}
+verifyWithRsaSsaPkcs1V1_5Tests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")
+    in
+    [ expectSuccess 1 (verifyWithRsaSsaPkcs1V1_5 0 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 2 (verifyWithRsaSsaPkcs1V1_5 0 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 3 (verifyWithRsaSsaPkcs1V1_5 0 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 4 (verifyWithRsaSsaPkcs1V1_5 4096 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 5 (verifyWithRsaSsaPkcs1V1_5 4096 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 6 (verifyWithRsaSsaPkcs1V1_5 4096 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 7 (verifyWithRsaSsaPkcs1V1_5 8192 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 8 (verifyWithRsaSsaPkcs1V1_5 8192 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
+    , expectSuccess 9 (verifyWithRsaSsaPkcs1V1_5 8192 Crypto.Sha512 Crypto.CanBeExtracted testBytes)
+    ]
 
 
 {-|-}
@@ -286,12 +404,12 @@ exportRsaKeyTests string jwkFunc func =
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ expectSuccess 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3)
-    , expectSuccess 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3)
-    , expectSuccess 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3)
-    , expectSuccess 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537)
-    , expectSuccess 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537)
-    , expectSuccess 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537)
+    [ expectSuccess 1 (jwkFunc Crypto.Sha256)
+    , expectSuccess 2 (jwkFunc Crypto.Sha384)
+    , expectSuccess 3 (jwkFunc Crypto.Sha512)
+    , expectSuccess 4 (jwkFunc Crypto.Sha256)
+    , expectSuccess 5 (jwkFunc Crypto.Sha384)
+    , expectSuccess 6 (jwkFunc Crypto.Sha512)
     ]
 
 
@@ -304,12 +422,12 @@ importRsaKeyTests string jwkFunc func =
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ expectSuccess 1 (jwkFunc Crypto.Sha256 Crypto.PublicExponent3 Crypto.Sha256)
-    , expectSuccess 2 (jwkFunc Crypto.Sha384 Crypto.PublicExponent3 Crypto.Sha384)
-    , expectSuccess 3 (jwkFunc Crypto.Sha512 Crypto.PublicExponent3 Crypto.Sha512)
-    , expectSuccess 4 (jwkFunc Crypto.Sha256 Crypto.PublicExponent65537 Crypto.Sha256)
-    , expectSuccess 5 (jwkFunc Crypto.Sha384 Crypto.PublicExponent65537 Crypto.Sha384)
-    , expectSuccess 6 (jwkFunc Crypto.Sha512 Crypto.PublicExponent65537 Crypto.Sha512)
+    [ expectSuccess 1 (jwkFunc Crypto.Sha256 Crypto.Sha256)
+    , expectSuccess 2 (jwkFunc Crypto.Sha384 Crypto.Sha384)
+    , expectSuccess 3 (jwkFunc Crypto.Sha512 Crypto.Sha512)
+    , expectSuccess 4 (jwkFunc Crypto.Sha256 Crypto.Sha256)
+    , expectSuccess 5 (jwkFunc Crypto.Sha384 Crypto.Sha384)
+    , expectSuccess 6 (jwkFunc Crypto.Sha512 Crypto.Sha512)
     ]
 
 
@@ -331,19 +449,19 @@ encryptWithRsaOaepTests string func =
         testKeyLabel =
             Bytes.Encode.encode (Bytes.Encode.string "testing label")
     in
-    [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 Nothing testBytes)
-    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 Nothing testBytes)
-    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 Nothing testBytes)
-    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 Nothing testBytes)
+    [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Nothing testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Nothing testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Nothing testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Nothing testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Nothing testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Nothing testBytes)
         --
-    , expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
-    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
-    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 (Just testKeyLabel) testBytes)
-    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 (Just testKeyLabel) testBytes)
+    , expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 (Just testKeyLabel) testBytes)
+    , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 (Just testKeyLabel) testBytes)
+    , expectSuccess 3 (encryptWithRsaOaep Crypto.Sha384 (Just testKeyLabel) testBytes)
+    , expectSuccess 4 (encryptWithRsaOaep Crypto.Sha384 (Just testKeyLabel) testBytes)
+    , expectSuccess 5 (encryptWithRsaOaep Crypto.Sha512 (Just testKeyLabel) testBytes)
+    , expectSuccess 6 (encryptWithRsaOaep Crypto.Sha512 (Just testKeyLabel) testBytes)
     ]
 
 
@@ -378,13 +496,14 @@ decryptWithRsaOaepTestsHelper testFunc encryptionLabel decryptionLabel =
         testBytes =
             Bytes.Encode.encode (Bytes.Encode.string "hi")
     in
-    [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
-    , testFunc 3 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 4 (decryptWithRsaOaep Crypto.Sha384 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
-    , testFunc 5 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent65537 encryptionLabel decryptionLabel testBytes)
-    , testFunc 6 (decryptWithRsaOaep Crypto.Sha512 Crypto.PublicExponent3 encryptionLabel decryptionLabel testBytes)
+    [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 encryptionLabel decryptionLabel testBytes)
+    , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 encryptionLabel decryptionLabel testBytes)
+    , testFunc 3 (decryptWithRsaOaep Crypto.Sha384 encryptionLabel decryptionLabel testBytes)
+    , testFunc 4 (decryptWithRsaOaep Crypto.Sha384 encryptionLabel decryptionLabel testBytes)
+    , testFunc 5 (decryptWithRsaOaep Crypto.Sha512 encryptionLabel decryptionLabel testBytes)
+    , testFunc 6 (decryptWithRsaOaep Crypto.Sha512 encryptionLabel decryptionLabel testBytes)
     ]
+
 
 
 -- AES KEY TESTS
@@ -776,8 +895,11 @@ ecdsaPublicKeyTests func =
 
         importAsSpki =
             importEcKeyTests "ECDSA private key import spki - " importEcdsaPublicKeyFromSpki func
+
+        verify =
+            verifyWithEcdsaTests "ECDSA public key verify - " func
     in
-    exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki
+    exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki ++ verify
 
 
 {-|-}
@@ -794,8 +916,11 @@ ecdsaPrivateKeyTests func =
 
         importAsPkcs8 =
             importEcKeyTests "ECDSA private key import pkcs8 - " importEcdsaPrivateKeyFromPkcs8 func
+
+        sign =
+            signWithEcdsaTests "ECDSA private key sign - " func
     in
-    exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
+    exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8 ++ sign
 
 
 {-|-}
@@ -838,6 +963,71 @@ ecdhPrivateKeyTests func =
             importEcKeyTests "ECDH private key import pkcs8 - " importEcdhPrivateKeyFromPkcs8 func
     in
     exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
+
+
+signWithEcdsaTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+    in
+    [ expectSuccess 1 (signWithEcdsa Crypto.P256 Crypto.Sha256 testBytes)
+    , expectSuccess 2 (signWithEcdsa Crypto.P384 Crypto.Sha256 testBytes)
+    , expectSuccess 3 (signWithEcdsa Crypto.P521 Crypto.Sha256 testBytes)
+    , expectSuccess 1 (signWithEcdsa Crypto.P256 Crypto.Sha384 testBytes)
+    , expectSuccess 2 (signWithEcdsa Crypto.P384 Crypto.Sha384 testBytes)
+    , expectSuccess 3 (signWithEcdsa Crypto.P521 Crypto.Sha384 testBytes)
+    , expectSuccess 1 (signWithEcdsa Crypto.P256 Crypto.Sha512 testBytes)
+    , expectSuccess 2 (signWithEcdsa Crypto.P384 Crypto.Sha512 testBytes)
+    , expectSuccess 3 (signWithEcdsa Crypto.P521 Crypto.Sha512 testBytes)
+    ]
+
+
+{-|-}
+verifyWithEcdsaTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+    in
+    [ expectSuccess 1 (verifyWithEcdsa Crypto.P256 Crypto.Sha256 Crypto.Sha256 testBytes)
+    , expectSuccess 2 (verifyWithEcdsa Crypto.P256 Crypto.Sha256 Crypto.Sha384 testBytes)
+    , expectSuccess 3 (verifyWithEcdsa Crypto.P256 Crypto.Sha256 Crypto.Sha512 testBytes)
+    , expectSuccess 4 (verifyWithEcdsa Crypto.P256 Crypto.Sha384 Crypto.Sha256 testBytes)
+    , expectSuccess 5 (verifyWithEcdsa Crypto.P256 Crypto.Sha384 Crypto.Sha384 testBytes)
+    , expectSuccess 6 (verifyWithEcdsa Crypto.P256 Crypto.Sha384 Crypto.Sha512 testBytes)
+    , expectSuccess 7 (verifyWithEcdsa Crypto.P256 Crypto.Sha512 Crypto.Sha256 testBytes)
+    , expectSuccess 8 (verifyWithEcdsa Crypto.P256 Crypto.Sha512 Crypto.Sha384 testBytes)
+    , expectSuccess 9 (verifyWithEcdsa Crypto.P256 Crypto.Sha512 Crypto.Sha512 testBytes)
+    , expectSuccess 10 (verifyWithEcdsa Crypto.P384 Crypto.Sha256 Crypto.Sha256 testBytes)
+    , expectSuccess 11 (verifyWithEcdsa Crypto.P384 Crypto.Sha256 Crypto.Sha384 testBytes)
+    , expectSuccess 12 (verifyWithEcdsa Crypto.P384 Crypto.Sha256 Crypto.Sha512 testBytes)
+    , expectSuccess 13 (verifyWithEcdsa Crypto.P384 Crypto.Sha384 Crypto.Sha256 testBytes)
+    , expectSuccess 14 (verifyWithEcdsa Crypto.P384 Crypto.Sha384 Crypto.Sha384 testBytes)
+    , expectSuccess 15 (verifyWithEcdsa Crypto.P384 Crypto.Sha384 Crypto.Sha512 testBytes)
+    , expectSuccess 16 (verifyWithEcdsa Crypto.P384 Crypto.Sha512 Crypto.Sha256 testBytes)
+    , expectSuccess 17 (verifyWithEcdsa Crypto.P384 Crypto.Sha512 Crypto.Sha384 testBytes)
+    , expectSuccess 18 (verifyWithEcdsa Crypto.P384 Crypto.Sha512 Crypto.Sha512 testBytes)
+    , expectSuccess 19 (verifyWithEcdsa Crypto.P521 Crypto.Sha256 Crypto.Sha256 testBytes)
+    , expectSuccess 20 (verifyWithEcdsa Crypto.P521 Crypto.Sha256 Crypto.Sha384 testBytes)
+    , expectSuccess 21 (verifyWithEcdsa Crypto.P521 Crypto.Sha256 Crypto.Sha512 testBytes)
+    , expectSuccess 22 (verifyWithEcdsa Crypto.P521 Crypto.Sha384 Crypto.Sha256 testBytes)
+    , expectSuccess 23 (verifyWithEcdsa Crypto.P521 Crypto.Sha384 Crypto.Sha384 testBytes)
+    , expectSuccess 24 (verifyWithEcdsa Crypto.P521 Crypto.Sha384 Crypto.Sha512 testBytes)
+    , expectSuccess 25 (verifyWithEcdsa Crypto.P521 Crypto.Sha512 Crypto.Sha256 testBytes)
+    , expectSuccess 26 (verifyWithEcdsa Crypto.P521 Crypto.Sha512 Crypto.Sha384 testBytes)
+    , expectSuccess 27 (verifyWithEcdsa Crypto.P521 Crypto.Sha512 Crypto.Sha512 testBytes)
+    ]
 
 
 {-|-}
@@ -905,8 +1095,14 @@ hmacKeyTests func =
 
         deriveFromEcdh =
             deriveHmacKeyFromEcdhTests "HMAC derive ecdh - " func
+
+        sign = 
+            signWithHmacTests "HMAC sign - " func
+        
+        verify =
+            []
     in
-    importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveFromEcdh
+    importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveFromEcdh ++ sign ++ verify
 
 
 {-| Importing HMAC keys from JWK tests
@@ -1068,27 +1264,43 @@ deriveHmacKeyFromEcdhTests string func =
     ]
 
 
+signWithHmacTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+        
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+    in
+    [ expectSuccess 1 (signWithHmac Crypto.Sha256 Nothing testBytes)
+    , expectSuccess 2 (signWithHmac Crypto.Sha384 Nothing testBytes)
+    , expectSuccess 2 (signWithHmac Crypto.Sha512 Nothing testBytes)
+    ]
+
+
 
 -- GENERATE KEYS
 
 
 {-|-}
-generateRsaOaepKeyPair hash exponent =
+generateRsaOaepKeyPair modulusLength hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
         (\secureContext ->
             Crypto.generateRsaOaepKeyPair
                 secureContext
-                { modulusLength = 4096
+                { modulusLength = modulusLength
                 , hash = hash
-                , publicExponent = Crypto.PublicExponent65537
                 }
                 Crypto.CanBeExtracted
         )
 
 
 {-|-}
-generateRsaPssKeyPair hash exponent =
+generateRsaPssKeyPair hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
         (\secureContext ->
@@ -1096,14 +1308,13 @@ generateRsaPssKeyPair hash exponent =
                 secureContext
                 { modulusLength = 4096
                 , hash = hash
-                , publicExponent = Crypto.PublicExponent65537
                 }
                 Crypto.CanBeExtracted
         )
 
 
 {-|-}
-generateRsaSsaPkcs1V1_5KeyPair hash exponent =
+generateRsaSsaPkcs1V1_5KeyPair hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
         (\secureContext ->
@@ -1111,7 +1322,6 @@ generateRsaSsaPkcs1V1_5KeyPair hash exponent =
                 secureContext
                 { modulusLength = 4096
                 , hash = hash
-                , publicExponent = Crypto.PublicExponent65537
                 }
                 Crypto.CanBeExtracted
         )
@@ -1177,78 +1387,78 @@ generateKey errorMap keyGenFunc =
 
 
 {-|-}
-exportRsaOaepPublicKeyAsJwk hash exponent =
-    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPublicKeyAsJwk .publicKey
+exportRsaOaepPublicKeyAsJwk hash =
+    exportRsaOaepKeyPair hash Crypto.exportRsaOaepPublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportRsaOaepPublicKeyAsSpki hash exponent =
-    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPublicKeyAsSpki .publicKey
+exportRsaOaepPublicKeyAsSpki hash =
+    exportRsaOaepKeyPair hash Crypto.exportRsaOaepPublicKeyAsSpki .publicKey
 
 
 {-|-}
-exportRsaOaepPrivateKeyAsJwk hash exponent =
-    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPrivateKeyAsJwk .privateKey
+exportRsaOaepPrivateKeyAsJwk hash =
+    exportRsaOaepKeyPair hash Crypto.exportRsaOaepPrivateKeyAsJwk .privateKey
 
 
 {-|-}
-exportRsaOaepPrivateKeyAsPkcs8 hash exponent =
-    exportRsaOaepKeyPair hash exponent Crypto.exportRsaOaepPrivateKeyAsPkcs8 .privateKey
+exportRsaOaepPrivateKeyAsPkcs8 hash =
+    exportRsaOaepKeyPair hash Crypto.exportRsaOaepPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
-exportRsaPssPublicKeyAsJwk hash exponent =
-    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsJwk .publicKey
+exportRsaPssPublicKeyAsJwk hash =
+    exportRsaPssKeyPair hash Crypto.exportRsaPssPublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportRsaPssPublicKeyAsSpki hash exponent =
-    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPublicKeyAsSpki .publicKey
+exportRsaPssPublicKeyAsSpki hash =
+    exportRsaPssKeyPair hash Crypto.exportRsaPssPublicKeyAsSpki .publicKey
 
 
 {-|-}
-exportRsaPssPrivateKeyAsJwk hash exponent =
-    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPrivateKeyAsJwk .privateKey
+exportRsaPssPrivateKeyAsJwk hash =
+    exportRsaPssKeyPair hash Crypto.exportRsaPssPrivateKeyAsJwk .privateKey
 
 
 {-|-}
-exportRsaPssPrivateKeyAsPkcs8 hash exponent =
-    exportRsaPssKeyPair hash exponent Crypto.exportRsaPssPrivateKeyAsPkcs8 .privateKey
+exportRsaPssPrivateKeyAsPkcs8 hash =
+    exportRsaPssKeyPair hash Crypto.exportRsaPssPrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
-exportRsaSsaPkcs1V1_5PublicKeyAsJwk hash exponent =
-    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsJwk .publicKey
+exportRsaSsaPkcs1V1_5PublicKeyAsJwk hash =
+    exportRsaSsaPkcs1V1_5KeyPair hash Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsJwk .publicKey
 
 
 {-|-}
-exportRsaSsaPkcs1V1_5PublicKeyAsSpki hash exponent =
-    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsSpki .publicKey
+exportRsaSsaPkcs1V1_5PublicKeyAsSpki hash =
+    exportRsaSsaPkcs1V1_5KeyPair hash Crypto.exportRsaSsaPkcs1V1_5PublicKeyAsSpki .publicKey
 
 
 {-|-}
-exportRsaSsaPkcs1V1_5PrivateKeyAsJwk hash exponent =
-    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsJwk .privateKey
+exportRsaSsaPkcs1V1_5PrivateKeyAsJwk hash =
+    exportRsaSsaPkcs1V1_5KeyPair hash Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsJwk .privateKey
 
 
 {-|-}
-exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 hash exponent =
-    exportRsaSsaPkcs1V1_5KeyPair hash exponent Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 .privateKey
+exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 hash =
+    exportRsaSsaPkcs1V1_5KeyPair hash Crypto.exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 .privateKey
 
 
 {-|-}
-exportRsaOaepKeyPair hash exponent =
-    exportKey (generateRsaOaepKeyPair hash exponent)
+exportRsaOaepKeyPair hash =
+    exportKey (generateRsaOaepKeyPair 4096 hash)
 
 
 {-|-}
-exportRsaPssKeyPair hash exponent =
-    exportKey (generateRsaPssKeyPair hash exponent)
+exportRsaPssKeyPair hash =
+    exportKey (generateRsaPssKeyPair hash)
 
 
 {-|-}
-exportRsaSsaPkcs1V1_5KeyPair hash exponent =
-    exportKey (generateRsaSsaPkcs1V1_5KeyPair hash exponent)
+exportRsaSsaPkcs1V1_5KeyPair hash =
+    exportKey (generateRsaSsaPkcs1V1_5KeyPair hash)
 
 
 
@@ -1409,10 +1619,10 @@ exportKey keyGenFunc exportKeyFunc keyFunc =
 
 
 {-|-}
-importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
+importRsaOaepPublicKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
+        (exportRsaOaepPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromJwk
                 secureContext
@@ -1424,10 +1634,10 @@ importRsaOaepPublicKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
+importRsaOaepPublicKeyFromSpki keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
+        (exportRsaOaepPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromSpki
                 secureContext
@@ -1439,10 +1649,10 @@ importRsaOaepPublicKeyFromSpki keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaOaepPrivateKeyFromJwk keyHash keyExponent importHash =
+importRsaOaepPrivateKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPrivateKeyAsJwk keyHash keyExponent)
+        (exportRsaOaepPrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromJwk
                 secureContext
@@ -1454,10 +1664,10 @@ importRsaOaepPrivateKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaOaepPrivateKeyFromPkcs8 keyHash keyExponent importHash =
+importRsaOaepPrivateKeyFromPkcs8 keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPrivateKeyAsPkcs8 keyHash keyExponent)
+        (exportRsaOaepPrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromPkcs8
                 secureContext
@@ -1469,10 +1679,10 @@ importRsaOaepPrivateKeyFromPkcs8 keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash keyExponent importHash json =
+importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash importHash json =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPublicKeyAsJwk keyHash keyExponent)
+        (exportRsaOaepPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromJwk
                 secureContext
@@ -1484,10 +1694,10 @@ importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash keyExponent importHash js
 
 
 {-|-}
-importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash bytes =
+importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash importHash bytes =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaOaepPublicKeyAsSpki keyHash keyExponent)
+        (exportRsaOaepPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromSpki
                 secureContext
@@ -1503,10 +1713,10 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash keyExponent importHash 
 
 
 {-|-}
-importRsaPssPublicKeyFromJwk keyHash keyExponent importHash =
+importRsaPssPublicKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaPssPublicKeyAsJwk keyHash keyExponent)
+        (exportRsaPssPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPublicKeyFromJwk
                 secureContext
@@ -1518,10 +1728,10 @@ importRsaPssPublicKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaPssPublicKeyFromSpki keyHash keyExponent importHash =
+importRsaPssPublicKeyFromSpki keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaPssPublicKeyAsSpki keyHash keyExponent)
+        (exportRsaPssPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPublicKeyFromSpki
                 secureContext
@@ -1533,10 +1743,10 @@ importRsaPssPublicKeyFromSpki keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaPssPrivateKeyFromJwk keyHash keyExponent importHash =
+importRsaPssPrivateKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaPssPrivateKeyAsJwk keyHash keyExponent)
+        (exportRsaPssPrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPrivateKeyFromJwk
                 secureContext
@@ -1548,10 +1758,10 @@ importRsaPssPrivateKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaPssPrivateKeyFromPkcs8 keyHash keyExponent importHash =
+importRsaPssPrivateKeyFromPkcs8 keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaPssPrivateKeyAsPkcs8 keyHash keyExponent)
+        (exportRsaPssPrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPrivateKeyFromPkcs8
                 secureContext
@@ -1567,10 +1777,10 @@ importRsaPssPrivateKeyFromPkcs8 keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash keyExponent importHash =
+importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash keyExponent)
+        (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PublicKeyFromJwk
                 secureContext
@@ -1582,10 +1792,10 @@ importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash keyExponent importHash =
+importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaSsaPkcs1V1_5PublicKeyAsSpki keyHash keyExponent)
+        (exportRsaSsaPkcs1V1_5PublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PublicKeyFromSpki
                 secureContext
@@ -1597,10 +1807,10 @@ importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash keyExponent importHash =
+importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash keyExponent)
+        (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PrivateKeyFromJwk
                 secureContext
@@ -1612,10 +1822,10 @@ importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash keyExponent importHash =
 
 
 {-|-}
-importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash keyExponent importHash =
+importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash importHash =
     importKey
         Crypto.ImportRsaKeyError
-        (exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 keyHash keyExponent)
+        (exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
                 secureContext
@@ -1779,11 +1989,11 @@ deriveHmacKeyUsingEcdh publicKeyCurve privateKeyCurve keyHash length =
 
 
 {-|-}
-encryptWithRsaOaep keyHash keyExponent label bytes =
+encryptWithRsaOaep keyHash label bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
         |> Task.andThen (\secureContext ->
-            generateRsaOaepKeyPair keyHash keyExponent
+            generateRsaOaepKeyPair 4096 keyHash
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ key } ->
                     Crypto.encryptWithRsaOaep secureContext label key.publicKey bytes
@@ -1854,11 +2064,11 @@ encryptWithAesGcm aesKeyLength ivTask additionalData tagLength bytes =
 
 
 {-|-}
-decryptWithRsaOaep keyHash keyExponent encryptionLabel decryptionLabel bytes =
+decryptWithRsaOaep keyHash encryptionLabel decryptionLabel bytes =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
         |> Task.andThen (\secureContext ->
-            generateRsaOaepKeyPair keyHash keyExponent
+            generateRsaOaepKeyPair 4096 keyHash
                 |> Task.mapError (\_ -> Crypto.DecryptWithRsaOaepError)
                 |> Task.andThen (\{ key } ->
                     Crypto.encryptWithRsaOaep secureContext encryptionLabel key.publicKey bytes
@@ -1954,6 +2164,147 @@ decryptWithAesGcm aesKeyLength encryptionIvTask encryptAdditionalData encryptTag
                         )
                 )
         )
+
+
+
+-- SIGN
+
+
+signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            Crypto.generateRsaSsaPkcs1V1_5KeyPair 
+                secureContext 
+                { modulusLength = modulusLength
+                , hash = digestAlgorithm
+                }
+                extractable
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\{ privateKey } ->
+                    Crypto.signWithRsaSsaPkcs1V1_5 secureContext privateKey bytes
+                )
+        )
+
+
+signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> Crypto.SignWithRsaPssError)
+        |> Task.andThen (\secureContext ->
+            Crypto.generateRsaPssKeyPair
+                secureContext 
+                { modulusLength = modulusLength
+                , hash = digestAlgorithm
+                }
+                extractable
+                |> Task.mapError (\_ -> Crypto.SignWithRsaPssError)
+                |> Task.andThen (\{ privateKey } ->
+                    Crypto.signWithRsaPss secureContext salt privateKey bytes
+                )
+        )
+
+
+signWithEcdsa ecNamedCurve digestAlgorithm bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen(\secureContext ->
+            Crypto.generateEcdsaKeyPair secureContext ecNamedCurve Crypto.CanBeExtracted
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\{ privateKey } ->
+                    Crypto.signWithEcdsa secureContext digestAlgorithm privateKey bytes
+                )
+        )
+
+
+signWithHmac hash length bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            Crypto.generateHmacKey 
+                secureContext
+                { hash = hash
+                , length = length
+                }
+                Crypto.CanBeExtracted
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\key ->
+                    Crypto.signWithHmac secureContext key bytes
+                )
+        )
+
+
+
+-- VERIFY
+
+
+verifyWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes = 
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            Crypto.generateRsaSsaPkcs1V1_5KeyPair 
+                secureContext 
+                { modulusLength = modulusLength
+                , hash = digestAlgorithm
+                }
+                extractable
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\{ privateKey, publicKey } ->
+                    Crypto.signWithRsaSsaPkcs1V1_5 secureContext privateKey bytes
+                        |> Task.mapError (\_ -> {})
+                        |> Task.andThen (\signature ->
+                            Crypto.verifyWithRsaSsaPkcs1V1_5 secureContext publicKey signature bytes
+                        )
+                )
+        )
+
+
+verifyWithRsaPss modulusLength digestAlgorithm extractable signSalt verifySalt bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            Crypto.generateRsaPssKeyPair
+                secureContext 
+                { modulusLength = modulusLength
+                , hash = digestAlgorithm
+                }
+                extractable
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\{ publicKey, privateKey } ->
+                    Crypto.signWithRsaPss secureContext signSalt privateKey bytes
+                        |> Task.mapError (\_ -> {})
+                        |> Task.andThen(\signature ->
+                            Crypto.verifyWithRsaPss secureContext verifySalt publicKey signature bytes
+                        )
+                )
+        )
+
+
+verifyWithEcdsa ecNamedCurve signDigestAlgorithm verifyDigestAlgorithm bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen(\secureContext ->
+            Crypto.generateEcdsaKeyPair secureContext ecNamedCurve Crypto.CanBeExtracted
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen(\{ publicKey, privateKey } ->
+                    Crypto.signWithEcdsa secureContext signDigestAlgorithm privateKey bytes
+                        |> Task.mapError (\_ -> {})
+                        |> Task.andThen(\signature ->
+                            Crypto.verifyWithEcdsa secureContext verifyDigestAlgorithm publicKey signature bytes
+                        )
+                )
+        )
+
+
+verifyWithHmac =
+    Debug.todo ""
+
+
+
+-- DIGEST
+
+
+digest =
+    Debug.todo ""
 
 
 
