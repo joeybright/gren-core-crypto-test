@@ -27,6 +27,7 @@ tests func =
         ++ hmacKeyTests func
         ++ aesKeyTests func
         ++ ecKeyTests func
+        ++ digestTests func
 
 
 
@@ -1298,6 +1299,26 @@ verifyWithHmacTests string func =
     ]
 
 
+-- DIGEST TESTS
+
+
+digestTests func =
+    let
+        testLabel int =
+            "Digest tests - " ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+        
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+    in
+    [ expectSuccess 1 (digest Crypto.Sha256 testBytes)
+    , expectSuccess 2 (digest Crypto.Sha384 testBytes)
+    , expectSuccess 3 (digest Crypto.Sha512 testBytes)
+    ]
+
+
 
 -- GENERATE KEYS
 
@@ -2337,8 +2358,11 @@ verifyWithHmac hash length bytes =
 -- DIGEST
 
 
-digest =
-    Debug.todo ""
+digest algorithm bytes =
+    getSecureContext
+        |> Task.andThen (\secureContext ->
+            Crypto.digest secureContext algorithm bytes
+        )
 
 
 
