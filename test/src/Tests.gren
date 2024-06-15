@@ -1100,7 +1100,7 @@ hmacKeyTests func =
             signWithHmacTests "HMAC sign - " func
         
         verify =
-            []
+            verifyWithHmacTests "HMAC verify - " func
     in
     importAsJwk ++ importAsRaw ++ exportAsJwk ++ deriveFromEcdh ++ sign ++ verify
 
@@ -1277,7 +1277,24 @@ signWithHmacTests string func =
     in
     [ expectSuccess 1 (signWithHmac Crypto.Sha256 Nothing testBytes)
     , expectSuccess 2 (signWithHmac Crypto.Sha384 Nothing testBytes)
-    , expectSuccess 2 (signWithHmac Crypto.Sha512 Nothing testBytes)
+    , expectSuccess 3 (signWithHmac Crypto.Sha512 Nothing testBytes)
+    ]
+
+
+verifyWithHmacTests string func =
+    let
+        testLabel int =
+            string ++ String.fromInt int
+
+        expectSuccess int =
+            expectSuccessHelper (testHelper func) (testLabel int)
+        
+        testBytes =
+            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+    in
+    [ expectSuccess 1 (verifyWithHmac Crypto.Sha256 Nothing testBytes)
+    , expectSuccess 2 (verifyWithHmac Crypto.Sha384 Nothing testBytes)
+    , expectSuccess 3 (verifyWithHmac Crypto.Sha512 Nothing testBytes)
     ]
 
 
@@ -2295,8 +2312,25 @@ verifyWithEcdsa ecNamedCurve signDigestAlgorithm verifyDigestAlgorithm bytes =
         )
 
 
-verifyWithHmac =
-    Debug.todo ""
+verifyWithHmac hash length bytes =
+    getSecureContext
+        |> Task.mapError (\_ -> {})
+        |> Task.andThen (\secureContext ->
+            Crypto.generateHmacKey 
+                secureContext
+                { hash = hash
+                , length = length
+                }
+                Crypto.CanBeExtracted
+                |> Task.mapError (\_ -> {})
+                |> Task.andThen (\key ->
+                    Crypto.signWithHmac secureContext key bytes
+                        |> Task.mapError (\_ -> {})
+                        |> Task.andThen (\signature ->
+                            Crypto.verifyWithHmac secureContext key signature bytes
+                        )
+                )
+        )
 
 
 
