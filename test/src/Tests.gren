@@ -889,13 +889,13 @@ ecdsaPublicKeyTests func =
             exportEcKeyTests "ECDSA public key export spki - " exportEcdsaPublicKeyAsSpki func
 
         importAsJwk =
-            importEcKeyTests "ECDSA private key import jwk - " importEcdsaPublicKeyFromJwk func
+            importEcKeyTests "ECDSA public key import jwk - " importEcdsaPublicKeyFromJwk func
 
         importAsRaw =
-            importEcKeyTests "ECDSA private key import raw - " importEcdsaPublicKeyFromRaw func
+            importEcKeyTests "ECDSA public key import raw - " importEcdsaPublicKeyFromRaw func
 
         importAsSpki =
-            importEcKeyTests "ECDSA private key import spki - " importEcdsaPublicKeyFromSpki func
+            importEcKeyTests "ECDSA public key import spki - " importEcdsaPublicKeyFromSpki func
 
         verify =
             verifyWithEcdsaTests "ECDSA public key verify - " func
