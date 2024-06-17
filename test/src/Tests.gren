@@ -23,8 +23,8 @@ tests func =
     getSecurecontextTests func
         -- ++ randomValueTests func
         -- ++ uuidTests func
-        -- ++ rsaKeyTests func
-        ++ hmacKeyTests func
+        ++ rsaKeyTests func
+        -- ++ hmacKeyTests func
         -- ++ aesKeyTests func
         -- ++ ecKeyTests func
         -- ++ digestTests func
@@ -1334,8 +1334,8 @@ generateRsaOaepKeyPair modulusLength hash =
                 secureContext
                 { modulusLength = modulusLength
                 , hash = hash
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
         )
 
 
@@ -1348,8 +1348,8 @@ generateRsaPssKeyPair hash =
                 secureContext
                 { modulusLength = 4096
                 , hash = hash
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
         )
 
 
@@ -1362,8 +1362,8 @@ generateRsaSsaPkcs1V1_5KeyPair hash =
                 secureContext
                 { modulusLength = 4096
                 , hash = hash
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
         )
 
 
@@ -2218,8 +2218,8 @@ signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
                 secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
+                , extractable = extractable
                 }
-                extractable
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaSsaPkcs1V1_5 secureContext privateKey bytes
@@ -2235,8 +2235,8 @@ signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
                 secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
+                , extractable = extractable
                 }
-                extractable
                 |> Task.mapError (\_ -> Crypto.SignWithRsaPssError)
                 |> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaPss secureContext salt privateKey bytes
@@ -2285,8 +2285,8 @@ verifyWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
                 secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
+                , extractable = extractable
                 }
-                extractable
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ privateKey, publicKey } ->
                     Crypto.signWithRsaSsaPkcs1V1_5 secureContext privateKey bytes
@@ -2306,8 +2306,8 @@ verifyWithRsaPss modulusLength digestAlgorithm extractable signSalt verifySalt b
                 secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
+                , extractable = extractable
                 }
-                extractable
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ publicKey, privateKey } ->
                     Crypto.signWithRsaPss secureContext signSalt privateKey bytes
