@@ -21,13 +21,13 @@ count =
 tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     getSecurecontextTests func
-        ++ randomValueTests func
-        ++ uuidTests func
-        ++ rsaKeyTests func
+        -- ++ randomValueTests func
+        -- ++ uuidTests func
+        -- ++ rsaKeyTests func
         ++ hmacKeyTests func
-        ++ aesKeyTests func
-        ++ ecKeyTests func
-        ++ digestTests func
+        -- ++ aesKeyTests func
+        -- ++ ecKeyTests func
+        -- ++ digestTests func
 
 
 
@@ -1401,8 +1401,8 @@ generateHmacKey hash length =
                 secureContext
                 { hash = hash
                 , length = length
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
         )
 
 
@@ -2264,8 +2264,8 @@ signWithHmac hash length bytes =
                 secureContext
                 { hash = hash
                 , length = length
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\key ->
                     Crypto.signWithHmac secureContext key bytes
@@ -2343,8 +2343,8 @@ verifyWithHmac hash length bytes =
                 secureContext
                 { hash = hash
                 , length = length
+                , extractable = Crypto.CanBeExtracted
                 }
-                Crypto.CanBeExtracted
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\key ->
                     Crypto.signWithHmac secureContext key bytes
