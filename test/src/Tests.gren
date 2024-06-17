@@ -1369,17 +1369,41 @@ generateRsaSsaPkcs1V1_5KeyPair hash =
 
 {-|-}
 generateAesCtrKey aesLength =
-    generateKey {} (\secureContext -> Crypto.generateAesCtrKey secureContext aesLength Crypto.CanBeExtracted)
+    generateKey 
+        {} 
+        (\secureContext -> 
+            Crypto.generateAesCtrKey 
+            secureContext 
+            { length = aesLength
+            , extractable = Crypto.CanBeExtracted 
+            }
+        )
 
 
 {-|-}
 generateAesCbcKey aesLength =
-    generateKey {} (\secureContext -> Crypto.generateAesCbcKey secureContext aesLength Crypto.CanBeExtracted)
+    generateKey 
+        {} 
+        (\secureContext -> 
+            Crypto.generateAesCbcKey 
+            secureContext 
+            { length = aesLength
+            , extractable = Crypto.CanBeExtracted 
+            }
+        )
 
 
 {-|-}
 generateAesGcmKey aesLength =
-    generateKey {} (\secureContext -> Crypto.generateAesGcmKey secureContext aesLength Crypto.CanBeExtracted)
+    generateKey 
+        {} 
+        (\secureContext -> 
+            Crypto.generateAesGcmKey 
+            secureContext 
+            { length = aesLength
+            , extractable = Crypto.CanBeExtracted 
+            }
+        )
 
 
 {-|-}
