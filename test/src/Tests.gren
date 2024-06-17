@@ -1408,12 +1408,28 @@ generateAesGcmKey aesLength =
 
 {-|-}
 generateEcdsaKeyPair curve =
-    generateKey {} (\secureContext -> Crypto.generateEcdsaKeyPair secureContext curve Crypto.CanBeExtracted)
+    generateKey 
+        {} 
+        (\secureContext -> 
+            Crypto.generateEcdsaKeyPair 
+                secureContext
+                { namedCurve = curve
+                , extractable = Crypto.CanBeExtracted
+                }
+        )
 
 
 {-|-}
 generateEcdhKeyPair curve =
-    generateKey {} (\secureContext -> Crypto.generateEcdhKeyPair secureContext curve Crypto.CanBeExtracted)
+    generateKey 
+        {} 
+        (\secureContext -> 
+            Crypto.generateEcdhKeyPair 
+                secureContext 
+                { namedCurve = curve
+                , extractable = Crypto.CanBeExtracted
+                }
+        )
 
 
 {-|-}
@@ -2272,7 +2288,7 @@ signWithEcdsa ecNamedCurve digestAlgorithm bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
         |> Task.andThen(\secureContext ->
-            Crypto.generateEcdsaKeyPair secureContext ecNamedCurve Crypto.CanBeExtracted
+            Crypto.generateEcdsaKeyPair secureContext { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ privateKey } ->
                     Crypto.signWithEcdsa secureContext digestAlgorithm privateKey bytes
@@ -2347,7 +2363,7 @@ verifyWithEcdsa ecNamedCurve signDigestAlgorithm verifyDigestAlgorithm bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
         |> Task.andThen(\secureContext ->
-            Crypto.generateEcdsaKeyPair secureContext ecNamedCurve Crypto.CanBeExtracted
+            Crypto.generateEcdsaKeyPair secureContext { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen(\{ publicKey, privateKey } ->
                     Crypto.signWithEcdsa secureContext signDigestAlgorithm privateKey bytes
