@@ -298,8 +298,6 @@ rsaSsaPkcs1V1_5KPrivateKeyTests func =
 
 {-|-}
 signWithRsaPssTests string func =
-    -- Safari doesn't let the salt length be higher than the hash algorithm in bytes
-    -- (Sha256 is 32 bytes, for example)
     let
         testLabel int =
             string ++ String.fromInt int
@@ -317,8 +315,6 @@ signWithRsaPssTests string func =
     , expectSuccess 2 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 32 testBytes)
     , expectSuccess 3 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 16 testBytes)
     , expectSuccess 4 (signWithRsaPss 0 Crypto.Sha512 Crypto.CanBeExtracted 64 testBytes)
-        -- Can't just expect failure; depends on platform! `node` is fine, but `safari` fails...
-        -- Not sure how to handle this...
     , expectFailure 5 (signWithRsaPss 0 Crypto.Sha512 Crypto.CanBeExtracted 65 testBytes)
     ]
 
