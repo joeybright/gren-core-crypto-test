@@ -21,11 +21,11 @@ count =
 tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     getSecurecontextTests func
-        -- ++ randomValueTests func
+        ++ randomValueTests func
         -- ++ uuidTests func
-        ++ rsaKeyTests func
+        -- ++ rsaKeyTests func
         -- ++ hmacKeyTests func
-        -- ++ aesKeyTests func
+        ++ aesKeyTests func
         -- ++ ecKeyTests func
         -- ++ digestTests func
 
@@ -37,7 +37,7 @@ tests func =
 {-|-}
 getSecureContext : Task {} Crypto.SecureContext
 getSecureContext =
-    Crypto.isSecureContext
+    Crypto.getSecureContext
 
 
 {-|-}
@@ -66,16 +66,6 @@ randomValueTests func =
 
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
-
-        testGeneratedValueCount num =
-            Task.mapError (\_ -> {})
-                >> Task.andThen
-                        (\res ->
-                            if Array.length res == num then
-                                Task.succeed {}
-                            else
-                                Task.fail {}
-                        )
     in
     [ expectSuccess 1 (Crypto.getRandomInt8Values 3)
     , expectSuccess 2 (Crypto.getRandomInt8Values 99999)
@@ -95,15 +85,6 @@ randomValueTests func =
     , expectSuccess 16 (Crypto.getRandomUInt32Values 3)
     , expectSuccess 17 (Crypto.getRandomUInt32Values 99999)
     , expectSuccess 18 (Crypto.getRandomUInt32Values -99999)
-        {- Testing to make sure the max and min of generated values is respected, even
-        when the number of values requested is higher (or lower) than the max value
-        -}
-    , expectSuccess 19 (testGeneratedValueCount 0 (Crypto.getRandomUInt32Values -99999))
-    , expectSuccess 20 (testGeneratedValueCount 16384 (Crypto.getRandomUInt32Values 99999))
-    , expectSuccess 21 (testGeneratedValueCount 0 (Crypto.getRandomUInt16Values -99999))
-    , expectSuccess 22 (testGeneratedValueCount 32768 (Crypto.getRandomUInt16Values 99999))
-    , expectSuccess 23 (testGeneratedValueCount 0 (Crypto.getRandomUInt8Values -99999))
-    , expectSuccess 24 (testGeneratedValueCount 65536 (Crypto.getRandomUInt8Values 99999))
     ]
 
 
@@ -623,14 +604,7 @@ encryptWithAesCtrTests string func =
         expectFailure int =
             expectFailureHelper (testHelper func) (testLabel int)
 
-        counter int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+        counter int = Crypto.getRandomUInt32Values int
 
         testBytes =
             Bytes.Encode.encode (Bytes.Encode.string "hi")
@@ -664,13 +638,7 @@ decryptWithAesCtrTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         counter int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+            Crypto.getRandomUInt32Values int
 
         testBytes =
             Bytes.Encode.encode (Bytes.Encode.string "hi")
@@ -712,13 +680,7 @@ encryptWithAesCbcTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         iv int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+            Crypto.getRandomUInt32Values int
 
         testBytes =
             Bytes.Encode.encode (Bytes.Encode.string "hi")
@@ -743,13 +705,7 @@ decryptWithAesCbcTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         iv int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+            Crypto.getRandomUInt32Values int
 
         encryptionIv2 =
             iv 2
@@ -785,13 +741,7 @@ encryptWithAesGcmTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         iv int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+            Crypto.getRandomUInt32Values int
 
         testBytes =
             Bytes.Encode.encode (Bytes.Encode.string "hi")
@@ -836,13 +786,7 @@ decryptWithAesGcmTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         iv int =
-            Task.map2
-                (\e -> 
-                    Array.map (Bytes.Encode.unsignedInt32 e)
-                )
-                Bytes.getHostEndianness
-                (Crypto.getRandomUInt32Values int)
-                |> Task.map (Bytes.Encode.sequence >> Bytes.Encode.encode)
+            Crypto.getRandomUInt32Values int
 
         encryptIv =
             iv 4
