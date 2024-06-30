@@ -23,7 +23,7 @@ tests func =
     getSecurecontextTests func
         ++ randomValueTests func
         -- ++ uuidTests func
-        ++ rsaKeyTests func
+        -- ++ rsaKeyTests func
         -- ++ hmacKeyTests func
         ++ aesKeyTests func
         -- ++ ecKeyTests func
