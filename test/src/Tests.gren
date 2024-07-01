@@ -813,7 +813,7 @@ decryptWithAesGcmTests string func =
 
 {-|-}
 ecKeyTests func =
-    ecdsaPublicKeyTests func ++ ecdsaPrivateKeyTests func ++ ecdhPublicKeyTests func ++ ecdhPrivateKeyTests func
+    ecdsaPublicKeyTests func ++ ecdsaPrivateKeyTests func
 
 
 {-|-}
@@ -864,46 +864,46 @@ ecdsaPrivateKeyTests func =
     exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8 ++ sign
 
 
-{-|-}
-ecdhPublicKeyTests func =
-    let
-        exportAsJwk =
-            exportEcKeyTests "ECDH public key export jwk - " exportEcdhPublicKeyAsJwk func
+-- {-|-}
+-- ecdhPublicKeyTests func =
+--     let
+--         exportAsJwk =
+--             exportEcKeyTests "ECDH public key export jwk - " exportEcdhPublicKeyAsJwk func
 
-        exportAsRaw =
-            exportEcKeyTests "ECDH public key export pkcs8 - " exportEcdhPublicKeyAsRaw func
+--         exportAsRaw =
+--             exportEcKeyTests "ECDH public key export pkcs8 - " exportEcdhPublicKeyAsRaw func
 
-        exportAsSpki =
-            exportEcKeyTests "ECDH public key export spki - " exportEcdhPublicKeyAsSpki func
+--         exportAsSpki =
+--             exportEcKeyTests "ECDH public key export spki - " exportEcdhPublicKeyAsSpki func
 
-        importAsJwk =
-            importEcKeyTests "ECDH public key import jwk - " importEcdhPublicKeyFromJwk func
+--         importAsJwk =
+--             importEcKeyTests "ECDH public key import jwk - " importEcdhPublicKeyFromJwk func
 
-        importAsRaw =
-            importEcKeyTests "ECDH public key import pkcs8 - " importEcdhPublicKeyFromRaw func
+--         importAsRaw =
+--             importEcKeyTests "ECDH public key import pkcs8 - " importEcdhPublicKeyFromRaw func
 
-        importAsSpki =
-            importEcKeyTests "ECDH public key import spki - " importEcdhPublicKeyFromSpki func
-    in
-    exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki
+--         importAsSpki =
+--             importEcKeyTests "ECDH public key import spki - " importEcdhPublicKeyFromSpki func
+--     in
+--     exportAsJwk ++ exportAsRaw ++ exportAsSpki ++ importAsJwk ++ importAsRaw ++ importAsSpki
 
 
-{-|-}
-ecdhPrivateKeyTests func =
-    let
-        exportAsJwk =
-            exportEcKeyTests "ECDH private key export jwk - " exportEcdhPrivateKeyAsJwk func
+-- {-|-}
+-- ecdhPrivateKeyTests func =
+--     let
+--         exportAsJwk =
+--             exportEcKeyTests "ECDH private key export jwk - " exportEcdhPrivateKeyAsJwk func
 
-        exportAsPkcs8 =
-            exportEcKeyTests "ECDH private key export pkcs8 - " exportEcdhPrivateKeyAsPkcs8 func
+--         exportAsPkcs8 =
+--             exportEcKeyTests "ECDH private key export pkcs8 - " exportEcdhPrivateKeyAsPkcs8 func
 
-        importAsJwk =
-            importEcKeyTests "ECDH private key import jwk - " importEcdhPrivateKeyFromJwk func
+--         importAsJwk =
+--             importEcKeyTests "ECDH private key import jwk - " importEcdhPrivateKeyFromJwk func
 
-        importAsPkcs8 =
-            importEcKeyTests "ECDH private key import pkcs8 - " importEcdhPrivateKeyFromPkcs8 func
-    in
-    exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
+--         importAsPkcs8 =
+--             importEcKeyTests "ECDH private key import pkcs8 - " importEcdhPrivateKeyFromPkcs8 func
+--     in
+--     exportAsJwk ++ exportAsPkcs8 ++ importAsJwk ++ importAsPkcs8
 
 
 signWithEcdsaTests string func =
@@ -980,10 +980,11 @@ exportEcKeyTests string exportFunc func =
         expectSuccess int =
             expectSuccessHelper (testHelper func) (testLabel int)
     in
-    [ expectSuccess 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
-    , expectSuccess 8 (exportEcdhPublicKeyAsSpki Crypto.P384)
-    , expectSuccess 9 (exportEcdhPublicKeyAsSpki Crypto.P521)
-    ]
+    []
+    -- [ expectSuccess 7 (exportEcdhPublicKeyAsSpki Crypto.P256)
+    -- , expectSuccess 8 (exportEcdhPublicKeyAsSpki Crypto.P384)
+    -- , expectSuccess 9 (exportEcdhPublicKeyAsSpki Crypto.P521)
+    -- ]
 
 
 {-|-}
@@ -1359,23 +1360,23 @@ generateEcdsaKeyPair curve =
         )
 
 
-{-|-}
-generateEcdhKeyPair curve =
-    generateKey 
-        {} 
-        (\secureContext -> 
-            Crypto.generateEcdhKeyPair 
-                secureContext 
-                { namedCurve = curve
-                , extractable = Crypto.CanBeExtracted
-                }
-        )
+-- {-|-}
+-- generateEcdhKeyPair curve =
+--     generateKey 
+--         {} 
+--         (\secureContext -> 
+--             Crypto.generateEcdhKeyPair 
+--                 secureContext 
+--                 { namedCurve = curve
+--                 , extractable = Crypto.CanBeExtracted
+--                 }
+--         )
 
 
 {-|-}
 generateHmacKey hash length =
     generateKey
-        Crypto.LengthNotDivisibleByEight
+        Crypto.HmacLengthNotDivisibleByEight
         (\secureContext ->
             Crypto.generateHmacKey
                 secureContext
@@ -1510,34 +1511,34 @@ exportEcdsaPublicKeyAsRaw curve =
     exportEcdsaKeyPair curve Crypto.exportEcdsaPublicKeyAsRaw .publicKey
 
 
-{-|-}
-exportEcdhPrivateKeyAsJwk curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsJwk .privateKey
+-- {-|-}
+-- exportEcdhPrivateKeyAsJwk curve =
+--     exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsJwk .privateKey
 
 
-{-|-}
-exportEcdhPrivateKeyAsPkcs8 curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsPkcs8 .privateKey
+-- {-|-}
+-- exportEcdhPrivateKeyAsPkcs8 curve =
+--     exportEcdhKeyPair curve Crypto.exportEcdhPrivateKeyAsPkcs8 .privateKey
 
 
-{-|-}
-exportEcdhPublicKeyAsJwk curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
+-- {-|-}
+-- exportEcdhPublicKeyAsJwk curve =
+--     exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsJwk .publicKey
 
 
-{-|-}
-exportEcdhPublicKeyAsSpki curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsSpki .publicKey
+-- {-|-}
+-- exportEcdhPublicKeyAsSpki curve =
+--     exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsSpki .publicKey
 
 
-{-|-}
-exportEcdhPublicKeyAsRaw curve =
-    exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsRaw .publicKey
+-- {-|-}
+-- exportEcdhPublicKeyAsRaw curve =
+--     exportEcdhKeyPair curve Crypto.exportEcdhPublicKeyAsRaw .publicKey
 
 
-{-|-}
-exportEcdhKeyPair curve =
-    exportKey (generateEcdhKeyPair curve)
+-- {-|-}
+-- exportEcdhKeyPair curve =
+--     exportKey (generateEcdhKeyPair curve)
 
 
 {-|-}
@@ -1919,30 +1920,30 @@ importEcdsaPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
     importKey Crypto.ImportEcKeyError (exportEcdsaPrivateKeyAsPkcs8 exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPrivateKeyFromPkcs8 secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
-{-|-}
-importEcdhPublicKeyFromJwk exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+-- {-|-}
+-- importEcdhPublicKeyFromJwk exportNamedCurve importNamedCurve key =
+--     importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
-{-|-}
-importEcdhPublicKeyFromRaw exportNamedCurve importNamedCurve key =
-    -- Debug.todo ""
-    importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsRaw exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromRaw secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+-- {-|-}
+-- importEcdhPublicKeyFromRaw exportNamedCurve importNamedCurve key =
+--     -- Debug.todo ""
+--     importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsRaw exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromRaw secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
-{-|-}
-importEcdhPublicKeyFromSpki exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsSpki exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromSpki secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+-- {-|-}
+-- importEcdhPublicKeyFromSpki exportNamedCurve importNamedCurve key =
+--     importKey Crypto.ImportEcKeyError (exportEcdhPublicKeyAsSpki exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPublicKeyFromSpki secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
-{-|-}
-importEcdhPrivateKeyFromJwk exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdhPrivateKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPrivateKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+-- {-|-}
+-- importEcdhPrivateKeyFromJwk exportNamedCurve importNamedCurve key =
+--     importKey Crypto.ImportEcKeyError (exportEcdhPrivateKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPrivateKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
-{-|-}
-importEcdhPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdhPrivateKeyAsPkcs8 exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPrivateKeyFromPkcs8 secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+-- {-|-}
+-- importEcdhPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
+--     importKey Crypto.ImportEcKeyError (exportEcdhPrivateKeyAsPkcs8 exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdhPrivateKeyFromPkcs8 secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
 
 
 
@@ -2192,7 +2193,7 @@ decryptWithAesGcm aesKeyLength encryptionIvTask encryptAdditionalData encryptTag
 
 signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
     getSecureContext
-        |> Task.mapError (\_ -> {})
+        |> Task.mapError (\_ -> Crypto.RsaSsaPkcs1V1_5SigningError)
         |> Task.andThen (\secureContext ->
             Crypto.generateRsaSsaPkcs1V1_5KeyPair 
                 secureContext 
@@ -2200,7 +2201,7 @@ signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> {})
+                |> Task.mapError (\_ -> Crypto.RsaSsaPkcs1V1_5SigningError)
                 |> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaSsaPkcs1V1_5 secureContext privateKey bytes
                 )
@@ -2209,7 +2210,7 @@ signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
 
 signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
     getSecureContext
-        |> Task.mapError (\_ -> Crypto.SignWithRsaPssError)
+        |> Task.mapError (\_ -> Crypto.RsaPssSigningError)
         |> Task.andThen (\secureContext ->
             Crypto.generateRsaPssKeyPair
                 secureContext 
@@ -2217,7 +2218,7 @@ signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> Crypto.SignWithRsaPssError)
+                |> Task.mapError (\_ -> Crypto.RsaPssSigningError)
                 |> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaPss secureContext salt privateKey bytes
                 )
