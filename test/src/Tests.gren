@@ -22,7 +22,7 @@ tests : (String -> msg) -> Array (Cmd msg)
 tests func =
     getSecurecontextTests func
         ++ randomValueTests func
-        -- ++ uuidTests func
+        ++ uuidTests func
         -- ++ rsaKeyTests func
         -- ++ hmacKeyTests func
         ++ aesKeyTests func
@@ -103,7 +103,7 @@ uuidTests func =
 
         generateRandomUuid =
             getSecureContext
-                |> Task.andThen (\secureContext -> Crypto.randomUuid secureContext)
+                |> Task.andThen (\secureContext -> Crypto.randomUuidV4 secureContext)
     in
     [ expectSuccess 1 generateRandomUuid
     ]
