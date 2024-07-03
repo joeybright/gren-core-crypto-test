@@ -2217,7 +2217,7 @@ signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
                 }
                 |> Task.mapError (\_ -> Crypto.RsaPssSigningError)
                 |> Task.andThen (\{ privateKey } ->
-                    Crypto.signWithRsaPss salt privateKey bytes
+                    Crypto.signWithRsaPss { salt = salt } privateKey bytes
                 )
         )
 
@@ -2288,10 +2288,10 @@ verifyWithRsaPss modulusLength digestAlgorithm extractable signSalt verifySalt b
                 }
                 |> Task.mapError (\_ -> {})
                 |> Task.andThen (\{ publicKey, privateKey } ->
-                    Crypto.signWithRsaPss signSalt privateKey bytes
+                    Crypto.signWithRsaPss { salt = signSalt}  privateKey bytes
                         |> Task.mapError (\_ -> {})
                         |> Task.andThen(\signature ->
-                            Crypto.verifyWithRsaPss verifySalt publicKey signature bytes
+                            Crypto.verifyWithRsaPss { salt = verifySalt } publicKey signature bytes
                         )
                 )
         )
