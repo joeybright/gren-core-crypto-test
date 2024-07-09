@@ -1270,9 +1270,7 @@ digestTests func =
 generateRsaOaepKeyPair modulusLength hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
-        (\secureContext ->
-            Crypto.generateRsaOaepKeyPair
-                secureContext
+        (Crypto.generateRsaOaepKeyPair
                 { modulusLength = modulusLength
                 , hash = hash
                 , extractable = Crypto.CanBeExtracted
@@ -1284,9 +1282,7 @@ generateRsaOaepKeyPair modulusLength hash =
 generateRsaPssKeyPair hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
-        (\secureContext ->
-            Crypto.generateRsaPssKeyPair
-                secureContext
+        (Crypto.generateRsaPssKeyPair
                 { modulusLength = 4096
                 , hash = hash
                 , extractable = Crypto.CanBeExtracted
@@ -1298,9 +1294,7 @@ generateRsaPssKeyPair hash =
 generateRsaSsaPkcs1V1_5KeyPair hash =
     generateKey
         Crypto.ModulusLengthNotDivisibleByEight
-        (\secureContext ->
-            Crypto.generateRsaSsaPkcs1V1_5KeyPair
-                secureContext
+        (Crypto.generateRsaSsaPkcs1V1_5KeyPair
                 { modulusLength = 4096
                 , hash = hash
                 , extractable = Crypto.CanBeExtracted
@@ -1312,9 +1306,7 @@ generateRsaSsaPkcs1V1_5KeyPair hash =
 generateAesCtrKey aesLength =
     generateKey 
         {} 
-        (\secureContext -> 
-            Crypto.generateAesCtrKey 
-            secureContext 
+        (Crypto.generateAesCtrKey  
             { length = aesLength
             , extractable = Crypto.CanBeExtracted 
             }
@@ -1325,9 +1317,7 @@ generateAesCtrKey aesLength =
 generateAesCbcKey aesLength =
     generateKey 
         {} 
-        (\secureContext -> 
-            Crypto.generateAesCbcKey 
-            secureContext 
+        (Crypto.generateAesCbcKey  
             { length = aesLength
             , extractable = Crypto.CanBeExtracted 
             }
@@ -1338,9 +1328,7 @@ generateAesCbcKey aesLength =
 generateAesGcmKey aesLength =
     generateKey 
         {} 
-        (\secureContext -> 
-            Crypto.generateAesGcmKey 
-            secureContext 
+        (Crypto.generateAesGcmKey 
             { length = aesLength
             , extractable = Crypto.CanBeExtracted 
             }
@@ -1351,9 +1339,7 @@ generateAesGcmKey aesLength =
 generateEcdsaKeyPair curve =
     generateKey 
         {} 
-        (\secureContext -> 
-            Crypto.generateEcdsaKeyPair 
-                secureContext
+        (Crypto.generateEcdsaKeyPair
                 { namedCurve = curve
                 , extractable = Crypto.CanBeExtracted
                 }
@@ -1377,13 +1363,11 @@ generateEcdsaKeyPair curve =
 generateHmacKey hash length =
     generateKey
         Crypto.HmacLengthNotDivisibleByEight
-        (\secureContext ->
-            Crypto.generateHmacKey
-                secureContext
-                { hash = hash
-                , length = length
-                , extractable = Crypto.CanBeExtracted
-                }
+        (Crypto.generateHmacKey
+            { hash = hash
+            , length = length
+            , extractable = Crypto.CanBeExtracted
+            }
         )
 
 
@@ -1646,11 +1630,11 @@ importRsaOaepPublicKeyFromJwk keyHash importHash =
         (exportRsaOaepPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1661,11 +1645,11 @@ importRsaOaepPublicKeyFromSpki keyHash importHash =
         (exportRsaOaepPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromSpki
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1676,11 +1660,11 @@ importRsaOaepPrivateKeyFromJwk keyHash importHash =
         (exportRsaOaepPrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1691,11 +1675,11 @@ importRsaOaepPrivateKeyFromPkcs8 keyHash importHash =
         (exportRsaOaepPrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPrivateKeyFromPkcs8
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1706,11 +1690,11 @@ importRsaOaepPublicKeyFromJwkWithArbitraryJson keyHash importHash json =
         (exportRsaOaepPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromJwk
-                secureContext
                 json
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1721,11 +1705,11 @@ importRsaOaepPublicKeyFromSpkiWithArbitraryBytes keyHash importHash bytes =
         (exportRsaOaepPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaOaepPublicKeyFromSpki
-                secureContext
                 bytes
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1740,11 +1724,11 @@ importRsaPssPublicKeyFromJwk keyHash importHash =
         (exportRsaPssPublicKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPublicKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1755,11 +1739,11 @@ importRsaPssPublicKeyFromSpki keyHash importHash =
         (exportRsaPssPublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPublicKeyFromSpki
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1770,11 +1754,11 @@ importRsaPssPrivateKeyFromJwk keyHash importHash =
         (exportRsaPssPrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPrivateKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1785,11 +1769,11 @@ importRsaPssPrivateKeyFromPkcs8 keyHash importHash =
         (exportRsaPssPrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaPssPrivateKeyFromPkcs8
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1804,11 +1788,11 @@ importRsaSsaPkcs1V1_5PublicKeyFromJwk keyHash importHash =
         (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PublicKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1819,11 +1803,11 @@ importRsaSsaPkcs1V1_5PublicKeyFromSpki keyHash importHash =
         (exportRsaSsaPkcs1V1_5PublicKeyAsSpki keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PublicKeyFromSpki
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1834,11 +1818,11 @@ importRsaSsaPkcs1V1_5PrivateKeyFromJwk keyHash importHash =
         (exportRsaSsaPkcs1V1_5PrivateKeyAsJwk keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PrivateKeyFromJwk
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1849,11 +1833,11 @@ importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash importHash =
         (exportRsaSsaPkcs1V1_5PrivateKeyAsPkcs8 keyHash)
         (\{ secureContext, exportedKey } ->
             Crypto.importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8
-                secureContext
                 exportedKey
                 { hash = importHash
                 }
                 Crypto.CanBeExtracted
+                secureContext
         )
 
 
@@ -1863,32 +1847,32 @@ importRsaSsaPkcs1V1_5PrivateKeyFromPkcs8 keyHash importHash =
 
 {-|-}
 importAesCtrKeyFromJwk aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesCtrKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCtrKeyFromJwk secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesCtrKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCtrKeyFromJwk exportedKey Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importAesCtrKeyFromRaw aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesCtrKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCtrKeyFromRaw secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesCtrKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCtrKeyFromRaw exportedKey Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importAesCbcKeyFromJwk aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesCbcKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCbcKeyFromJwk secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesCbcKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCbcKeyFromJwk exportedKey Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importAesCbcKeyFromRaw aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesCbcKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCbcKeyFromRaw secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesCbcKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesCbcKeyFromRaw exportedKey Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importAesGcmKeyFromJwk aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesGcmKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesGcmKeyFromJwk secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesGcmKeyAsJwk aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesGcmKeyFromJwk exportedKey Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importAesGcmKeyFromRaw aesLength =
-    importKey Crypto.ImportAesKeyError (exportAesGcmKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesGcmKeyFromRaw secureContext exportedKey Crypto.CanBeExtracted)
+    importKey Crypto.ImportAesKeyError (exportAesGcmKeyAsRaw aesLength) (\{ secureContext, exportedKey } -> Crypto.importAesGcmKeyFromRaw exportedKey Crypto.CanBeExtracted secureContext)
 
 
 
@@ -1897,27 +1881,27 @@ importAesGcmKeyFromRaw aesLength =
 
 {-|-}
 importEcdsaPublicKeyFromJwk exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromJwk importNamedCurve (key exportedKey) Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importEcdsaPublicKeyFromRaw exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsRaw exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromRaw secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsRaw exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromRaw importNamedCurve (key exportedKey) Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importEcdsaPublicKeyFromSpki exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsSpki exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromSpki secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+    importKey Crypto.ImportEcKeyError (exportEcdsaPublicKeyAsSpki exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPublicKeyFromSpki importNamedCurve (key exportedKey) Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importEcdsaPrivateKeyFromJwk exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdsaPrivateKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPrivateKeyFromJwk secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+    importKey Crypto.ImportEcKeyError (exportEcdsaPrivateKeyAsJwk exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPrivateKeyFromJwk importNamedCurve (key exportedKey) Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importEcdsaPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
-    importKey Crypto.ImportEcKeyError (exportEcdsaPrivateKeyAsPkcs8 exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPrivateKeyFromPkcs8 secureContext importNamedCurve (key exportedKey) Crypto.CanBeExtracted)
+    importKey Crypto.ImportEcKeyError (exportEcdsaPrivateKeyAsPkcs8 exportNamedCurve) (\{ secureContext, exportedKey } -> Crypto.importEcdsaPrivateKeyFromPkcs8 importNamedCurve (key exportedKey) Crypto.CanBeExtracted secureContext)
 
 
 -- {-|-}
@@ -1952,12 +1936,12 @@ importEcdsaPrivateKeyFromPkcs8 exportNamedCurve importNamedCurve key =
 
 {-|-}
 importHmacKeyFromJwk keyHash keyExponent importHash importLength =
-    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsJwk keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromJwk secureContext exportedKey importHash importLength Crypto.CanBeExtracted)
+    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsJwk keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromJwk exportedKey importHash importLength Crypto.CanBeExtracted secureContext)
 
 
 {-|-}
 importHmacKeyFromRaw keyHash keyExponent importHash importLength =
-    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsRaw keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromRaw secureContext exportedKey importHash importLength Crypto.CanBeExtracted)
+    importKey Crypto.ImportHmacKeyError (exportHmacKeyAsRaw keyHash keyExponent) (\{ secureContext, exportedKey } -> Crypto.importHmacKeyFromRaw exportedKey importHash importLength Crypto.CanBeExtracted secureContext)
 
 
 
@@ -2191,15 +2175,14 @@ decryptWithAesGcm aesKeyLength encryptionIvTask encryptAdditionalData encryptTag
 signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.RsaSsaPkcs1V1_5SigningError)
-        |> Task.andThen (\secureContext ->
+        |> Task.andThen (
             Crypto.generateRsaSsaPkcs1V1_5KeyPair 
-                secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> Crypto.RsaSsaPkcs1V1_5SigningError)
-                |> Task.andThen (\{ privateKey } ->
+                >> Task.mapError (\_ -> Crypto.RsaSsaPkcs1V1_5SigningError)
+                >> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaSsaPkcs1V1_5 privateKey bytes
                 )
         )
@@ -2208,15 +2191,14 @@ signWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
 signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
     getSecureContext
         |> Task.mapError (\_ -> Crypto.RsaPssSigningError)
-        |> Task.andThen (\secureContext ->
-            Crypto.generateRsaPssKeyPair
-                secureContext 
+        |> Task.andThen (
+            Crypto.generateRsaPssKeyPair 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> Crypto.RsaPssSigningError)
-                |> Task.andThen (\{ privateKey } ->
+                >> Task.mapError (\_ -> Crypto.RsaPssSigningError)
+                >> Task.andThen (\{ privateKey } ->
                     Crypto.signWithRsaPss { salt = salt } privateKey bytes
                 )
         )
@@ -2225,10 +2207,10 @@ signWithRsaPss modulusLength digestAlgorithm extractable salt bytes =
 signWithEcdsa ecNamedCurve digestAlgorithm bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen(\secureContext ->
-            Crypto.generateEcdsaKeyPair secureContext { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen (\{ privateKey } ->
+        |> Task.andThen(
+            Crypto.generateEcdsaKeyPair { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen (\{ privateKey } ->
                     Crypto.signWithEcdsa digestAlgorithm privateKey bytes
                 )
         )
@@ -2237,15 +2219,14 @@ signWithEcdsa ecNamedCurve digestAlgorithm bytes =
 signWithHmac hash length bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen (\secureContext ->
+        |> Task.andThen (
             Crypto.generateHmacKey 
-                secureContext
                 { hash = hash
                 , length = length
                 , extractable = Crypto.CanBeExtracted
                 }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen (\key ->
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen (\key ->
                     Crypto.signWithHmac key bytes
                 )
         )
@@ -2258,15 +2239,14 @@ signWithHmac hash length bytes =
 verifyWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes = 
     getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen (\secureContext ->
+        |> Task.andThen (
             Crypto.generateRsaSsaPkcs1V1_5KeyPair 
-                secureContext 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen (\{ privateKey, publicKey } ->
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen (\{ privateKey, publicKey } ->
                     Crypto.signWithRsaSsaPkcs1V1_5 privateKey bytes
                         |> Task.mapError (\_ -> {})
                         |> Task.andThen (\signature ->
@@ -2279,15 +2259,14 @@ verifyWithRsaSsaPkcs1V1_5 modulusLength digestAlgorithm extractable bytes =
 verifyWithRsaPss modulusLength digestAlgorithm extractable signSalt verifySalt bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen (\secureContext ->
-            Crypto.generateRsaPssKeyPair
-                secureContext 
+        |> Task.andThen (
+            Crypto.generateRsaPssKeyPair 
                 { modulusLength = modulusLength
                 , hash = digestAlgorithm
                 , extractable = extractable
                 }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen (\{ publicKey, privateKey } ->
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen (\{ publicKey, privateKey } ->
                     Crypto.signWithRsaPss { salt = signSalt}  privateKey bytes
                         |> Task.mapError (\_ -> {})
                         |> Task.andThen(\signature ->
@@ -2300,10 +2279,10 @@ verifyWithRsaPss modulusLength digestAlgorithm extractable signSalt verifySalt b
 verifyWithEcdsa ecNamedCurve signDigestAlgorithm verifyDigestAlgorithm bytes =
     getSecureContext
         |> Task.mapError (\_ -> {})
-        |> Task.andThen(\secureContext ->
-            Crypto.generateEcdsaKeyPair secureContext { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen(\{ publicKey, privateKey } ->
+        |> Task.andThen(
+            Crypto.generateEcdsaKeyPair { namedCurve = ecNamedCurve, extractable = Crypto.CanBeExtracted }
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen(\{ publicKey, privateKey } ->
                     Crypto.signWithEcdsa signDigestAlgorithm privateKey bytes
                         |> Task.mapError (\_ -> {})
                         |> Task.andThen(\signature ->
@@ -2315,23 +2294,21 @@ verifyWithEcdsa ecNamedCurve signDigestAlgorithm verifyDigestAlgorithm bytes =
 
 verifyWithHmac hash length bytes =
     getSecureContext
-        |> Task.mapError (\_ -> {})
-        |> Task.andThen (\secureContext ->
-            Crypto.generateHmacKey 
-                secureContext
+        |> Task.map 
+            (Crypto.generateHmacKey 
                 { hash = hash
                 , length = length
                 , extractable = Crypto.CanBeExtracted
                 }
-                |> Task.mapError (\_ -> {})
-                |> Task.andThen (\key ->
+                >> Task.mapError (\_ -> {})
+                >> Task.andThen (\key ->
                     Crypto.signWithHmac key bytes
                         |> Task.mapError (\_ -> {})
                         |> Task.andThen (\signature ->
                             Crypto.verifyWithHmac key signature bytes
                         )
                 )
-        )
+            )
 
 
 
@@ -2340,9 +2317,7 @@ verifyWithHmac hash length bytes =
 
 digest algorithm bytes =
     getSecureContext
-        |> Task.andThen (\secureContext ->
-            Crypto.digest secureContext algorithm bytes
-        )
+        |> Task.map (Crypto.digest algorithm bytes)
 
 
 
