@@ -163,7 +163,7 @@ rsaOaepPublicKeyTests func =
             importRsaKeyTests "RSA-OAEP public key import spki - " importRsaOaepPublicKeyFromSpki func
 
         importFromSpkiFailures =
-            [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.Sha256 (Bytes.Encode.encode (Bytes.Encode.string "hello")))
+            [ expectFailure 31 (importRsaOaepPublicKeyFromSpkiWithArbitraryBytes Crypto.Sha256 Crypto.Sha256 (Bytes.fromString "hello"))
             ]
 
         encrypt =
@@ -290,7 +290,7 @@ signWithRsaPssTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")    
+            Bytes.fromString "hi"   
     in
     [ expectSuccess 1 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 0 testBytes)
     , expectSuccess 2 (signWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 32 testBytes)
@@ -313,7 +313,7 @@ verifyWithRsaPssTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")    
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (verifyWithRsaPss 0 Crypto.Sha256 Crypto.CanBeExtracted 32 32 testBytes)
     , expectSuccess 2 (verifyWithRsaPss 0 Crypto.Sha384 Crypto.CanBeExtracted 32 32 testBytes)
@@ -335,7 +335,7 @@ signWithRsaSsaPkcs1V1_5Tests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (signWithRsaSsaPkcs1V1_5 0 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
     , expectSuccess 2 (signWithRsaSsaPkcs1V1_5 0 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
@@ -359,7 +359,7 @@ verifyWithRsaSsaPkcs1V1_5Tests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (verifyWithRsaSsaPkcs1V1_5 0 Crypto.Sha256 Crypto.CanBeExtracted testBytes)
     , expectSuccess 2 (verifyWithRsaSsaPkcs1V1_5 0 Crypto.Sha384 Crypto.CanBeExtracted testBytes)
@@ -422,10 +422,10 @@ encryptWithRsaOaepTests string func =
             expectFailureHelper (testHelper func) (testLabel int)
         
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
 
         testKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "testing label")
+            Bytes.fromString "testing label"
     in
     [ expectSuccess 1 (encryptWithRsaOaep Crypto.Sha256 Nothing testBytes)
     , expectSuccess 2 (encryptWithRsaOaep Crypto.Sha256 Nothing testBytes)
@@ -456,10 +456,10 @@ decryptWithRsaOaepTests string func =
             expectFailureHelper (testHelper func) (testLabel int modifier)
 
         testKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "test label")
+            Bytes.fromString "test label"
 
         alternateTestKeyLabel =
-            Bytes.Encode.encode (Bytes.Encode.string "test label alternate")
+            Bytes.fromString "test label alternate"
     in
     decryptWithRsaOaepTestsHelper (expectSuccess "both no labels") Nothing Nothing
         ++ decryptWithRsaOaepTestsHelper (expectSuccess "both with labels") (Just testKeyLabel) (Just testKeyLabel)
@@ -472,7 +472,7 @@ decryptWithRsaOaepTests string func =
 decryptWithRsaOaepTestsHelper testFunc encryptionLabel decryptionLabel =
     let
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ testFunc 1 (decryptWithRsaOaep Crypto.Sha256 encryptionLabel decryptionLabel testBytes)
     , testFunc 2 (decryptWithRsaOaep Crypto.Sha256 encryptionLabel decryptionLabel testBytes)
@@ -607,7 +607,7 @@ encryptWithAesCtrTests string func =
         counter int = Crypto.getRandomUInt32Values int
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (encryptWithAesCtr Crypto.AesLength128 (counter 4) 64 testBytes)
     , expectSuccess 2 (encryptWithAesCtr Crypto.AesLength256 (counter 4) 64 testBytes)
@@ -641,7 +641,7 @@ decryptWithAesCtrTests string func =
             Crypto.getRandomUInt32Values int
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
 
         decryptWithAesCtrTestHelper offset aesLength =
             [ expectSuccess (offset + 1) (decryptWithAesCtr aesLength (counter 4) (counter 4) 64 64 testBytes)
@@ -683,7 +683,7 @@ encryptWithAesCbcTests string func =
             Crypto.getRandomUInt32Values int
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (encryptWithAesCbc Crypto.AesLength128 (iv 4) testBytes)
     , expectFailure 2 (encryptWithAesCbc Crypto.AesLength128 (iv 2) testBytes)
@@ -714,7 +714,7 @@ decryptWithAesCbcTests string func =
             iv 4
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (decryptWithAesCbc Crypto.AesLength128 encryptionIv4 encryptionIv4 testBytes)
     , expectFailure 2 (decryptWithAesCbc Crypto.AesLength128 encryptionIv2 encryptionIv2 testBytes)
@@ -744,7 +744,7 @@ encryptWithAesGcmTests string func =
             Crypto.getRandomUInt32Values int
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
 
         encryptWithAesGcmTestHelper offset length ivInt =
             [ expectSuccess (offset + 1) (encryptWithAesGcm length (iv ivInt) Nothing Nothing testBytes)
@@ -795,7 +795,7 @@ decryptWithAesGcmTests string func =
             iv 4
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")
+            Bytes.fromString "hi"
     in
     -- Not fully tested, but confident it works in most cases
     [ expectSuccess 1 (decryptWithAesGcm Crypto.AesLength128 encryptIv Nothing Nothing encryptIv Nothing Nothing testBytes)
@@ -915,7 +915,7 @@ signWithEcdsaTests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+            Bytes.fromString "hi" 
     in
     [ expectSuccess 1 (signWithEcdsa Crypto.P256 Crypto.Sha256 testBytes)
     , expectSuccess 2 (signWithEcdsa Crypto.P384 Crypto.Sha256 testBytes)
@@ -939,7 +939,7 @@ verifyWithEcdsaTests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
 
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (verifyWithEcdsa Crypto.P256 Crypto.Sha256 Crypto.Sha256 testBytes)
     , expectSuccess 2 (verifyWithEcdsa Crypto.P256 Crypto.Sha256 Crypto.Sha384 testBytes)
@@ -1217,7 +1217,7 @@ signWithHmacTests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
         
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (signWithHmac Crypto.Sha256 Nothing testBytes)
     , expectSuccess 2 (signWithHmac Crypto.Sha384 Nothing testBytes)
@@ -1234,7 +1234,7 @@ verifyWithHmacTests string func =
             expectSuccessHelper (testHelper func) (testLabel int)
         
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (verifyWithHmac Crypto.Sha256 Nothing testBytes)
     , expectSuccess 2 (verifyWithHmac Crypto.Sha384 Nothing testBytes)
@@ -1254,7 +1254,7 @@ digestTests func =
             expectSuccessHelper (testHelper func) (testLabel int)
         
         testBytes =
-            Bytes.Encode.encode (Bytes.Encode.string "hi")  
+            Bytes.fromString "hi"
     in
     [ expectSuccess 1 (digest Crypto.Sha256 testBytes)
     , expectSuccess 2 (digest Crypto.Sha384 testBytes)

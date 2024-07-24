@@ -49,7 +49,7 @@ main =
                 case msg of
                     StdoutMsg string ->
                         { model = model
-                        , command = Stream.sendLine model.stdout string
+                        , command = Task.perform (\_ -> NoOp) (Stream.sendLine model.stdout string)
                         }
 
                     NoOp ->
