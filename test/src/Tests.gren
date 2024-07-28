@@ -716,9 +716,9 @@ decryptWithAesCbcTests string func =
         testBytes =
             Bytes.fromString "hi"
     in
-    [ expectSuccess 1 (decryptWithAesCbc Crypto.AesLength128 encryptionIv4 encryptionIv4 testBytes)
+    [ expectSuccess 1 (encryptionIv4 |> Task.map (\ivVal -> decryptWithAesCbc Crypto.AesLength128 (Task.succeed ivVal) (Task.succeed ivVal) testBytes))
     , expectFailure 2 (decryptWithAesCbc Crypto.AesLength128 encryptionIv2 encryptionIv2 testBytes)
-    , expectSuccess 3 (decryptWithAesCbc Crypto.AesLength256 encryptionIv4 encryptionIv4 testBytes)
+    , expectSuccess 3 (encryptionIv4 |> Task.map (\ivVal -> decryptWithAesCbc Crypto.AesLength256 (Task.succeed ivVal) (Task.succeed ivVal) testBytes))
     , expectFailure 4 (decryptWithAesCbc Crypto.AesLength256 encryptionIv2 encryptionIv2 testBytes)
         --
     , expectFailure 5 (decryptWithAesCbc Crypto.AesLength128 encryptionIv4 (iv 4) testBytes)
@@ -797,13 +797,12 @@ decryptWithAesGcmTests string func =
         testBytes =
             Bytes.fromString "hi"
     in
-    -- Not fully tested, but confident it works in most cases
-    [ expectSuccess 1 (decryptWithAesGcm Crypto.AesLength128 encryptIv Nothing Nothing encryptIv Nothing Nothing testBytes)
-    , expectSuccess 2 (decryptWithAesGcm Crypto.AesLength256 encryptIv Nothing Nothing encryptIv Nothing Nothing testBytes)
+    [ expectSuccess 1 (encryptIv |> Task.map (\ivVal -> decryptWithAesGcm Crypto.AesLength128 (Task.succeed ivVal) Nothing Nothing (Task.succeed ivVal) Nothing Nothing testBytes))
+    , expectSuccess 2 (encryptIv |> Task.map (\ivVal -> decryptWithAesGcm Crypto.AesLength256 (Task.succeed ivVal) Nothing Nothing (Task.succeed ivVal) Nothing Nothing testBytes))
     , expectFailure 3 (decryptWithAesGcm Crypto.AesLength128 encryptIv (Just testBytes) Nothing encryptIv Nothing Nothing testBytes)
     , expectFailure 4 (decryptWithAesGcm Crypto.AesLength256 encryptIv (Just testBytes) Nothing encryptIv Nothing Nothing testBytes)
-    , expectSuccess 5 (decryptWithAesGcm Crypto.AesLength128 encryptIv (Just testBytes) Nothing encryptIv (Just testBytes) Nothing testBytes)
-    , expectSuccess 6 (decryptWithAesGcm Crypto.AesLength256 encryptIv (Just testBytes) Nothing encryptIv (Just testBytes) Nothing testBytes)
+    , expectSuccess 5 (encryptIv |> Task.map (\ivVal -> decryptWithAesGcm Crypto.AesLength128 (Task.succeed ivVal) (Just testBytes) Nothing (Task.succeed ivVal) (Just testBytes) Nothing testBytes))
+    , expectSuccess 6 (encryptIv |> Task.map (\ivVal -> decryptWithAesGcm Crypto.AesLength256 (Task.succeed ivVal) (Just testBytes) Nothing (Task.succeed ivVal) (Just testBytes) Nothing testBytes))
     ]
 
 
