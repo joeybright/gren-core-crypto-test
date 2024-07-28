@@ -2317,7 +2317,7 @@ verifyWithHmac hash length bytes =
 
 digest algorithm bytes =
     getSecureContext
-        |> Task.map (Crypto.digest algorithm bytes)
+        |> Task.map (\secureContext -> Crypto.digest secureContext algorithm bytes)
 
 
 
