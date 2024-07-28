@@ -4,15 +4,15 @@
     "source-directories": [
         "src"
     ],
-    "gren-version": "0.3.0",
+    "gren-version": "0.4.4",
     "dependencies": {
         "direct": {
-            "gren-lang/browser": "3.2.0",
+            "gren-lang/browser": "4.0.0",
             "gren-lang/core": "local:../../gren-core",
             "joeybright/gren-core-crypto-test": "local:../test"
         },
         "indirect": {
-            "gren-lang/url": "3.0.0"
+            "gren-lang/url": "4.0.0"
         }
     }
 }
